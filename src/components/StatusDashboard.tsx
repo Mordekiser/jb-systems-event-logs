@@ -18,11 +18,11 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
   const { groupingStrategy, showRegionalBreakdown, combineHealthchecks } = useConfig();
 
   const getImpactStatus = (domain: string, tenancy: string, statusType: string) => {
-    // Get incidents for this domain and tenancy
+    // Get incidents for this domain and tenancy (exclude resolved incidents)
     const domainIncidents = getIncidentsByDomainAndTenancy(domain, tenancy);
     const activeIncidents = domainIncidents.filter(incident => incident.status !== 'resolved');
     
-    // Get events for this domain and tenancy
+    // Get events for this domain and tenancy (exclude completed events)
     const domainEvents = events.filter(event => 
       event.domainsAffected.includes(domain) && 
       event.locations.some(loc => loc.tenant.toLowerCase().includes(tenancy.toLowerCase())) &&
@@ -45,19 +45,26 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
     });
 
     // For Azure alerts simulation, add some demo impact data based on domain/tenancy
+    // Only include non-resolved alerts
     if (statusType === 'alerts' || statusType === 'healthchecks') {
       // Simulate some alert impacts based on domain/tenancy combinations
+      // These would be filtered to exclude resolved alerts in a real implementation
       if (domain === "Back of House" && tenancy === "AU") {
-        allImpacts.push('Major'); // Simulating critical alerts in AU Back of House
+        // Simulating active (non-resolved) alerts in AU Back of House
+        allImpacts.push('Major');
+      }
+      if (domain === "Data Services" && tenancy === "NZ") {
+        // Simulating active minor alerts in NZ Data Services
+        allImpacts.push('Minor');
       }
     }
 
-    // Apply impact hierarchy logic
+    // Apply impact hierarchy logic - only consider active/non-resolved items
     if (allImpacts.includes('Major')) return 'major';
     if (allImpacts.includes('Minor')) return 'minor';
     if (allImpacts.includes('Trivial')) return 'trivial';
     
-    // Default to trivial if no issues
+    // Default to trivial if no active issues
     return 'trivial';
   };
 
