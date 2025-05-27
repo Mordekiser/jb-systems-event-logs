@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code, Menu, Database } from "lucide-react";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code, Menu, Database, Home } from "lucide-react";
 import { StatusOverview } from "@/components/StatusOverview";
 import { EventsSection } from "@/components/EventsSection";
 import { IncidentTracking } from "@/components/IncidentTracking";
@@ -34,6 +35,25 @@ const Index = () => {
     domain?: string;
     tenancy?: string;
   }>({});
+
+  const clearAllFilters = () => {
+    setTimelineFilter({});
+    setApiListingFilter("");
+    setIncidentFilter({});
+    setActiveTab("status-dashboard");
+  };
+
+  const clearTimelineFilter = () => {
+    setTimelineFilter({});
+  };
+
+  const clearIncidentFilter = () => {
+    setIncidentFilter({});
+  };
+
+  const clearApiListingFilter = () => {
+    setApiListingFilter("");
+  };
 
   const handleStatusClick = (statusType: string, tenancy: string, domain: string) => {
     // Navigate to different tabs based on status type
@@ -75,6 +95,99 @@ const Index = () => {
     } else if (value === "timeline-history") {
       setTimelineFilter({});
     }
+  };
+
+  const renderBreadcrumbs = () => {
+    const hasTimelineFilter = timelineFilter.statusType || timelineFilter.tenancy || timelineFilter.domain;
+    const hasIncidentFilter = incidentFilter.domain || incidentFilter.tenancy;
+    const hasApiFilter = apiListingFilter;
+
+    if (!hasTimelineFilter && !hasIncidentFilter && !hasApiFilter) {
+      return null;
+    }
+
+    return (
+      <Card className="bg-blue-50 border-blue-200">
+        <CardContent className="p-4">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink 
+                  onClick={clearAllFilters}
+                  className="flex items-center cursor-pointer hover:text-blue-600"
+                >
+                  <Home className="h-4 w-4 mr-1" />
+                  Status Dashboard
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              
+              {hasTimelineFilter && activeTab === "timeline-history" && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink 
+                      onClick={clearTimelineFilter}
+                      className="cursor-pointer hover:text-blue-600"
+                    >
+                      Timeline History
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>
+                      {timelineFilter.domain && `${timelineFilter.domain}`}
+                      {timelineFilter.tenancy && ` - ${timelineFilter.tenancy}`}
+                      {timelineFilter.statusType && ` - ${timelineFilter.statusType}`}
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </>
+              )}
+
+              {hasIncidentFilter && activeTab === "incidents" && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink 
+                      onClick={clearIncidentFilter}
+                      className="cursor-pointer hover:text-blue-600"
+                    >
+                      Incidents
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>
+                      {incidentFilter.domain && `${incidentFilter.domain}`}
+                      {incidentFilter.tenancy && ` - ${incidentFilter.tenancy}`}
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </>
+              )}
+
+              {hasApiFilter && activeTab === "api-listing" && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink 
+                      onClick={clearApiListingFilter}
+                      className="cursor-pointer hover:text-blue-600"
+                    >
+                      API Listing
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>
+                      {apiListingFilter}
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </>
+              )}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </CardContent>
+      </Card>
+    );
   };
 
   const tabItems = [
@@ -182,6 +295,9 @@ const Index = () => {
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Breadcrumbs */}
+          {renderBreadcrumbs()}
+
           {/* Main Dashboard */}
           <div className="space-y-8">
             <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
