@@ -2,161 +2,141 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, AlertTriangle, XCircle, Clock } from "lucide-react";
+import { CheckCircle, Heart, AlertTriangle } from "lucide-react";
 
 export const StatusDashboard = () => {
-  const regions = [
-    "United States", 
-    "Canada", 
-    "Brazil", 
-    "Europe", 
-    "United Kingdom", 
-    "Asia Pacific", 
-    "Australia", 
-    "India"
-  ];
-
   const services = [
-    {
-      name: "Core services",
-      icon: "🔵",
-      statuses: ["green", "green", "green", "green", "green", "green", "red", "green"]
-    },
-    {
-      name: "Boards",
-      icon: "📋",
-      statuses: ["green", "green", "green", "green", "green", "green", "green", "green"]
-    },
-    {
-      name: "Repos",
-      icon: "🔴",
-      statuses: ["green", "green", "green", "green", "green", "green", "green", "green"]
-    },
-    {
-      name: "Pipelines",
-      icon: "🔵",
-      statuses: ["green", "green", "green", "green", "green", "green", "green", "green"]
-    },
-    {
-      name: "Test Plans",
-      icon: "🟣",
-      statuses: ["green", "green", "green", "orange", "green", "green", "green", "green"]
-    },
-    {
-      name: "Artifacts",
-      icon: "🟥",
-      statuses: ["green", "green", "green", "green", "green", "green", "green", "green"]
-    },
-    {
-      name: "Other services",
-      icon: "🔵",
-      statuses: ["green", "green", "green", "green", "green", "green", "green", "green"]
-    }
+    { name: "Online", category: "Domains" },
+    { name: "Multi Country", category: "Tenancy" },
+    { name: "NZ", category: "Tenancy" },
+    { name: "AUS", category: "Tenancy" },
+    { name: "Multi Country", category: "Back of House" },
+    { name: "NZ", category: "Back of House" },
+    { name: "AUS", category: "Back of House" },
+    { name: "Multi Country", category: "Back of House" },
+    { name: "NZ", category: "Back of House" },
+    { name: "AUS", category: "Back of House" }
   ];
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "green":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "orange":
-        return <AlertTriangle className="h-5 w-5 text-orange-500" />;
-      case "red":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-500" />;
+  const columns = ["Alerts", "Healthchecks", "Incidents", "Releases"];
+
+  const getStatusIcon = (serviceIndex: number, columnIndex: number) => {
+    // Mock some different statuses based on the image
+    if (serviceIndex === 2 && columnIndex === 2) {
+      return <div className="h-6 w-6 bg-orange-500 rounded-full mx-auto"></div>;
     }
+    if (serviceIndex === 3 && (columnIndex === 0 || columnIndex === 1)) {
+      return <div className="h-6 w-6 bg-red-500 rounded-full mx-auto"></div>;
+    }
+    return <CheckCircle className="h-6 w-6 text-green-500 mx-auto" />;
+  };
+
+  const renderServiceRow = (service: any, index: number) => {
+    const isFirstInCategory = index === 0 || services[index - 1].category !== service.category;
+    const categoryRowCount = services.filter(s => s.category === service.category).length;
+    
+    return (
+      <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+        {isFirstInCategory && (
+          <td 
+            className="p-4 border-r bg-gray-100 text-center font-medium text-gray-700 align-middle"
+            rowSpan={categoryRowCount}
+          >
+            <div className="writing-mode-vertical transform -rotate-90 whitespace-nowrap">
+              {service.category}
+            </div>
+          </td>
+        )}
+        <td className="p-4 font-medium text-gray-900">
+          {service.name}
+        </td>
+        {columns.map((column, columnIndex) => (
+          <td key={column} className="text-center p-4">
+            {getStatusIcon(index, columnIndex)}
+          </td>
+        ))}
+      </tr>
+    );
   };
 
   return (
-    <div className="space-y-6">
-      {/* Hero Section */}
-      <div className="text-center py-8">
-        <div className="mb-4">
-          <div className="inline-flex flex-col items-center space-y-1">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex space-x-1">
-                {[...Array(Math.min(9 - Math.abs(i - 2) * 2, 9))].map((_, j) => (
-                  <div key={j} className="w-2 h-1 bg-green-500 rounded-full"></div>
-                ))}
-              </div>
-            ))}
-          </div>
+    <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Header Section */}
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <Heart className="h-16 w-16 text-green-500 fill-current" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Everything is looking good</h2>
+        <h1 className="text-3xl font-bold text-gray-900">Everything is looking good</h1>
         <p className="text-gray-600">
-          View past events in the <span className="text-blue-600 underline cursor-pointer">status history</span>.
+          View past events in the{" "}
+          <a href="#" className="text-blue-600 underline">status history</a>.
         </p>
       </div>
 
       {/* Active Events */}
-      <Card className="bg-gray-50 border-gray-200">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Active events</CardTitle>
+          <CardTitle className="text-xl">Active Events</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-600">We are not tracking any degraded or unhealthy services at the moment.</p>
+          <div className="bg-yellow-100 border border-yellow-300 rounded p-3 mb-4">
+            <span className="text-yellow-800 text-sm">
+              <strong>do read</strong><br />
+              <strong>a count?</strong><br />
+              <strong>/ no?</strong>
+            </span>
+          </div>
         </CardContent>
       </Card>
 
       {/* Service Health Matrix */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Service health</CardTitle>
+          <CardTitle className="text-xl">Service health</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="text-left p-4 font-medium text-gray-700">Services</th>
-                  {regions.map((region) => (
-                    <th key={region} className="text-center p-4 font-medium text-gray-700 min-w-[120px]">
-                      {region}
+                  <th className="text-center p-4 font-medium text-gray-700 border-r">Domains</th>
+                  <th className="text-left p-4 font-medium text-gray-700">Tenancy</th>
+                  {columns.map((column) => (
+                    <th key={column} className="text-center p-4 font-medium text-gray-700 min-w-[120px]">
+                      {column}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {services.map((service, index) => (
-                  <tr key={service.name} className="border-b hover:bg-gray-50">
-                    <td className="p-4">
-                      <div className="flex items-center space-x-3">
-                        <span className="text-lg">{service.icon}</span>
-                        <span className="font-medium text-gray-900">{service.name}</span>
-                      </div>
-                    </td>
-                    {service.statuses.map((status, regionIndex) => (
-                      <td key={regionIndex} className="p-4 text-center">
-                        {getStatusIcon(status)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                {services.map((service, index) => renderServiceRow(service, index))}
               </tbody>
             </table>
           </div>
+          
+          {/* Legend */}
+          <div className="p-4 border-t bg-gray-50">
+            <div className="flex justify-center space-x-6 text-sm">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span>Healthy</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="h-4 w-4 bg-orange-500 rounded-full"></div>
+                <span>Degraded</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="h-4 w-4 bg-red-500 rounded-full"></div>
+                <span>Unhealthy</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="h-4 w-4 bg-blue-500 rounded-full"></div>
+                <span>Advisory</span>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
-
-      {/* Status Legend */}
-      <div className="flex justify-center space-x-6 text-sm">
-        <div className="flex items-center space-x-2">
-          <CheckCircle className="h-4 w-4 text-green-500" />
-          <span>Healthy</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <AlertTriangle className="h-4 w-4 text-orange-500" />
-          <span>Degraded</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <XCircle className="h-4 w-4 text-red-500" />
-          <span>Unhealthy</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Clock className="h-4 w-4 text-blue-500" />
-          <span>Advisory</span>
-        </div>
-      </div>
     </div>
   );
 };
