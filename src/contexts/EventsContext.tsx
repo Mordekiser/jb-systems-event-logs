@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface Location {
@@ -35,7 +36,7 @@ interface SystemEvent {
   notificationTimestamp?: string;
   systemsAffected: string[];
   domainsAffected: string[];
-  application?: string; // Add application field
+  application?: string;
   statusHistory: StatusHistoryEntry[];
 }
 
@@ -77,15 +78,98 @@ const generateDemoEvents = (): SystemEvent[] => {
     "Order Processing", "Inventory Management", "Customer Portal", "Admin Dashboard"
   ];
 
+  const eventTitlesByApplication = {
+    "JB Direct": {
+      "Incident": [
+        "JB Direct API Gateway Timeout", "Mobile App Authentication Failed", "Direct Order Processing Down",
+        "JB Direct Payment Service Unavailable", "Mobile Push Notifications Failed", "Direct Sync Service Error"
+      ],
+      "Deployment": [
+        "JB Direct Mobile App Update", "Direct API Enhancement Release", "JB Direct Performance Optimization",
+        "Mobile Security Patch Deployment", "Direct Feature Enhancement", "JB Direct Bug Fix Release"
+      ]
+    },
+    "In-Store": {
+      "Incident": [
+        "POS Terminal Network Failure", "In-Store Payment Gateway Down", "Staff Portal Authentication Issues",
+        "Barcode Scanning System Error", "In-Store Inventory Sync Failed", "Receipt Printing Service Down"
+      ],
+      "Deployment": [
+        "In-Store POS System Upgrade", "Staff Portal Feature Release", "In-Store Security Enhancement",
+        "POS Terminal Software Update", "In-Store Inventory System Upgrade", "Staff Training Module Release"
+      ]
+    },
+    "Online": {
+      "Incident": [
+        "Website Performance Degradation", "Online Checkout Process Failed", "Search Service Unresponsive",
+        "Product Catalog Service Down", "Online Payment Processing Error", "Website CDN Issues"
+      ],
+      "Deployment": [
+        "Website UI/UX Enhancement", "Online Checkout Optimization", "Search Algorithm Improvement",
+        "Product Recommendation Engine Update", "Website Performance Optimization", "Online Security Patch"
+      ]
+    },
+    "Fulfilment & Consignment": {
+      "Incident": [
+        "Order Processing System Down", "Inventory Management Service Failed", "Shipping Integration Error",
+        "Warehouse Management System Offline", "Stock Level Sync Issues", "Fulfilment API Timeout"
+      ],
+      "Deployment": [
+        "Warehouse Management System Upgrade", "Order Processing Enhancement", "Inventory Optimization Release",
+        "Shipping Integration Improvement", "Stock Management Feature Update", "Fulfilment Process Automation"
+      ]
+    },
+    "Receiving & Transfer": {
+      "Incident": [
+        "Stock Receipt System Failure", "Transfer Management Service Down", "Receiving Portal Timeout",
+        "Stock Movement Tracking Lost", "Supplier Integration Failed", "Goods-In Process Error"
+      ],
+      "Deployment": [
+        "Receiving System Enhancement", "Transfer Management Upgrade", "Stock Tracking Improvement",
+        "Supplier Integration Update", "Goods-In Process Optimization", "Receiving Portal Feature Release"
+      ]
+    },
+    "SMS Communication": {
+      "Incident": [
+        "SMS Gateway Service Down", "Text Message Delivery Failed", "SMS Queue Processing Error",
+        "Marketing SMS System Timeout", "SMS Authentication Service Failed", "Bulk SMS Processing Slow"
+      ],
+      "Deployment": [
+        "SMS Gateway Upgrade", "Text Messaging Enhancement", "SMS Template System Update",
+        "Marketing SMS Feature Release", "SMS Delivery Optimization", "Communication Platform Upgrade"
+      ]
+    },
+    "Email Communication": {
+      "Incident": [
+        "Email Delivery Service Down", "SMTP Server Connection Failed", "Newsletter System Error",
+        "Email Template Rendering Failed", "Email Queue Backup", "Transactional Email Service Timeout"
+      ],
+      "Deployment": [
+        "Email System Upgrade", "Newsletter Platform Enhancement", "Email Template System Update",
+        "Transactional Email Optimization", "Email Delivery Improvement", "Communication Service Release"
+      ]
+    },
+    "Fraud Prevention": {
+      "Incident": [
+        "Fraud Detection System Offline", "Risk Assessment Service Failed", "Security Scanning Error",
+        "Payment Verification Timeout", "Fraud Rules Engine Down", "Risk Scoring Service Unavailable"
+      ],
+      "Deployment": [
+        "Fraud Detection Algorithm Update", "Security System Enhancement", "Risk Assessment Improvement",
+        "Payment Security Upgrade", "Fraud Prevention Feature Release", "Security Monitoring Enhancement"
+      ]
+    }
+  };
+
   const events: SystemEvent[] = [];
 
   for (let i = 1; i <= 100; i++) {
+    const application = applications[Math.floor(Math.random() * applications.length)];
     const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
     const impact = impacts[Math.floor(Math.random() * impacts.length)];
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     const createdBySource = createdBySources[Math.floor(Math.random() * createdBySources.length)];
     const domain = domains[Math.floor(Math.random() * domains.length)];
-    const application = applications[Math.floor(Math.random() * applications.length)];
     const tenant = tenants[Math.floor(Math.random() * tenants.length)];
     
     const createdDate = new Date(2025, 0, Math.floor(Math.random() * 27) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
@@ -102,95 +186,33 @@ const generateDemoEvents = (): SystemEvent[] => {
     
     const creator = creators[Math.floor(Math.random() * creators.length)];
 
-    const titles = eventType === "Incident" ? [
-      "Database Connection Timeout",
-      "High CPU Usage Alert", 
-      "Memory Leak Detected",
-      "API Response Time Degradation",
-      "Payment Processing Failure",
-      "Authentication Service Down",
-      "Email Delivery Issues",
-      "File Upload Errors",
-      "Cache Service Unresponsive",
-      "Load Balancer Health Check Failed",
-      "SSL Certificate Expiring",
-      "Disk Space Warning",
-      "Network Connectivity Issues",
-      "Security Breach Detected",
-      "Backup Job Failed",
-      "CDN Performance Degraded",
-      "Search Index Corruption",
-      "Order Processing Delays",
-      "Customer Login Issues",
-      "Admin Dashboard Unavailable"
-    ] : [
-      "Database Maintenance Window",
-      "API Gateway Upgrade",
-      "Security Patch Deployment",
-      "New Feature Release",
-      "Infrastructure Migration",
-      "Load Balancer Configuration Update",
-      "SSL Certificate Renewal",
-      "Monitoring System Enhancement",
-      "Cache Service Optimization",
-      "Backup System Upgrade",
-      "CDN Configuration Update",
-      "Performance Optimization",
-      "Security Enhancement",
-      "System Health Check",
-      "Data Migration Process",
-      "Service Configuration Update",
-      "Network Infrastructure Upgrade",
-      "Application Performance Tuning",
-      "Database Index Optimization",
-      "Log Retention Policy Update"
-    ];
+    const applicationTitles = eventTitlesByApplication[application as keyof typeof eventTitlesByApplication][eventType];
+    const title = applicationTitles[Math.floor(Math.random() * applicationTitles.length)];
 
     const descriptions = eventType === "Incident" ? [
-      "Multiple database connection timeouts detected across services",
-      "CPU usage has exceeded 85% threshold for extended period",
-      "Memory consumption increasing steadily without release",
-      "API response times have increased significantly",
-      "Payment processing service experiencing intermittent failures",
-      "Authentication service is completely unresponsive",
-      "Email service failing to deliver messages to customers",
-      "File upload functionality returning errors consistently",
-      "Cache service not responding to health checks",
-      "Load balancer failing health checks for backend services",
-      "SSL certificate will expire within 30 days",
-      "Disk space usage has exceeded 90% on critical servers",
-      "Network connectivity issues affecting multiple services",
-      "Potential security breach detected in system logs",
-      "Automated backup job has failed multiple times",
-      "CDN performance has degraded significantly",
-      "Search index appears to be corrupted",
-      "Order processing experiencing significant delays",
-      "Customers unable to log into their accounts",
-      "Admin dashboard is completely inaccessible"
+      `Critical ${application} service experiencing failures affecting user operations`,
+      `${application} system performance significantly degraded beyond acceptable thresholds`,
+      `${application} service components are unresponsive to user requests`,
+      `${application} integration with external services has failed completely`,
+      `${application} database connectivity issues causing service disruption`,
+      `${application} authentication and authorization services not functioning`,
+      `${application} payment processing capabilities are currently unavailable`,
+      `${application} data synchronization processes have stopped working`,
+      `${application} monitoring systems indicate critical service failures`,
+      `${application} user interface components are not loading properly`
     ] : [
-      "Scheduled database maintenance for performance optimization",
-      "Upgrading API gateway to latest version with security fixes",
-      "Deploying critical security patches across all systems",
-      "Rolling out new customer-facing features",
-      "Migrating services to new infrastructure platform",
-      "Updating load balancer configuration for better performance",
-      "Renewing SSL certificates before expiration",
-      "Enhancing monitoring capabilities with new tools",
-      "Optimizing cache service for better performance",
-      "Upgrading backup system to latest version",
-      "Updating CDN configuration for global performance",
-      "Implementing performance optimizations across services",
-      "Deploying security enhancements and hardening",
-      "Performing comprehensive system health checks",
-      "Migrating historical data to new storage system",
-      "Updating service configurations for compliance",
-      "Upgrading network infrastructure for better reliability",
-      "Fine-tuning application performance parameters",
-      "Optimizing database indexes for query performance",
-      "Updating log retention policies for compliance"
+      `Scheduled ${application} system maintenance for performance optimization and updates`,
+      `${application} feature enhancement deployment to improve user experience`,
+      `${application} security patches and vulnerability fixes implementation`,
+      `${application} infrastructure upgrade to latest stable versions`,
+      `${application} configuration updates for improved system reliability`,
+      `${application} database optimization and performance tuning deployment`,
+      `${application} integration enhancements with third-party services`,
+      `${application} user interface improvements and accessibility updates`,
+      `${application} monitoring and alerting system enhancements`,
+      `${application} backup and disaster recovery system improvements`
     ];
 
-    const title = titles[Math.floor(Math.random() * titles.length)];
     const description = descriptions[Math.floor(Math.random() * descriptions.length)];
 
     const event: SystemEvent = {
@@ -221,7 +243,7 @@ const generateDemoEvents = (): SystemEvent[] => {
         updatedBy: creator,
         status,
         historyType: "Initial",
-        description: `${eventType} created: ${description}`
+        description: `${eventType} created for ${application}: ${description}`
       }]
     };
 

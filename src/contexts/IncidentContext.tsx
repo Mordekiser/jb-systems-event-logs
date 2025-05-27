@@ -12,6 +12,7 @@ interface Incident {
   affectedServices: string[];
   domain?: string;
   tenancy?: string;
+  application?: string;
 }
 
 interface IncidentContextType {
@@ -36,6 +37,10 @@ export const useIncidents = () => {
 const generateDemoIncidents = (): Incident[] => {
   const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
   const tenancies = ["AU", "NZ", "UK", "US"];
+  const applications = [
+    "JB Direct", "In-Store", "Online", "Fulfilment & Consignment", 
+    "Receiving & Transfer", "SMS Communication", "Email Communication", "Fraud Prevention"
+  ];
   const severities = ["low", "medium", "high", "critical"];
   const statuses = ["investigating", "in-progress", "resolved", "closed"];
   
@@ -45,18 +50,40 @@ const generateDemoIncidents = (): Incident[] => {
     "CDN", "Search Engine", "Analytics", "Notification Service", "Order Processing"
   ];
 
-  const incidentTitles = [
-    "Database Performance Issues", "API Gateway Timeout", "Authentication Service Down", 
-    "Payment Processing Failure", "Email Delivery Delays", "File Upload Errors",
-    "Cache Service Unresponsive", "Load Balancer Health Check Failed", "High Error Rates",
-    "Memory Leak Detected", "Disk Space Critical", "Network Connectivity Issues",
-    "SSL Certificate Expired", "Backup Job Failed", "Security Breach Detected",
-    "Performance Degradation", "Service Unavailable", "Data Corruption Detected",
-    "Queue Processing Delays", "Search Index Corruption", "Notification Failures",
-    "User Session Issues", "Integration Endpoint Down", "Monitoring Alert Storm",
-    "Resource Exhaustion", "Configuration Error", "Deployment Rollback Required",
-    "Third-party Service Outage", "Database Deadlock", "Application Crash"
-  ];
+  const incidentTitlesByApplication = {
+    "JB Direct": [
+      "JB Direct Mobile App Crash", "Direct Ordering API Timeout", "JB Direct Payment Failed",
+      "Mobile Authentication Issues", "Direct Cart Sync Problems", "JB Direct Performance Slow"
+    ],
+    "In-Store": [
+      "POS System Unresponsive", "In-Store Payment Terminal Down", "Barcode Scanner Malfunction",
+      "In-Store Inventory Sync Failed", "Staff Portal Login Issues", "Receipt Printer Offline"
+    ],
+    "Online": [
+      "Website Loading Slowly", "Online Checkout Errors", "Search Function Broken",
+      "Product Images Not Loading", "Online Payment Gateway Down", "Shopping Cart Issues"
+    ],
+    "Fulfilment & Consignment": [
+      "Order Processing Delays", "Inventory Management Down", "Shipping Integration Failed",
+      "Warehouse System Offline", "Stock Level Discrepancies", "Fulfilment API Errors"
+    ],
+    "Receiving & Transfer": [
+      "Stock Receipt System Down", "Transfer Orders Failed", "Receiving Portal Timeout",
+      "Stock Movement Tracking Lost", "Supplier Integration Issues", "Goods-In Process Halted"
+    ],
+    "SMS Communication": [
+      "SMS Delivery Failures", "Text Notifications Delayed", "SMS Gateway Timeout",
+      "Marketing SMS Not Sending", "SMS Authentication Failed", "Bulk SMS Processing Slow"
+    ],
+    "Email Communication": [
+      "Email Delivery Delays", "SMTP Server Down", "Newsletter System Failed",
+      "Transactional Emails Missing", "Email Templates Broken", "Email Queue Backed Up"
+    ],
+    "Fraud Prevention": [
+      "Fraud Detection System Down", "Risk Assessment Failed", "Security Scanner Offline",
+      "Payment Verification Slow", "Fraud Rules Engine Error", "Risk Score Calculation Failed"
+    ]
+  };
 
   const creators = [
     "System Monitor", "John Smith", "Sarah Johnson", "Mike Wilson", "Emma Davis",
@@ -66,12 +93,15 @@ const generateDemoIncidents = (): Incident[] => {
   const incidents: Incident[] = [];
   
   for (let i = 1; i <= 75; i++) {
+    const application = applications[Math.floor(Math.random() * applications.length)];
     const domain = domains[Math.floor(Math.random() * domains.length)];
     const tenancy = tenancies[Math.floor(Math.random() * tenancies.length)];
     const severity = severities[Math.floor(Math.random() * severities.length)];
     const status = statuses[Math.floor(Math.random() * statuses.length)];
-    const title = incidentTitles[Math.floor(Math.random() * incidentTitles.length)];
     const creator = creators[Math.floor(Math.random() * creators.length)];
+    
+    const applicationTitles = incidentTitlesByApplication[application as keyof typeof incidentTitlesByApplication];
+    const title = applicationTitles[Math.floor(Math.random() * applicationTitles.length)];
     
     const createdDate = new Date(2025, 0, Math.floor(Math.random() * 27) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
     const updatedDate = new Date(createdDate.getTime() + Math.random() * 48 * 60 * 60 * 1000);
@@ -80,7 +110,7 @@ const generateDemoIncidents = (): Incident[] => {
     
     incidents.push({
       id: `INC-${String(i).padStart(3, '0')}`,
-      title: `${title} - ${domain} ${tenancy}`,
+      title: `${title} - ${tenancy}`,
       severity,
       status,
       createdBy: creator,
@@ -88,7 +118,8 @@ const generateDemoIncidents = (): Incident[] => {
       updatedAt: updatedDate.toISOString().slice(0, 16).replace('T', ' '),
       affectedServices,
       domain,
-      tenancy
+      tenancy,
+      application
     });
   }
   
