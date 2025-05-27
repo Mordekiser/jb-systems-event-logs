@@ -10,6 +10,7 @@ import { useEvents } from "@/contexts/EventsContext";
 import { EventDeleteConfirmDialog } from "@/components/EventDeleteConfirmDialog";
 import { EventDetailsModal } from "@/components/EventDetailsModal";
 import { EventEditModal } from "@/components/EventEditModal";
+import { BackToTopButton } from "@/components/BackToTopButton";
 
 interface EventFilters {
   createdBy?: string;
@@ -20,6 +21,7 @@ interface EventFilters {
   updatedToDate?: string;
   eventCreationType?: "Manual" | "Azure Alert";
   historyType?: "Initial" | "Update" | "Complete";
+  impact?: "Trivial" | "Minor" | "Major";
 }
 
 interface EventsSectionProps {
@@ -171,6 +173,11 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
         event.statusHistory.some(history => history.historyType === eventFilters.historyType)
       );
     }
+    if (eventFilters.impact) {
+      filteredEvents = filteredEvents.filter(event => 
+        event.impact === eventFilters.impact
+      );
+    }
     if (eventFilters.createdFromDate) {
       filteredEvents = filteredEvents.filter(event => 
         new Date(event.createdTimestamp) >= new Date(eventFilters.createdFromDate!)
@@ -289,6 +296,25 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
                     <SelectItem value="Initial">Initial</SelectItem>
                     <SelectItem value="Update">Update</SelectItem>
                     <SelectItem value="Complete">Complete</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Impact Filter */}
+              <div>
+                <Label htmlFor="impact">Impact</Label>
+                <Select
+                  value={eventFilters.impact || "all"}
+                  onValueChange={(value) => handleFilterChange("impact", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select impact" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Impacts</SelectItem>
+                    <SelectItem value="Trivial">Trivial</SelectItem>
+                    <SelectItem value="Minor">Minor</SelectItem>
+                    <SelectItem value="Major">Major</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -482,6 +508,9 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
         onOpenChange={setShowEventEdit}
         event={selectedEvent}
       />
+
+      {/* Back to Top Button */}
+      <BackToTopButton />
     </div>
   );
 };

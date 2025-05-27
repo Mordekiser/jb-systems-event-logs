@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +8,7 @@ import { AlertTriangle, CheckCircle, XCircle, Clock, Filter, Bell, Activity, Dat
 import { HistoryButton } from "./HistoryButton";
 import { AlertDetailsModal } from "./AlertDetailsModal";
 import { AzureHealthDetailsModal } from "./AzureHealthDetailsModal";
+import { BackToTopButton } from "./BackToTopButton";
 import { useToast } from "@/hooks/use-toast";
 
 interface Alert {
@@ -540,6 +542,9 @@ export const AzureAlerts = () => {
         onOpenChange={setIsHealthDetailsModalOpen}
         healthCheck={selectedHealthCheck}
       />
+
+      {/* Back to Top Button */}
+      <BackToTopButton />
     </div>
   );
 };
