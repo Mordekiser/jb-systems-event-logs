@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Package, GitBranch, Trash2, Filter, X, Eye, Edit } from "lucide-react";
+import { Calendar, Package, GitBranch, Trash2, Filter, X, Eye, Edit, Mail } from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
 import { EventDeleteConfirmDialog } from "@/components/EventDeleteConfirmDialog";
 import { EventDetailsModal } from "@/components/EventDetailsModal";
 import { EventEditModal } from "@/components/EventEditModal";
+import { EmailAutomationModal } from "@/components/EmailAutomationModal";
 import { BackToTopButton } from "@/components/BackToTopButton";
 
 interface EventFilters {
@@ -50,6 +51,8 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
   const [showEventEdit, setShowEventEdit] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailSentEvents, setEmailSentEvents] = useState<Set<string>>(new Set());
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -116,6 +119,15 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
   const handleEditEvent = (event: any) => {
     setSelectedEvent(event);
     setShowEventEdit(true);
+  };
+
+  const handleEmailAutomation = (event: any) => {
+    setSelectedEvent(event);
+    setShowEmailModal(true);
+  };
+
+  const handleEmailSent = (eventId: string) => {
+    setEmailSentEvents(prev => new Set([...prev, eventId]));
   };
 
   const handleFilterChange = (key: keyof EventFilters, value: string | undefined) => {
@@ -401,6 +413,17 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
                   <Badge className={getStatusColor(event.status)}>
                     {event.status}
                   </Badge>
+                  {/* Email Status Badge for Deployments */}
+                  {event.eventType === "Deployment" && (
+                    <Badge 
+                      className={emailSentEvents.has(event.id) 
+                        ? "bg-green-100 text-green-800" 
+                        : "bg-orange-100 text-orange-800"
+                      }
+                    >
+                      {emailSentEvents.has(event.id) ? "Email sent" : "Email pending"}
+                    </Badge>
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -417,6 +440,17 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
+                  {/* Automate Email Button for Deployments */}
+                  {event.eventType === "Deployment" && !emailSentEvents.has(event.id) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEmailAutomation(event)}
+                      className="text-purple-500 hover:text-purple-700 hover:bg-purple-50"
+                    >
+                      <Mail className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -507,6 +541,14 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
         open={showEventEdit}
         onOpenChange={setShowEventEdit}
         event={selectedEvent}
+      />
+
+      {/* Email Automation Modal */}
+      <EmailAutomationModal
+        open={showEmailModal}
+        onOpenChange={setShowEmailModal}
+        event={selectedEvent}
+        onEmailSent={handleEmailSent}
       />
 
       {/* Back to Top Button */}
