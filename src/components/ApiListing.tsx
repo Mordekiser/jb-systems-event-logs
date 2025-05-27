@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -85,108 +84,110 @@ export const ApiListing = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-white border-yellow-300">
-        <CardHeader>
-          <CardTitle className="text-xl text-black flex items-center space-x-2">
-            <Code className="h-5 w-5" />
-            <span>APIs</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Filters and Controls */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-black">Owner:</span>
-              <Select value={selectedDomain} onValueChange={setSelectedDomain}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
-                  {domains.map((domain) => (
-                    <SelectItem key={domain} value={domain}>
-                      {domain}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="flex items-center space-x-2 flex-1">
-              <Search className="h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Search APIs..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-sm"
-              />
+    <div className="fixed inset-0 bg-black text-white overflow-auto">
+      <div className="p-6 space-y-6">
+        <Card className="bg-black border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-xl text-white flex items-center space-x-2">
+              <Code className="h-5 w-5" />
+              <span>APIs</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Filters and Controls */}
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-white">Owner:</span>
+                <Select value={selectedDomain} onValueChange={setSelectedDomain}>
+                  <SelectTrigger className="w-48 bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600 text-white">
+                    {domains.map((domain) => (
+                      <SelectItem key={domain} value={domain} className="text-white hover:bg-gray-700">
+                        {domain}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-center space-x-2 flex-1">
+                <Search className="h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search APIs..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="max-w-sm bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="sm" className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700">
+                  <Columns className="h-4 w-4 mr-2" />
+                  COLUMNS
+                </Button>
+                <Button variant="outline" size="sm" className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700">
+                  <Filter className="h-4 w-4 mr-2" />
+                  FILTERS
+                </Button>
+                <Button variant="outline" size="sm" className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700">
+                  <Download className="h-4 w-4 mr-2" />
+                  EXPORT
+                </Button>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" className="bg-white border-gray-300 text-black hover:bg-gray-50">
-                <Columns className="h-4 w-4 mr-2" />
-                COLUMNS
-              </Button>
-              <Button variant="outline" size="sm" className="bg-white border-gray-300 text-black hover:bg-gray-50">
-                <Filter className="h-4 w-4 mr-2" />
-                FILTERS
-              </Button>
-              <Button variant="outline" size="sm" className="bg-white border-gray-300 text-black hover:bg-gray-50">
-                <Download className="h-4 w-4 mr-2" />
-                EXPORT
-              </Button>
-            </div>
-          </div>
-
-          {/* API Table */}
-          <div className="border rounded-lg bg-gray-900 text-white">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-gray-700 hover:bg-gray-800">
-                  <TableHead className="text-gray-300 font-medium">Name</TableHead>
-                  <TableHead className="text-gray-300 font-medium">Description</TableHead>
-                  <TableHead className="text-gray-300 font-medium">Domain</TableHead>
-                  <TableHead className="text-gray-300 font-medium">Type</TableHead>
-                  <TableHead className="text-gray-300 font-medium">Method</TableHead>
-                  <TableHead className="text-gray-300 font-medium">Endpoint</TableHead>
-                  <TableHead className="text-gray-300 font-medium">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredData.map((api, index) => (
-                  <TableRow key={index} className="border-gray-700 hover:bg-gray-800">
-                    <TableCell className="font-medium text-white">{api.name}</TableCell>
-                    <TableCell className="text-gray-300 max-w-xs truncate">{api.description}</TableCell>
-                    <TableCell className="text-gray-300">{api.domain}</TableCell>
-                    <TableCell className="text-gray-300">{api.type}</TableCell>
-                    <TableCell>
-                      <Badge className={`${getMethodColor(api.method)} border-0 text-xs`}>
-                        {api.method}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-gray-300 font-mono text-xs">{api.endpoint}</TableCell>
-                    <TableCell>
-                      <Badge className={`${getStatusColor(api.status)} border-0 text-xs capitalize`}>
-                        {api.status}
-                      </Badge>
-                    </TableCell>
+            {/* API Table */}
+            <div className="border rounded-lg bg-black border-gray-700">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-gray-700 hover:bg-gray-900">
+                    <TableHead className="text-gray-300 font-medium">Name</TableHead>
+                    <TableHead className="text-gray-300 font-medium">Description</TableHead>
+                    <TableHead className="text-gray-300 font-medium">Domain</TableHead>
+                    <TableHead className="text-gray-300 font-medium">Type</TableHead>
+                    <TableHead className="text-gray-300 font-medium">Method</TableHead>
+                    <TableHead className="text-gray-300 font-medium">Endpoint</TableHead>
+                    <TableHead className="text-gray-300 font-medium">Status</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {filteredData.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              No APIs found matching your criteria.
+                </TableHeader>
+                <TableBody>
+                  {filteredData.map((api, index) => (
+                    <TableRow key={index} className="border-gray-700 hover:bg-gray-900">
+                      <TableCell className="font-medium text-white">{api.name}</TableCell>
+                      <TableCell className="text-gray-300 max-w-xs truncate">{api.description}</TableCell>
+                      <TableCell className="text-gray-300">{api.domain}</TableCell>
+                      <TableCell className="text-gray-300">{api.type}</TableCell>
+                      <TableCell>
+                        <Badge className={`${getMethodColor(api.method)} border-0 text-xs`}>
+                          {api.method}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-gray-300 font-mono text-xs">{api.endpoint}</TableCell>
+                      <TableCell>
+                        <Badge className={`${getStatusColor(api.status)} border-0 text-xs capitalize`}>
+                          {api.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-          )}
 
-          <div className="mt-4 text-sm text-gray-600">
-            Showing {filteredData.length} of {apiData.length} APIs
-          </div>
-        </CardContent>
-      </Card>
+            {filteredData.length === 0 && (
+              <div className="text-center py-8 text-gray-400">
+                No APIs found matching your criteria.
+              </div>
+            )}
+
+            <div className="mt-4 text-sm text-gray-400">
+              Showing {filteredData.length} of {apiData.length} APIs
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
