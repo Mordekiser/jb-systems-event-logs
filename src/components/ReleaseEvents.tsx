@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -94,8 +95,8 @@ export const ReleaseEvents = () => {
                 Schedule Release
               </Button>
               <Button size="sm" onClick={() => setShowAddRelease(true)}>
-                <Package className="h-4 w-4 mr-2" />
-                New Release
+                <Calendar className="h-4 w-4 mr-2" />
+                Schedule Release
               </Button>
             </div>
           </div>
