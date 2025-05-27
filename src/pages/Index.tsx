@@ -27,7 +27,11 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <Activity className="h-8 w-8 text-blue-600" />
+              <img 
+                src="/lovable-uploads/0127785e-3c65-4556-abc3-5185624e3902.png" 
+                alt="Application Logo" 
+                className="h-8 w-auto"
+              />
               <h1 className="text-2xl font-bold text-gray-900">System Status Dashboard</h1>
             </div>
             
