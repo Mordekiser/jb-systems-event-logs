@@ -52,7 +52,7 @@ export const StatusDashboard = () => {
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <span className="font-medium">Active Events</span>
-            <Badge className="bg-yellow-500 text-white">do need a count? / no?</Badge>
+            <Badge className="bg-yellow-500 text-white">2</Badge>
           </div>
         </CardContent>
       </Card>
