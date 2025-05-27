@@ -2,62 +2,29 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Heart, AlertTriangle } from "lucide-react";
+import { CheckCircle, Heart } from "lucide-react";
 
 export const StatusDashboard = () => {
   const services = [
-    { name: "Online", category: "Domains" },
-    { name: "Multi Country", category: "Tenancy" },
-    { name: "NZ", category: "Tenancy" },
-    { name: "AUS", category: "Tenancy" },
-    { name: "Multi Country", category: "Back of House" },
-    { name: "NZ", category: "Back of House" },
-    { name: "AUS", category: "Back of House" },
-    { name: "Multi Country", category: "Back of House" },
-    { name: "NZ", category: "Back of House" },
-    { name: "AUS", category: "Back of House" }
+    { name: "Core services", icon: "🔧" },
+    { name: "Boards", icon: "📋" },
+    { name: "Repos", icon: "📁" },
+    { name: "Pipelines", icon: "🔄" },
+    { name: "Test Plans", icon: "🧪" },
+    { name: "Artifacts", icon: "📦" },
+    { name: "Other services", icon: "🔧" }
   ];
 
-  const columns = ["Alerts", "Healthchecks", "Incidents", "Releases"];
-
-  const getStatusIcon = (serviceIndex: number, columnIndex: number) => {
-    // Mock some different statuses based on the image
-    if (serviceIndex === 2 && columnIndex === 2) {
-      return <div className="h-6 w-6 bg-orange-500 rounded-full mx-auto"></div>;
-    }
-    if (serviceIndex === 3 && (columnIndex === 0 || columnIndex === 1)) {
-      return <div className="h-6 w-6 bg-red-500 rounded-full mx-auto"></div>;
-    }
-    return <CheckCircle className="h-6 w-6 text-green-500 mx-auto" />;
-  };
-
-  const renderServiceRow = (service: any, index: number) => {
-    const isFirstInCategory = index === 0 || services[index - 1].category !== service.category;
-    const categoryRowCount = services.filter(s => s.category === service.category).length;
-    
-    return (
-      <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-        {isFirstInCategory && (
-          <td 
-            className="p-4 border-r bg-gray-100 text-center font-medium text-gray-700 align-middle"
-            rowSpan={categoryRowCount}
-          >
-            <div className="writing-mode-vertical transform -rotate-90 whitespace-nowrap">
-              {service.category}
-            </div>
-          </td>
-        )}
-        <td className="p-4 font-medium text-gray-900">
-          {service.name}
-        </td>
-        {columns.map((column, columnIndex) => (
-          <td key={column} className="text-center p-4">
-            {getStatusIcon(index, columnIndex)}
-          </td>
-        ))}
-      </tr>
-    );
-  };
+  const regions = [
+    "United States",
+    "Canada", 
+    "Brazil",
+    "Europe",
+    "United Kingdom",
+    "Asia Pacific",
+    "Australia",
+    "India"
+  ];
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -76,16 +43,10 @@ export const StatusDashboard = () => {
       {/* Active Events */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Active Events</CardTitle>
+          <CardTitle className="text-xl">Active events</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="bg-yellow-100 border border-yellow-300 rounded p-3 mb-4">
-            <span className="text-yellow-800 text-sm">
-              <strong>do read</strong><br />
-              <strong>a count?</strong><br />
-              <strong>/ no?</strong>
-            </span>
-          </div>
+          <p className="text-gray-600">We are not tracking any degraded or unhealthy services at the moment.</p>
         </CardContent>
       </Card>
 
@@ -99,17 +60,28 @@ export const StatusDashboard = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="text-center p-4 font-medium text-gray-700 border-r">Domains</th>
-                  <th className="text-left p-4 font-medium text-gray-700">Tenancy</th>
-                  {columns.map((column) => (
-                    <th key={column} className="text-center p-4 font-medium text-gray-700 min-w-[120px]">
-                      {column}
+                  <th className="text-left p-4 font-medium text-gray-700">Services</th>
+                  {regions.map((region) => (
+                    <th key={region} className="text-center p-4 font-medium text-gray-700 min-w-[120px]">
+                      {region}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {services.map((service, index) => renderServiceRow(service, index))}
+                {services.map((service, index) => (
+                  <tr key={service.name} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="p-4 flex items-center space-x-3">
+                      <span className="text-xl">{service.icon}</span>
+                      <span className="font-medium text-gray-900">{service.name}</span>
+                    </td>
+                    {regions.map((region) => (
+                      <td key={region} className="text-center p-4">
+                        <CheckCircle className="h-6 w-6 text-green-500 mx-auto" />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
