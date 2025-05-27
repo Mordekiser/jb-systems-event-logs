@@ -1,10 +1,10 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
+import { AlertTriangle, XCircle, Info } from "lucide-react";
 import { StatusLegend } from "./StatusLegend";
 import { useIncidents } from "@/contexts/IncidentContext";
+import { useEvents } from "@/contexts/EventsContext";
 import { useConfig } from "@/contexts/ConfigContext";
 
 interface StatusDashboardProps {
@@ -14,42 +14,73 @@ interface StatusDashboardProps {
 
 export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboardProps) => {
   const { getIncidentsByDomainAndTenancy } = useIncidents();
+  const { events } = useEvents();
   const { groupingStrategy, showRegionalBreakdown, combineHealthchecks } = useConfig();
 
-  const getIncidentStatus = (domain: string, tenancy: string) => {
+  const getImpactStatus = (domain: string, tenancy: string, statusType: string) => {
+    // Get incidents for this domain and tenancy
     const domainIncidents = getIncidentsByDomainAndTenancy(domain, tenancy);
     const activeIncidents = domainIncidents.filter(incident => incident.status !== 'resolved');
     
-    if (activeIncidents.length === 0) return "green";
+    // Get events for this domain and tenancy
+    const domainEvents = events.filter(event => 
+      event.domainsAffected.includes(domain) && 
+      event.locations.some(loc => loc.tenant.toLowerCase().includes(tenancy.toLowerCase())) &&
+      event.status !== 'Complete'
+    );
+
+    // Combine all impacts from incidents and events
+    const allImpacts: string[] = [];
     
-    const hasCritical = activeIncidents.some(incident => incident.severity === "high");
-    const hasMedium = activeIncidents.some(incident => incident.severity === "medium");
+    // Add incident impacts (map severity to impact)
+    activeIncidents.forEach(incident => {
+      if (incident.severity === 'high') allImpacts.push('Major');
+      else if (incident.severity === 'medium') allImpacts.push('Minor');
+      else allImpacts.push('Trivial');
+    });
     
-    if (hasCritical) return "red";
-    if (hasMedium) return "orange";
-    return "green";
+    // Add event impacts
+    domainEvents.forEach(event => {
+      allImpacts.push(event.impact);
+    });
+
+    // For Azure alerts simulation, add some demo impact data based on domain/tenancy
+    if (statusType === 'alerts' || statusType === 'healthchecks') {
+      // Simulate some alert impacts based on domain/tenancy combinations
+      if (domain === "Back of House" && tenancy === "AU") {
+        allImpacts.push('Major'); // Simulating critical alerts in AU Back of House
+      }
+    }
+
+    // Apply impact hierarchy logic
+    if (allImpacts.includes('Major')) return 'major';
+    if (allImpacts.includes('Minor')) return 'minor';
+    if (allImpacts.includes('Trivial')) return 'trivial';
+    
+    // Default to trivial if no issues
+    return 'trivial';
   };
 
   const originalDomains = [
     {
       name: "Back of House",
       tenancies: [
-        { name: "AU", alerts: "red", healthchecks: "red", releases: "green", services: 15 },
-        { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 8 }
+        { name: "AU", services: 15 },
+        { name: "NZ", services: 8 }
       ]
     },
     {
-      name: "Front of House",
+      name: "Front of House", 
       tenancies: [
-        { name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 5 },
-        { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 4 }
+        { name: "AU", services: 5 },
+        { name: "NZ", services: 4 }
       ]
     },
     {
       name: "Data Services",
       tenancies: [
-        { name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 8 },
-        { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 7 }
+        { name: "AU", services: 8 },
+        { name: "NZ", services: 7 }
       ]
     }
   ];
@@ -60,23 +91,23 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
         {
           name: "API Services",
           tenancies: showRegionalBreakdown ? 
-            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 12 },
-             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 8 }] :
-            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 20 }]
+            [{ name: "AU", services: 12 },
+             { name: "NZ", services: 8 }] :
+            [{ name: "Combined", services: 20 }]
         },
         {
           name: "Database Services",
           tenancies: showRegionalBreakdown ?
-            [{ name: "AU", alerts: "red", healthchecks: "red", releases: "green", services: 8 },
-             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 5 }] :
-            [{ name: "Combined", alerts: "red", healthchecks: "red", releases: "green", services: 13 }]
+            [{ name: "AU", services: 8 },
+             { name: "NZ", services: 5 }] :
+            [{ name: "Combined", services: 13 }]
         },
         {
           name: "Authentication",
           tenancies: showRegionalBreakdown ?
-            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 8 },
-             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 6 }] :
-            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 14 }]
+            [{ name: "AU", services: 8 },
+             { name: "NZ", services: 6 }] :
+            [{ name: "Combined", services: 14 }]
         }
       ];
     } else if (groupingStrategy === "criticality") {
@@ -84,23 +115,23 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
         {
           name: "Critical Services",
           tenancies: showRegionalBreakdown ?
-            [{ name: "AU", alerts: "red", healthchecks: "red", releases: "green", services: 10 },
-             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 7 }] :
-            [{ name: "Combined", alerts: "red", healthchecks: "red", releases: "green", services: 17 }]
+            [{ name: "AU", services: 10 },
+             { name: "NZ", services: 7 }] :
+            [{ name: "Combined", services: 17 }]
         },
         {
           name: "Standard Services", 
           tenancies: showRegionalBreakdown ?
-            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 15 },
-             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 10 }] :
-            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 25 }]
+            [{ name: "AU", services: 15 },
+             { name: "NZ", services: 10 }] :
+            [{ name: "Combined", services: 25 }]
         },
         {
           name: "Support Services",
           tenancies: showRegionalBreakdown ?
-            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 3 },
-             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 2 }] :
-            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 5 }]
+            [{ name: "AU", services: 3 },
+             { name: "NZ", services: 2 }] :
+            [{ name: "Combined", services: 5 }]
         }
       ];
     } else if (groupingStrategy === "business-function") {
@@ -108,23 +139,23 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
         {
           name: "Customer Services",
           tenancies: showRegionalBreakdown ?
-            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 12 },
-             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 8 }] :
-            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 20 }]
+            [{ name: "AU", services: 12 },
+             { name: "NZ", services: 8 }] :
+            [{ name: "Combined", services: 20 }]
         },
         {
           name: "Internal Tools",
           tenancies: showRegionalBreakdown ?
-            [{ name: "AU", alerts: "red", healthchecks: "red", releases: "green", services: 10 },
-             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 7 }] :
-            [{ name: "Combined", alerts: "red", healthchecks: "red", releases: "green", services: 17 }]
+            [{ name: "AU", services: 10 },
+             { name: "NZ", services: 7 }] :
+            [{ name: "Combined", services: 17 }]
         },
         {
           name: "Infrastructure",
           tenancies: showRegionalBreakdown ?
-            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 6 },
-             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 4 }] :
-            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 10 }]
+            [{ name: "AU", services: 6 },
+             { name: "NZ", services: 4 }] :
+            [{ name: "Combined", services: 10 }]
         }
       ];
     } else {
@@ -134,9 +165,6 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
           name: domain.name,
           tenancies: [{
             name: "Combined",
-            alerts: domain.tenancies.some(t => t.alerts === "red") ? "red" : "green",
-            healthchecks: domain.tenancies.some(t => t.healthchecks === "red") ? "red" : "green", 
-            releases: "green",
             services: domain.tenancies.reduce((sum, t) => sum + t.services, 0)
           }]
         }));
@@ -152,14 +180,12 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
     const clickableClasses = isClickable ? "cursor-pointer hover:scale-110 transition-transform" : "";
     
     switch (status) {
-      case "green":
-        return <CheckCircle className={`${baseClasses} ${clickableClasses} text-green-600`} />;
-      case "orange":
-        return <AlertTriangle className={`${baseClasses} ${clickableClasses} text-orange-600`} />;
-      case "red":
-        return <XCircle className={`${baseClasses} ${clickableClasses} text-red-600`} />;
-      case "blue":
+      case "trivial":
         return <Info className={`${baseClasses} ${clickableClasses} text-blue-600`} />;
+      case "minor":
+        return <AlertTriangle className={`${baseClasses} ${clickableClasses} text-orange-600`} />;
+      case "major":
+        return <XCircle className={`${baseClasses} ${clickableClasses} text-red-600`} />;
       default:
         return <div className={`${baseClasses} ${clickableClasses} rounded-full bg-gray-500`}></div>;
     }
@@ -228,7 +254,10 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
             {/* Status Rows */}
             {domains.map((domain) => 
               domain.tenancies.map((tenancy) => {
-                const incidentStatus = getIncidentStatus(domain.name, tenancy.name);
+                const alertsStatus = getImpactStatus(domain.name, tenancy.name, 'alerts');
+                const healthchecksStatus = getImpactStatus(domain.name, tenancy.name, 'healthchecks');
+                const incidentsStatus = getImpactStatus(domain.name, tenancy.name, 'incidents');
+                const releasesStatus = getImpactStatus(domain.name, tenancy.name, 'releases');
                 
                 return (
                   <React.Fragment key={`${domain.name}-${tenancy.name}`}>
@@ -244,31 +273,32 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
                     {combineHealthchecks ? (
                       <div className="flex justify-center">
                         <div onClick={() => handleStatusClick('health', tenancy.name, domain.name)}>
-                          {getStatusIcon(tenancy.alerts === "red" || tenancy.healthchecks === "red" ? "red" : "green", true)}
+                          {getStatusIcon(alertsStatus === "major" || healthchecksStatus === "major" ? "major" : 
+                                       alertsStatus === "minor" || healthchecksStatus === "minor" ? "minor" : "trivial", true)}
                         </div>
                       </div>
                     ) : (
                       <>
                         <div className="flex justify-center">
                           <div onClick={() => handleStatusClick('alerts', tenancy.name, domain.name)}>
-                            {getStatusIcon(tenancy.alerts, true)}
+                            {getStatusIcon(alertsStatus, true)}
                           </div>
                         </div>
                         <div className="flex justify-center">
                           <div onClick={() => handleStatusClick('healthchecks', tenancy.name, domain.name)}>
-                            {getStatusIcon(tenancy.healthchecks, true)}
+                            {getStatusIcon(healthchecksStatus, true)}
                           </div>
                         </div>
                       </>
                     )}
                     <div className="flex justify-center">
                       <div onClick={() => handleStatusClick('incidents', tenancy.name, domain.name)}>
-                        {getStatusIcon(incidentStatus, true)}
+                        {getStatusIcon(incidentsStatus, true)}
                       </div>
                     </div>
                     <div className="flex justify-center">
                       <div onClick={() => handleStatusClick('releases', tenancy.name, domain.name)}>
-                        {getStatusIcon(tenancy.releases, true)}
+                        {getStatusIcon(releasesStatus, true)}
                       </div>
                     </div>
                     <div className="flex justify-center">

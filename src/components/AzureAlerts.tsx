@@ -1,10 +1,9 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, CheckCircle, XCircle, Clock, Filter, Bell, Activity, Database, Globe } from "lucide-react";
+import { AlertTriangle, XCircle, Clock, Filter, Bell, Activity, Database, Globe, Info } from "lucide-react";
 import { HistoryButton } from "./HistoryButton";
 import { AlertDetailsModal } from "./AlertDetailsModal";
 import { AzureHealthDetailsModal } from "./AzureHealthDetailsModal";
@@ -15,7 +14,7 @@ interface Alert {
   id: number;
   title: string;
   description: string;
-  severity: string;
+  impact: string; // Changed from severity to impact
   status: string;
   domain: string;
   tenancy: string;
@@ -45,7 +44,7 @@ type AzureItem = Alert | HealthCheck;
 const generateDemoAlerts = (): Alert[] => {
   const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
   const tenancies = ["AU", "NZ", "UK", "US"];
-  const severities = ["critical", "high", "medium", "low"];
+  const impacts = ["Major", "Minor", "Trivial"]; // Changed from severities to impacts
   const statuses = ["active", "investigating", "resolved"];
   const sources = ["Azure Monitor", "Application Insights", "Database Monitor", "API Gateway", "Load Balancer"];
   
@@ -89,7 +88,7 @@ const generateDemoAlerts = (): Alert[] => {
   for (let i = 1; i <= 50; i++) {
     const domain = domains[Math.floor(Math.random() * domains.length)];
     const tenancy = tenancies[Math.floor(Math.random() * tenancies.length)];
-    const severity = severities[Math.floor(Math.random() * severities.length)];
+    const impact = impacts[Math.floor(Math.random() * impacts.length)]; // Changed from severity to impact
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     const source = sources[Math.floor(Math.random() * sources.length)];
     const title = alertTitles[Math.floor(Math.random() * alertTitles.length)];
@@ -109,7 +108,7 @@ const generateDemoAlerts = (): Alert[] => {
       id: i,
       title: `${title} - ${domain} ${tenancy}`,
       description,
-      severity,
+      impact, // Changed from severity to impact
       status,
       domain,
       tenancy,
@@ -210,15 +209,13 @@ export const AzureAlerts = () => {
   const healthChecks: HealthCheck[] = generateDemoHealthChecks();
   const allItems: AzureItem[] = [...alerts, ...healthChecks];
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case "critical":
+  const getImpactColor = (impact: string) => { // Changed from getSeverityColor to getImpactColor
+    switch (impact) {
+      case "Major":
         return "bg-red-100 text-red-800 border-red-200";
-      case "high":
+      case "Minor":
         return "bg-orange-100 text-orange-800 border-orange-200";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "low":
+      case "Trivial":
         return "bg-blue-100 text-blue-800 border-blue-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
@@ -241,16 +238,14 @@ export const AzureAlerts = () => {
     }
   };
 
-  const getSeverityIcon = (severity: string) => {
-    switch (severity) {
-      case "critical":
+  const getImpactIcon = (impact: string) => { // Changed from getSeverityIcon to getImpactIcon
+    switch (impact) {
+      case "Major":
         return <XCircle className="h-4 w-4 text-red-600" />;
-      case "high":
+      case "Minor":
         return <AlertTriangle className="h-4 w-4 text-orange-600" />;
-      case "medium":
-        return <Clock className="h-4 w-4 text-yellow-600" />;
-      case "low":
-        return <CheckCircle className="h-4 w-4 text-blue-600" />;
+      case "Trivial":
+        return <Info className="h-4 w-4 text-blue-600" />;
       default:
         return <Bell className="h-4 w-4 text-gray-600" />;
     }
@@ -259,9 +254,9 @@ export const AzureAlerts = () => {
   const getHealthIcon = (status: string) => {
     switch (status) {
       case "healthy":
-        return <CheckCircle className="h-5 w-5 text-green-600" />;
+        return <Info className="h-5 w-5 text-blue-600" />;
       case "degraded":
-        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
+        return <AlertTriangle className="h-5 w-5 text-orange-600" />;
       case "unhealthy":
         return <XCircle className="h-5 w-5 text-red-600" />;
       default:
@@ -309,10 +304,9 @@ export const AzureAlerts = () => {
 
   const alertsSummary = {
     total: alerts.length,
-    critical: alerts.filter(a => a.severity === "critical").length,
-    high: alerts.filter(a => a.severity === "high").length,
-    medium: alerts.filter(a => a.severity === "medium").length,
-    low: alerts.filter(a => a.severity === "low").length
+    major: alerts.filter(a => a.impact === "Major").length, // Changed from critical to major
+    minor: alerts.filter(a => a.impact === "Minor").length, // Changed from high to minor
+    trivial: alerts.filter(a => a.impact === "Trivial").length // Changed from medium to trivial
   };
 
   const healthSummary = {
@@ -335,28 +329,24 @@ export const AzureAlerts = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4"> {/* Changed from 4 to 3 columns */}
               <div className="flex items-center space-x-2">
                 <XCircle className="h-4 w-4 text-red-600" />
-                <span className="text-sm">Critical: {alertsSummary.critical}</span>
+                <span className="text-sm">Major: {alertsSummary.major}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="h-4 w-4 text-orange-600" />
-                <span className="text-sm">High: {alertsSummary.high}</span>
+                <span className="text-sm">Minor: {alertsSummary.minor}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4 text-yellow-600" />
-                <span className="text-sm">Medium: {alertsSummary.medium}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-blue-600" />
-                <span className="text-sm">Low: {alertsSummary.low}</span>
+                <Info className="h-4 w-4 text-blue-600" />
+                <span className="text-sm">Trivial: {alertsSummary.trivial}</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Health Checks Summary */}
+        {/* Health Checks Summary - keeping the same */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -367,11 +357,11 @@ export const AzureAlerts = () => {
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <Info className="h-4 w-4 text-blue-600" />
                 <span className="text-sm">Healthy: {healthSummary.healthy}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <AlertTriangle className="h-4 w-4 text-orange-600" />
                 <span className="text-sm">Degraded: {healthSummary.degraded}</span>
               </div>
               <div className="flex items-center space-x-2">
@@ -419,7 +409,7 @@ export const AzureAlerts = () => {
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-3">
-                  {item.type === 'alert' ? getSeverityIcon(item.severity) : getHealthIcon(item.status)}
+                  {item.type === 'alert' ? getImpactIcon(item.impact) : getHealthIcon(item.status)}
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">
                       {item.type === 'alert' ? item.title : item.name}
@@ -429,8 +419,8 @@ export const AzureAlerts = () => {
                 </div>
                 <div className="flex space-x-2">
                   {item.type === 'alert' && (
-                    <Badge className={getSeverityColor(item.severity)}>
-                      {item.severity}
+                    <Badge className={getImpactColor(item.impact)}>
+                      {item.impact}
                     </Badge>
                   )}
                   <Badge className={getStatusColor(item.status)}>
@@ -441,6 +431,8 @@ export const AzureAlerts = () => {
                   </Badge>
                 </div>
               </div>
+
+              {/* ... keep existing code (grid section with domain, tenancy, source, timestamp) */}
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div>
@@ -524,7 +516,7 @@ export const AzureAlerts = () => {
       {filteredItems.length === 0 && (
         <Card>
           <CardContent className="p-8 text-center">
-            <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
+            <Info className="h-12 w-12 text-blue-600 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No Items Found</h3>
             <p className="text-gray-600">No alerts or health checks match your current filter criteria.</p>
           </CardContent>
