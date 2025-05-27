@@ -2,9 +2,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Trash2, AlertTriangle, Package, Plus, Filter, X } from "lucide-react";
+import { Calendar, Clock, Trash2, AlertTriangle, Package, Plus, Filter, X, Edit } from "lucide-react";
 import { useState } from "react";
 import { useIncidents } from "@/contexts/IncidentContext";
+import { ManualIncidentCreationModal } from "./ManualIncidentCreationModal";
+import { ManualReleaseCreationModal } from "./ManualReleaseCreationModal";
+import { IncidentDetailsModal } from "./IncidentDetailsModal";
+import { IncidentEditModal } from "./IncidentEditModal";
+import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface EventsSectionProps {
   filter?: {
@@ -15,8 +21,17 @@ interface EventsSectionProps {
 }
 
 export const EventsSection = ({ filter }: EventsSectionProps) => {
-  const { incidents } = useIncidents();
+  const { incidents, addIncident, updateIncident, deleteIncident } = useIncidents();
+  const { toast } = useToast();
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  
+  // Modal states
+  const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
+  const [isReleaseModalOpen, setIsReleaseModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedIncident, setSelectedIncident] = useState<any>(null);
 
   // Mock release events data
   const releases = [
@@ -56,6 +71,9 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
     type: "incident",
     startTime: incident.createdAt,
     impact: incident.severity,
+    domain: incident.domain || "Unknown",
+    tenancy: incident.tenancy || "Unknown",
+    description: incident.description || "",
   }));
 
   // Combine all events
@@ -76,6 +94,71 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
 
   const clearFilter = () => {
     setTypeFilter("all");
+  };
+
+  const handleViewDetails = (event: any) => {
+    if (event.type === "incident") {
+      setSelectedIncident(event);
+      setIsDetailsModalOpen(true);
+    } else {
+      // For releases, show a toast for now (can be expanded later)
+      toast({
+        title: "Release Details",
+        description: `Viewing details for ${event.title}`,
+      });
+    }
+  };
+
+  const handleEditEvent = (event: any) => {
+    if (event.type === "incident") {
+      setSelectedIncident(event);
+      setIsEditModalOpen(true);
+    } else {
+      // For releases, show a toast for now (can be expanded later)
+      toast({
+        title: "Edit Release",
+        description: `Editing ${event.title} (Release editing coming soon)`,
+      });
+    }
+  };
+
+  const handleDeleteEvent = (event: any) => {
+    if (event.type === "incident") {
+      setSelectedIncident(event);
+      setIsDeleteDialogOpen(true);
+    } else {
+      // For releases, show a toast for now (can be expanded later)
+      toast({
+        title: "Delete Release",
+        description: `Deleting ${event.title} (Release deletion coming soon)`,
+      });
+    }
+  };
+
+  const handleSaveIncident = (incidentData: any) => {
+    addIncident(incidentData);
+    toast({
+      title: "Incident Created",
+      description: "New incident has been created successfully.",
+    });
+  };
+
+  const handleUpdateIncident = (updatedIncident: any) => {
+    updateIncident(updatedIncident.id, updatedIncident);
+    toast({
+      title: "Incident Updated",
+      description: "Incident has been updated successfully.",
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedIncident) {
+      deleteIncident(selectedIncident.id);
+      toast({
+        title: "Incident Deleted",
+        description: "Incident has been deleted successfully.",
+      });
+    }
   };
 
   const getEventBadge = (type: string) => {
@@ -170,6 +253,24 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
                   Releases
                 </Button>
               </div>
+              <div className="flex space-x-2">
+                <Button
+                  onClick={() => setIsIncidentModalOpen(true)}
+                  size="sm"
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Incident
+                </Button>
+                <Button
+                  onClick={() => setIsReleaseModalOpen(true)}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Schedule Release
+                </Button>
+              </div>
               {hasActiveFilter && (
                 <Button
                   variant="outline"
@@ -246,8 +347,20 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
                   </div>
 
                   <div className="flex justify-end space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewDetails(event)}
+                    >
                       View Details
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEditEvent(event)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
                     </Button>
                     {event.type === "incident" && event.status !== "resolved" && (
                       <Button variant="outline" size="sm">
@@ -259,7 +372,12 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
                         Modify Schedule
                       </Button>
                     )}
-                    <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => handleDeleteEvent(event)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -277,6 +395,39 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
           </Card>
         )}
       </div>
+
+      {/* Modals */}
+      <ManualIncidentCreationModal
+        open={isIncidentModalOpen}
+        onOpenChange={setIsIncidentModalOpen}
+        onSave={handleSaveIncident}
+      />
+
+      <ManualReleaseCreationModal
+        open={isReleaseModalOpen}
+        onOpenChange={setIsReleaseModalOpen}
+      />
+
+      <IncidentDetailsModal
+        open={isDetailsModalOpen}
+        onOpenChange={setIsDetailsModalOpen}
+        incident={selectedIncident}
+      />
+
+      <IncidentEditModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        incident={selectedIncident}
+        onSave={handleUpdateIncident}
+      />
+
+      <DeleteConfirmationDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        incidentId={selectedIncident?.id || ""}
+        incidentTitle={selectedIncident?.title || ""}
+      />
     </div>
   );
 };
