@@ -2,7 +2,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, AlertTriangle, Clock, User, Calendar, FileText } from "lucide-react";
+import { CheckCircle, AlertTriangle, Clock, User, Calendar, FileText, Server, Building, Layers } from "lucide-react";
 
 interface TimelineHistoryModalProps {
   open: boolean;
@@ -37,7 +37,12 @@ export const TimelineHistoryModal = ({
         bgColor: "bg-green-50",
         borderColor: "border-green-200",
         type: "resolution",
-        impact: "System restored to full functionality"
+        impact: "System restored to full functionality",
+        domain: "Front of House",
+        tenancy: "Production",
+        system: "Payment Gateway",
+        systemType: "Application",
+        severity: 1
       },
       {
         id: 2,
@@ -53,7 +58,12 @@ export const TimelineHistoryModal = ({
         bgColor: "bg-blue-50",
         borderColor: "border-blue-200",
         type: "update",
-        impact: "Mitigation strategies in progress"
+        impact: "Mitigation strategies in progress",
+        domain: "Back of House",
+        tenancy: "Staging",
+        system: "Customer Database API",
+        systemType: "API",
+        severity: 2
       },
       {
         id: 3,
@@ -69,7 +79,12 @@ export const TimelineHistoryModal = ({
         bgColor: "bg-orange-50",
         borderColor: "border-orange-200",
         type: "detection",
-        impact: "Service degradation identified"
+        impact: "Service degradation identified",
+        domain: "Core Retail",
+        tenancy: "Production",
+        system: "Inventory Management",
+        systemType: "Application",
+        severity: 3
       }
     ];
 
@@ -125,9 +140,35 @@ export const TimelineHistoryModal = ({
     }
   };
 
+  const getSeverityColor = (severity: number) => {
+    switch (severity) {
+      case 1:
+        return "bg-red-100 text-red-800 border-red-200";
+      case 2:
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case 3:
+        return "bg-green-100 text-green-800 border-green-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getSeverityLabel = (severity: number) => {
+    switch (severity) {
+      case 1:
+        return "Critical";
+      case 2:
+        return "High";
+      case 3:
+        return "Medium";
+      default:
+        return "Unknown";
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[85vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader className="border-b pb-4">
           <div className="flex items-center justify-between">
             <div>
@@ -175,21 +216,54 @@ export const TimelineHistoryModal = ({
                               <p className="text-sm text-gray-600">{event.description}</p>
                             </div>
                           </div>
-                          <Badge className={getEventTypeColor(event.type)}>
-                            {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
-                          </Badge>
+                          <div className="flex space-x-2">
+                            <Badge className={getEventTypeColor(event.type)}>
+                              {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                            </Badge>
+                            <Badge className={getSeverityColor(event.severity)}>
+                              Severity {event.severity} - {getSeverityLabel(event.severity)}
+                            </Badge>
+                          </div>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
                             <User className="h-4 w-4" />
-                            <span className="font-medium">{event.author}</span>
-                            <span className="text-gray-400">•</span>
-                            <span className="text-gray-500">{event.authorRole}</span>
+                            <div>
+                              <span className="font-medium">{event.author}</span>
+                              <div className="text-xs text-gray-500">{event.authorRole}</div>
+                            </div>
                           </div>
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
                             <Calendar className="h-4 w-4" />
-                            <span>{event.date} at {event.time}</span>
+                            <div>
+                              <span className="font-medium">{event.date}</span>
+                              <div className="text-xs text-gray-500">{event.time}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Building className="h-4 w-4" />
+                            <div>
+                              <span className="font-medium">{event.domain}</span>
+                              <div className="text-xs text-gray-500">Domain</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Layers className="h-4 w-4" />
+                            <div>
+                              <span className="font-medium">{event.tenancy}</span>
+                              <div className="text-xs text-gray-500">Tenancy</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Server className="h-4 w-4" />
+                            <div>
+                              <span className="font-medium">{event.system}</span>
+                              <div className="text-xs text-gray-500">{event.systemType}</div>
+                            </div>
                           </div>
                         </div>
                         
