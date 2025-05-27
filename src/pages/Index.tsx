@@ -9,7 +9,7 @@ import { StatusOverview } from "@/components/StatusOverview";
 import { EventsSection } from "@/components/EventsSection";
 import { IncidentTracking } from "@/components/IncidentTracking";
 import { ConfigPanel } from "@/components/ConfigPanel";
-import { AddEventModal } from "@/components/AddEventModal";
+import { ManualEventCreationModal } from "@/components/ManualEventCreationModal";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { StatusDashboard } from "@/components/StatusDashboard";
 import { TimelineHistory } from "@/components/TimelineHistory";
@@ -153,7 +153,7 @@ const Index = () => {
       </main>
 
       {/* Modals */}
-      <AddEventModal open={showAddEvent} onOpenChange={setShowAddEvent} />
+      <ManualEventCreationModal open={showAddEvent} onOpenChange={setShowAddEvent} />
       <ConfigPanel open={showConfig} onOpenChange={setShowConfig} />
       <NotificationCenter open={showNotifications} onOpenChange={setShowNotifications} />
     </div>
