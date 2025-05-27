@@ -70,8 +70,8 @@ const Index = () => {
       <nav className="bg-slate-950 border-b border-yellow-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Desktop Navigation */}
-          <div className="hidden md:flex">
-            <div className="flex space-x-1 w-full">
+          <div className="hidden md:flex justify-center">
+            <div className="flex space-x-1">
               {tabItems.map((item) => (
                 <button
                   key={item.value}
