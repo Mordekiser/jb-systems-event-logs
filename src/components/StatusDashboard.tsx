@@ -15,7 +15,7 @@ export const StatusDashboard = () => {
       ]
     },
     {
-      name: "Back of House",
+      name: "Front of House",
       tenancies: [
         { name: "Multi Country", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" },
         { name: "NZ", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" },
@@ -23,7 +23,7 @@ export const StatusDashboard = () => {
       ]
     },
     {
-      name: "Back of House",
+      name: "Data Services",
       tenancies: [
         { name: "Multi Country", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" },
         { name: "NZ", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" },
@@ -57,66 +57,46 @@ export const StatusDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Status Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Domains Column */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Domains</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="p-2 border rounded">Online</div>
-                {domains.map((domain, index) => (
-                  <div key={index} className="p-2 border rounded bg-gray-50">
+      {/* Status Matrix */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-6 gap-4">
+            {/* Headers */}
+            <div className="font-medium">Domain</div>
+            <div className="font-medium">Tenancy</div>
+            <div className="font-medium text-center">Alerts</div>
+            <div className="font-medium text-center">Healthchecks</div>
+            <div className="font-medium text-center">Incidents</div>
+            <div className="font-medium text-center">Releases</div>
+
+            {/* Status Rows */}
+            {domains.map((domain, domainIndex) => 
+              domain.tenancies.map((tenancy, tenancyIndex) => (
+                <React.Fragment key={`${domainIndex}-${tenancyIndex}`}>
+                  <div className="p-2 border rounded text-sm bg-blue-50 font-medium">
                     {domain.name}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Status Matrix */}
-        <div className="space-y-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-5 gap-4">
-                {/* Headers */}
-                <div className="font-medium">Tenancy</div>
-                <div className="font-medium text-center">Alerts</div>
-                <div className="font-medium text-center">Healthchecks</div>
-                <div className="font-medium text-center">Incidents</div>
-                <div className="font-medium text-center">Releases</div>
-
-                {/* Status Rows */}
-                {domains.map((domain, domainIndex) => 
-                  domain.tenancies.map((tenancy, tenancyIndex) => (
-                    <React.Fragment key={`${domainIndex}-${tenancyIndex}`}>
-                      <div className="p-2 border rounded text-sm bg-gray-50">
-                        {tenancy.name}
-                      </div>
-                      <div className="flex justify-center">
-                        {getStatusIcon(tenancy.alerts)}
-                      </div>
-                      <div className="flex justify-center">
-                        {getStatusIcon(tenancy.healthchecks)}
-                      </div>
-                      <div className="flex justify-center">
-                        {getStatusIcon(tenancy.incidents)}
-                      </div>
-                      <div className="flex justify-center">
-                        {getStatusIcon(tenancy.releases)}
-                      </div>
-                    </React.Fragment>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+                  <div className="p-2 border rounded text-sm bg-gray-50">
+                    {tenancy.name}
+                  </div>
+                  <div className="flex justify-center">
+                    {getStatusIcon(tenancy.alerts)}
+                  </div>
+                  <div className="flex justify-center">
+                    {getStatusIcon(tenancy.healthchecks)}
+                  </div>
+                  <div className="flex justify-center">
+                    {getStatusIcon(tenancy.incidents)}
+                  </div>
+                  <div className="flex justify-center">
+                    {getStatusIcon(tenancy.releases)}
+                  </div>
+                </React.Fragment>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Drill Down Section */}
       <Card>
