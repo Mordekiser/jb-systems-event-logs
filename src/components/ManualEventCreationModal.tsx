@@ -230,7 +230,7 @@ export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCrea
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="eventType">Event Type *</Label>
-                  <Select value={formData.eventType} onValueChange={(value: any) => setFormData(prev => ({ ...prev, eventType: value }))}>
+                  <Select value={formData.eventType} onValueChange={(value: "Incident" | "Deployment") => setFormData(prev => ({ ...prev, eventType: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select event type" />
                     </SelectTrigger>
@@ -242,7 +242,7 @@ export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCrea
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="impact">Impact *</Label>
-                  <Select value={formData.impact} onValueChange={(value: any) => setFormData(prev => ({ ...prev, impact: value }))}>
+                  <Select value={formData.impact} onValueChange={(value: "Trivial" | "Minor" | "Major") => setFormData(prev => ({ ...prev, impact: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select impact" />
                     </SelectTrigger>
@@ -281,7 +281,7 @@ export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCrea
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value: any) => setFormData(prev => ({ ...prev, status: value }))}>
+                  <Select value={formData.status} onValueChange={(value: "Under Investigation" | "Scheduled" | "In Progress" | "Complete") => setFormData(prev => ({ ...prev, status: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -307,7 +307,7 @@ export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCrea
             </CardContent>
           </Card>
 
-          {/* Timing */}
+          {/* Event Window */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Event Window</CardTitle>
