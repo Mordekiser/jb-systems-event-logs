@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,10 +25,10 @@ export const ApiListing = () => {
     );
   };
 
-  // Sample data structure
+  // Updated data structure with new domains
   const apiData = [
     {
-      domain: "E-Commerce Domain",
+      domain: "Front of House",
       applications: [
         {
           name: "Customer Management App",
@@ -74,7 +73,7 @@ export const ApiListing = () => {
       ]
     },
     {
-      domain: "Analytics Domain",
+      domain: "Back of House",
       applications: [
         {
           name: "Data Analytics App",
@@ -99,7 +98,7 @@ export const ApiListing = () => {
       ]
     },
     {
-      domain: "Security Domain",
+      domain: "Online",
       applications: [
         {
           name: "Access Control App",
@@ -110,6 +109,31 @@ export const ApiListing = () => {
                 { name: "Check Permissions API", method: "GET", endpoint: "/auth/permissions", status: "active" },
                 { name: "Grant Access API", method: "POST", endpoint: "/auth/grant", status: "active" },
                 { name: "Revoke Access API", method: "DELETE", endpoint: "/auth/revoke", status: "deprecated" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      domain: "Core Retail",
+      applications: [
+        {
+          name: "Inventory Management App",
+          systems: [
+            {
+              name: "Stock Management System",
+              apis: [
+                { name: "Get Stock API", method: "GET", endpoint: "/inventory/stock", status: "active" },
+                { name: "Update Stock API", method: "PUT", endpoint: "/inventory/stock/{id}", status: "active" },
+                { name: "Low Stock Alert API", method: "GET", endpoint: "/inventory/alerts", status: "active" }
+              ]
+            },
+            {
+              name: "Product Management System",
+              apis: [
+                { name: "Create Product API", method: "POST", endpoint: "/products/create", status: "active" },
+                { name: "Update Product API", method: "PUT", endpoint: "/products/{id}", status: "active" }
               ]
             }
           ]
