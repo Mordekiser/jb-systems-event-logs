@@ -55,7 +55,10 @@ export const EventEditModal = ({ open, onOpenChange, event }: EventEditModalProp
       fromTimestamp: new Date(formData.fromTimestamp).toISOString(),
       toTimestamp: new Date(formData.toTimestamp).toISOString(),
       updatedBy: "Current User",
-      updatedTimestamp: new Date().toISOString()
+      updatedTimestamp: new Date().toISOString(),
+      eventType: formData.eventType as "Incident" | "Deployment",
+      impact: formData.impact as "Trivial" | "Minor" | "Major",
+      status: formData.status as "Under Investigation" | "Scheduled" | "In Progress" | "Complete"
     };
 
     updateEvent(event.id, updatedEvent);
