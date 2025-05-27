@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,10 +46,8 @@ const Index = () => {
 
   const handleStatusClick = (statusType: string, tenancy: string, domain: string) => {
     // Navigate to different tabs based on status type
-    if (statusType === 'alerts') {
-      setActiveTab("alerts");
-    } else if (statusType === 'healthchecks') {
-      setActiveTab("azure-health");
+    if (statusType === 'alerts' || statusType === 'healthchecks') {
+      setActiveTab("azure-alerts");
     } else if (statusType === 'incidents') {
       setEventsFilter({ type: 'incident', domain, tenancy });
       setActiveTab("events");
@@ -97,8 +96,7 @@ const Index = () => {
     const getTabLabel = (tabValue: string) => {
       switch (tabValue) {
         case "status-dashboard": return "Status Dashboard";
-        case "alerts": return "Alerts";
-        case "azure-health": return "Azure AppInsight Health";
+        case "azure-alerts": return "Azure Alerts";
         case "api-listing": return "API Listing";
         case "events": return "Events";
         case "monitoring": return "Monitoring";
@@ -176,8 +174,7 @@ const Index = () => {
 
   const tabItems = [
     { value: "status-dashboard", label: "Status Dashboard", icon: Activity },
-    { value: "alerts", label: "Alerts", icon: AlertTriangle },
-    { value: "azure-health", label: "Azure AppInsight Health", icon: Database },
+    { value: "azure-alerts", label: "Azure Alerts", icon: AlertTriangle },
     { value: "api-listing", label: "API Listing", icon: Code },
     { value: "events", label: "Events", icon: Calendar },
     { value: "monitoring", label: "Monitoring", icon: BarChart3 },
@@ -287,11 +284,7 @@ const Index = () => {
                   <StatusDashboard onStatusClick={handleStatusClick} onDomainClick={handleDomainClick} />
                 </TabsContent>
 
-                <TabsContent value="alerts" className="space-y-6">
-                  <AzureAlerts />
-                </TabsContent>
-
-                <TabsContent value="azure-health" className="space-y-6">
+                <TabsContent value="azure-alerts" className="space-y-6">
                   <AzureAlerts />
                 </TabsContent>
 
