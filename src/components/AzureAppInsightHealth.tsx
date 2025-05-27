@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle, XCircle, AlertTriangle, Activity, Clock, Database, Globe } from "lucide-react";
+import { HistoryButton } from "./HistoryButton";
 
 export const AzureAppInsightHealth = () => {
   const [selectedDomain, setSelectedDomain] = useState("All Domains");
@@ -252,6 +253,11 @@ export const AzureAppInsightHealth = () => {
               </div>
 
               <div className="flex justify-end space-x-2">
+                <HistoryButton
+                  entityType="azure"
+                  entityId={check.id.toString()}
+                  entityTitle={check.name}
+                />
                 <Button variant="outline" size="sm">
                   <Globe className="h-4 w-4 mr-2" />
                   View in Azure

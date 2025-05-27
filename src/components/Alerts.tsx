@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle, CheckCircle, XCircle, Clock, Filter, Bell } from "lucide-react";
+import { HistoryButton } from "./HistoryButton";
 
 export const Alerts = () => {
   const [selectedSeverity, setSelectedSeverity] = useState("All Severities");
@@ -210,6 +211,11 @@ export const Alerts = () => {
               </div>
 
               <div className="flex justify-end space-x-2">
+                <HistoryButton
+                  entityType="alert"
+                  entityId={alert.id.toString()}
+                  entityTitle={alert.title}
+                />
                 <Button variant="outline" size="sm">
                   View Details
                 </Button>
