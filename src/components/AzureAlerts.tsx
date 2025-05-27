@@ -14,10 +14,11 @@ interface Alert {
   id: number;
   title: string;
   description: string;
-  impact: string; // Changed from severity to impact
+  impact: string;
   status: string;
   domain: string;
   tenancy: string;
+  application: string;
   timestamp: string;
   source: string;
   metric: string;
@@ -32,6 +33,7 @@ interface HealthCheck {
   status: string;
   domain: string;
   tenancy: string;
+  application: string;
   lastCheck: string;
   responseTime: string;
   endpoint: string;
@@ -44,25 +46,52 @@ type AzureItem = Alert | HealthCheck;
 const generateDemoAlerts = (): Alert[] => {
   const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
   const tenancies = ["AU", "NZ", "UK", "US"];
-  const impacts = ["Major", "Minor", "Trivial"]; // Changed from severities to impacts
+  const impacts = ["Major", "Minor", "Trivial"];
   const statuses = ["active", "investigating", "resolved"];
   const sources = ["Azure Monitor", "Application Insights", "Database Monitor", "API Gateway", "Load Balancer"];
-  
-  const alertTitles = [
-    "High CPU Usage", "Memory Leak Detected", "Database Connection Timeout", "API Response Time Degradation",
-    "Disk Space Warning", "Network Latency Spike", "SSL Certificate Expiring", "Failed Login Attempts",
-    "Payment Gateway Timeout", "Email Service Failure", "Cache Miss Rate High", "Queue Length Growing",
-    "Error Rate Elevated", "Backup Job Failed", "Security Scan Alert", "Performance Degradation",
-    "Service Unavailable", "Connection Pool Exhausted", "Thread Count High", "GC Pressure Alert",
-    "Database Deadlock", "File System Full", "Network Packet Loss", "Service Discovery Failed",
-    "Load Balancer Health Check Failed", "CDN Cache Miss", "Search Index Lag", "Notification Delivery Failed",
-    "User Session Timeout", "API Rate Limit Exceeded", "Database Query Slow", "Memory Usage High",
-    "Connection Refused", "Service Dependency Down", "Authentication Failed", "Authorization Error"
+  const applications = [
+    "JB Direct", "In-Store", "Online", "Fulfilment & Consignment", 
+    "Receiving & Transfer", "SMS Communication", "Email Communication", "Fraud Prevention"
   ];
+  
+  const alertTitlesByApplication = {
+    "JB Direct": [
+      "JB Direct Mobile App High CPU Usage", "JB Direct API Response Time Degradation", "JB Direct Payment Gateway Timeout",
+      "JB Direct Mobile Authentication Issues", "JB Direct Cart Sync Memory Leak", "JB Direct Performance Degradation"
+    ],
+    "In-Store": [
+      "In-Store POS System High CPU", "In-Store Payment Terminal Memory Leak", "In-Store Barcode Scanner Connection Timeout",
+      "In-Store Inventory Sync High Error Rate", "In-Store Staff Portal SSL Certificate Expiring", "In-Store Receipt Printer Connection Failed"
+    ],
+    "Online": [
+      "Online Website High Response Time", "Online Checkout High Error Rate", "Online Search Function Memory Leak",
+      "Online Product Images CDN Cache Miss", "Online Payment Gateway High CPU", "Online Shopping Cart Connection Pool Exhausted"
+    ],
+    "Fulfilment & Consignment": [
+      "Fulfilment Order Processing Queue Length Growing", "Fulfilment Inventory Database Connection Timeout", "Fulfilment Shipping Integration SSL Certificate Expiring",
+      "Fulfilment Warehouse System Memory Usage High", "Fulfilment Stock Level Sync High Error Rate", "Fulfilment API Response Time Degradation"
+    ],
+    "Receiving & Transfer": [
+      "Receiving Stock Receipt System Disk Space Warning", "Receiving Transfer Orders Network Latency Spike", "Receiving Portal Authentication Failed",
+      "Receiving Stock Movement Tracking Connection Refused", "Receiving Supplier Integration Memory Leak", "Receiving Goods-In Process High CPU Usage"
+    ],
+    "SMS Communication": [
+      "SMS Delivery Service Queue Length Growing", "SMS Text Notifications High Error Rate", "SMS Gateway Connection Pool Exhausted",
+      "SMS Marketing Service Memory Usage High", "SMS Authentication Database Deadlock", "SMS Bulk Processing Network Packet Loss"
+    ],
+    "Email Communication": [
+      "Email Delivery SMTP Connection Timeout", "Email Newsletter System Memory Leak", "Email Server High CPU Usage",
+      "Email Transactional Service Queue Length Growing", "Email Template System Network Latency Spike", "Email Queue Backup High Error Rate"
+    ],
+    "Fraud Prevention": [
+      "Fraud Detection System High CPU Usage", "Fraud Risk Assessment Memory Leak", "Fraud Security Scanner Connection Timeout",
+      "Fraud Payment Verification High Error Rate", "Fraud Rules Engine Database Deadlock", "Fraud Risk Score Calculation Performance Degradation"
+    ]
+  };
 
   const descriptions = [
     "CPU usage has exceeded threshold for extended period",
-    "Memory consumption increasing without release",
+    "Memory consumption increasing without release", 
     "Multiple database connection timeouts detected",
     "API response times have increased significantly",
     "Disk space usage has exceeded warning threshold",
@@ -86,12 +115,15 @@ const generateDemoAlerts = (): Alert[] => {
   const alerts: Alert[] = [];
   
   for (let i = 1; i <= 50; i++) {
+    const application = applications[Math.floor(Math.random() * applications.length)];
     const domain = domains[Math.floor(Math.random() * domains.length)];
     const tenancy = tenancies[Math.floor(Math.random() * tenancies.length)];
-    const impact = impacts[Math.floor(Math.random() * impacts.length)]; // Changed from severity to impact
+    const impact = impacts[Math.floor(Math.random() * impacts.length)];
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     const source = sources[Math.floor(Math.random() * sources.length)];
-    const title = alertTitles[Math.floor(Math.random() * alertTitles.length)];
+    
+    const applicationTitles = alertTitlesByApplication[application as keyof typeof alertTitlesByApplication];
+    const title = applicationTitles[Math.floor(Math.random() * applicationTitles.length)];
     const description = descriptions[Math.floor(Math.random() * descriptions.length)];
     
     const timestamp = new Date(2025, 0, Math.floor(Math.random() * 27) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
@@ -106,12 +138,13 @@ const generateDemoAlerts = (): Alert[] => {
     
     alerts.push({
       id: i,
-      title: `${title} - ${domain} ${tenancy}`,
+      title: `${title} - ${tenancy}`,
       description,
-      impact, // Changed from severity to impact
+      impact,
       status,
       domain,
       tenancy,
+      application,
       timestamp: timestamp.toISOString().slice(0, 19).replace('T', ' '),
       source,
       metric: metrics[Math.floor(Math.random() * metrics.length)],
@@ -127,14 +160,45 @@ const generateDemoHealthChecks = (): HealthCheck[] => {
   const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
   const tenancies = ["AU", "NZ", "UK", "US"];
   const statuses = ["healthy", "degraded", "unhealthy"];
-  
-  const healthCheckNames = [
-    "Database Connection", "API Gateway Health", "Cache Service", "Authentication Service",
-    "Payment Processing", "Email Service", "File Storage", "Message Queue", "Analytics Engine",
-    "Monitoring System", "Backup Service", "CDN Health", "Search Engine", "Notification Service",
-    "Load Balancer", "Security Scanner", "Order Processing", "Customer Portal", "Admin Dashboard",
-    "Inventory Management", "User Session Service", "Logging Service", "Metrics Collector"
+  const applications = [
+    "JB Direct", "In-Store", "Online", "Fulfilment & Consignment", 
+    "Receiving & Transfer", "SMS Communication", "Email Communication", "Fraud Prevention"
   ];
+  
+  const healthCheckNamesByApplication = {
+    "JB Direct": [
+      "JB Direct Database Connection", "JB Direct API Gateway Health", "JB Direct Cache Service", "JB Direct Authentication Service",
+      "JB Direct Payment Processing", "JB Direct Mobile App Health", "JB Direct User Session Service"
+    ],
+    "In-Store": [
+      "In-Store POS Database Connection", "In-Store Payment Terminal Health", "In-Store Inventory Sync", "In-Store Staff Portal Health",
+      "In-Store Barcode Scanner Service", "In-Store Receipt Printer Health", "In-Store Network Health"
+    ],
+    "Online": [
+      "Online Website Health", "Online Checkout Service", "Online Search Engine", "Online Product Catalog Health",
+      "Online CDN Health", "Online Shopping Cart Service", "Online User Account Health"
+    ],
+    "Fulfilment & Consignment": [
+      "Fulfilment Order Processing Health", "Fulfilment Inventory Management", "Fulfilment Shipping Integration", "Fulfilment Warehouse System Health",
+      "Fulfilment Stock Tracking", "Fulfilment API Health", "Fulfilment Reporting Service"
+    ],
+    "Receiving & Transfer": [
+      "Receiving Stock Receipt Health", "Receiving Transfer Management", "Receiving Portal Health", "Receiving Stock Movement Health",
+      "Receiving Supplier Integration", "Receiving Goods-In Health", "Receiving Tracking Service"
+    ],
+    "SMS Communication": [
+      "SMS Gateway Health", "SMS Delivery Service", "SMS Queue Health", "SMS Marketing Service Health",
+      "SMS Authentication Health", "SMS Template Service", "SMS Analytics Health"
+    ],
+    "Email Communication": [
+      "Email SMTP Health", "Email Newsletter Service", "Email Template Health", "Email Delivery Queue Health",
+      "Email Authentication Health", "Email Tracking Service", "Email Analytics Health"
+    ],
+    "Fraud Prevention": [
+      "Fraud Detection Health", "Fraud Risk Assessment", "Fraud Security Scanner", "Fraud Payment Verification Health",
+      "Fraud Rules Engine Health", "Fraud Analytics Service", "Fraud Reporting Health"
+    ]
+  };
 
   const descriptions = [
     "SQL Server database connectivity check",
@@ -158,10 +222,13 @@ const generateDemoHealthChecks = (): HealthCheck[] => {
   const healthChecks: HealthCheck[] = [];
   
   for (let i = 51; i <= 80; i++) {
+    const application = applications[Math.floor(Math.random() * applications.length)];
     const domain = domains[Math.floor(Math.random() * domains.length)];
     const tenancy = tenancies[Math.floor(Math.random() * tenancies.length)];
     const status = statuses[Math.floor(Math.random() * statuses.length)];
-    const name = healthCheckNames[Math.floor(Math.random() * healthCheckNames.length)];
+    
+    const applicationNames = healthCheckNamesByApplication[application as keyof typeof healthCheckNamesByApplication];
+    const name = applicationNames[Math.floor(Math.random() * applicationNames.length)];
     const description = descriptions[Math.floor(Math.random() * descriptions.length)];
     const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
     
@@ -186,6 +253,7 @@ const generateDemoHealthChecks = (): HealthCheck[] => {
       status,
       domain,
       tenancy,
+      application,
       lastCheck: lastCheck.toISOString().slice(0, 19).replace('T', ' '),
       responseTime,
       endpoint,
@@ -209,7 +277,7 @@ export const AzureAlerts = () => {
   const healthChecks: HealthCheck[] = generateDemoHealthChecks();
   const allItems: AzureItem[] = [...alerts, ...healthChecks];
 
-  const getImpactColor = (impact: string) => { // Changed from getSeverityColor to getImpactColor
+  const getImpactColor = (impact: string) => {
     switch (impact) {
       case "Major":
         return "bg-red-100 text-red-800 border-red-200";
@@ -238,7 +306,7 @@ export const AzureAlerts = () => {
     }
   };
 
-  const getImpactIcon = (impact: string) => { // Changed from getSeverityIcon to getImpactIcon
+  const getImpactIcon = (impact: string) => {
     switch (impact) {
       case "Major":
         return <XCircle className="h-4 w-4 text-red-600" />;
@@ -304,9 +372,9 @@ export const AzureAlerts = () => {
 
   const alertsSummary = {
     total: alerts.length,
-    major: alerts.filter(a => a.impact === "Major").length, // Changed from critical to major
-    minor: alerts.filter(a => a.impact === "Minor").length, // Changed from high to minor
-    trivial: alerts.filter(a => a.impact === "Trivial").length // Changed from medium to trivial
+    major: alerts.filter(a => a.impact === "Major").length,
+    minor: alerts.filter(a => a.impact === "Minor").length,
+    trivial: alerts.filter(a => a.impact === "Trivial").length
   };
 
   const healthSummary = {
@@ -329,7 +397,7 @@ export const AzureAlerts = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-4"> {/* Changed from 4 to 3 columns */}
+            <div className="grid grid-cols-3 gap-4">
               <div className="flex items-center space-x-2">
                 <XCircle className="h-4 w-4 text-red-600" />
                 <span className="text-sm">Major: {alertsSummary.major}</span>
@@ -346,7 +414,7 @@ export const AzureAlerts = () => {
           </CardContent>
         </Card>
 
-        {/* Health Checks Summary - keeping the same */}
+        {/* Health Checks Summary */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -432,9 +500,11 @@ export const AzureAlerts = () => {
                 </div>
               </div>
 
-              {/* ... keep existing code (grid section with domain, tenancy, source, timestamp) */}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Application</p>
+                  <p className="text-sm">{item.application}</p>
+                </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Domain</p>
                   <p className="text-sm">{item.domain}</p>
@@ -535,7 +605,6 @@ export const AzureAlerts = () => {
         healthCheck={selectedHealthCheck}
       />
 
-      {/* Back to Top Button */}
       <BackToTopButton />
     </div>
   );

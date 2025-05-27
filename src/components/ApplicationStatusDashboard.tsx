@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +9,49 @@ interface ApplicationStatusDashboardProps {
   onApplicationClick?: (application: string) => void;
 }
 
+// Azure alerts data (matching the structure from AzureAlerts component)
+const generateAzureAlerts = () => {
+  const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
+  const tenancies = ["AU", "NZ", "UK", "US"];
+  const impacts = ["Major", "Minor", "Trivial"];
+  const statuses = ["active", "investigating", "resolved"];
+  const applications = [
+    "JB Direct", "In-Store", "Online", "Fulfilment & Consignment", 
+    "Receiving & Transfer", "SMS Communication", "Email Communication", "Fraud Prevention"
+  ];
+
+  const alerts = [];
+  for (let i = 1; i <= 50; i++) {
+    const application = applications[Math.floor(Math.random() * applications.length)];
+    const domain = domains[Math.floor(Math.random() * domains.length)];
+    const tenancy = tenancies[Math.floor(Math.random() * tenancies.length)];
+    const impact = impacts[Math.floor(Math.random() * impacts.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    
+    const timestamp = new Date(2025, 0, Math.floor(Math.random() * 27) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+    
+    alerts.push({
+      id: i,
+      title: `Alert for ${application} - ${domain} ${tenancy}`,
+      application,
+      impact,
+      status,
+      domain,
+      tenancy,
+      timestamp: timestamp.toISOString().slice(0, 19).replace('T', ' '),
+      type: "azure-alert"
+    });
+  }
+  
+  return alerts;
+};
+
 export const ApplicationStatusDashboard = ({ onApplicationClick }: ApplicationStatusDashboardProps) => {
   const { events } = useEvents();
   const { incidents } = useIncidents();
+
+  // Get Azure alerts data
+  const azureAlerts = generateAzureAlerts();
 
   const applications = [
     { name: "JB Direct" },
@@ -39,7 +78,13 @@ export const ApplicationStatusDashboard = ({ onApplicationClick }: ApplicationSt
       event.status !== 'Complete'
     );
 
-    // Combine all impacts from incidents and events
+    // Get active Azure alerts for this application (exclude resolved)
+    const applicationAlerts = azureAlerts.filter(alert => 
+      alert.application === applicationName && 
+      alert.status !== 'resolved'
+    );
+
+    // Combine all impacts from incidents, events, and Azure alerts
     const allImpacts: string[] = [];
     
     // Add incident impacts (map severity to impact)
@@ -58,14 +103,19 @@ export const ApplicationStatusDashboard = ({ onApplicationClick }: ApplicationSt
       allImpacts.push(event.impact);
     });
 
+    // Add Azure alert impacts
+    applicationAlerts.forEach(alert => {
+      allImpacts.push(alert.impact);
+    });
+
     // Apply impact hierarchy logic
     if (allImpacts.includes('Major')) {
       return {
         status: 'danger',
         statusText: 'Danger',
         message: `${applicationName} is completely down or experiencing critical failures. Service is unavailable and requires immediate attention.`,
-        lastUpdated: applicationIncidents.length > 0 || applicationEvents.length > 0 
-          ? getLatestUpdateTime(applicationIncidents, applicationEvents)
+        lastUpdated: applicationIncidents.length > 0 || applicationEvents.length > 0 || applicationAlerts.length > 0
+          ? getLatestUpdateTime(applicationIncidents, applicationEvents, applicationAlerts)
           : "No recent issues"
       };
     }
@@ -75,8 +125,8 @@ export const ApplicationStatusDashboard = ({ onApplicationClick }: ApplicationSt
         status: 'capped',
         statusText: 'Capped',
         message: `${applicationName} performance is degraded. Response times are higher than normal and some features may be slow.`,
-        lastUpdated: applicationIncidents.length > 0 || applicationEvents.length > 0 
-          ? getLatestUpdateTime(applicationIncidents, applicationEvents)
+        lastUpdated: applicationIncidents.length > 0 || applicationEvents.length > 0 || applicationAlerts.length > 0
+          ? getLatestUpdateTime(applicationIncidents, applicationEvents, applicationAlerts)
           : "No recent issues"
       };
     }
@@ -90,10 +140,11 @@ export const ApplicationStatusDashboard = ({ onApplicationClick }: ApplicationSt
     };
   };
 
-  const getLatestUpdateTime = (incidents: any[], events: any[]) => {
+  const getLatestUpdateTime = (incidents: any[], events: any[], alerts: any[]) => {
     const allTimes = [
       ...incidents.map(i => new Date(i.updatedAt).getTime()),
-      ...events.map(e => new Date(e.updatedTimestamp).getTime())
+      ...events.map(e => new Date(e.updatedTimestamp).getTime()),
+      ...alerts.map(a => new Date(a.timestamp).getTime())
     ];
     
     if (allTimes.length === 0) return "No recent updates";
