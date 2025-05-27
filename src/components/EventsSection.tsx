@@ -1,11 +1,26 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Package, GitBranch, Clock, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar, Package, GitBranch, Clock, Trash2, Filter, X, Eye } from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
 import { EventDeleteConfirmDialog } from "@/components/EventDeleteConfirmDialog";
-import { EventFilters, type EventFilters as EventFiltersType } from "@/components/EventFilters";
+import { EventDetailsModal } from "@/components/EventDetailsModal";
+
+interface EventFilters {
+  createdBy?: string;
+  createdFromDate?: string;
+  createdToDate?: string;
+  updatedBy?: string;
+  updatedFromDate?: string;
+  updatedToDate?: string;
+  eventCreationType?: "Manual" | "Azure Alert";
+  historyType?: "Initial" | "Update" | "Complete";
+}
 
 interface EventsSectionProps {
   filter?: {
@@ -28,7 +43,10 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
     eventTitle: "",
     eventType: ""
   });
-  const [eventFilters, setEventFilters] = useState<EventFiltersType>({});
+  const [eventFilters, setEventFilters] = useState<EventFilters>({});
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [showEventDetails, setShowEventDetails] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -86,6 +104,25 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
       eventType: ""
     });
   };
+
+  const handleViewDetails = (event: any) => {
+    setSelectedEvent(event);
+    setShowEventDetails(true);
+  };
+
+  const handleFilterChange = (key: keyof EventFilters, value: string | undefined) => {
+    const newFilters = {
+      ...eventFilters,
+      [key]: value === "all" ? undefined : value || undefined
+    };
+    setEventFilters(newFilters);
+  };
+
+  const clearAllFilters = () => {
+    setEventFilters({});
+  };
+
+  const hasActiveFilters = Object.values(eventFilters).some(value => value !== undefined && value !== "");
 
   const filterEvents = () => {
     let filteredEvents = events;
@@ -156,7 +193,7 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Events Header */}
+      {/* Events Header with Integrated Filters */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -164,15 +201,146 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
               <Calendar className="h-5 w-5" />
               <span>System Events</span>
             </CardTitle>
+            <div className="flex items-center space-x-2">
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearAllFilters}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Clear All
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+              >
+                <Filter className="h-4 w-4 mr-1" />
+                {isFiltersExpanded ? "Hide" : "Show"} Filters
+              </Button>
+            </div>
           </div>
         </CardHeader>
-      </Card>
+        
+        {isFiltersExpanded && (
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Created By */}
+              <div>
+                <Label htmlFor="createdBy">Created By</Label>
+                <Input
+                  id="createdBy"
+                  placeholder="Enter creator name"
+                  value={eventFilters.createdBy || ""}
+                  onChange={(e) => handleFilterChange("createdBy", e.target.value)}
+                />
+              </div>
 
-      {/* Event Filters */}
-      <EventFilters 
-        onFiltersChange={setEventFilters}
-        currentFilters={eventFilters}
-      />
+              {/* Updated By */}
+              <div>
+                <Label htmlFor="updatedBy">Updated By</Label>
+                <Input
+                  id="updatedBy"
+                  placeholder="Enter updater name"
+                  value={eventFilters.updatedBy || ""}
+                  onChange={(e) => handleFilterChange("updatedBy", e.target.value)}
+                />
+              </div>
+
+              {/* Event Creation Type */}
+              <div>
+                <Label htmlFor="eventCreationType">Event Creation Type</Label>
+                <Select
+                  value={eventFilters.eventCreationType || "all"}
+                  onValueChange={(value) => handleFilterChange("eventCreationType", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select creation type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="Manual">Manual</SelectItem>
+                    <SelectItem value="Azure Alert">Azure Alert</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* History Type */}
+              <div>
+                <Label htmlFor="historyType">History Type</Label>
+                <Select
+                  value={eventFilters.historyType || "all"}
+                  onValueChange={(value) => handleFilterChange("historyType", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select history type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="Initial">Initial</SelectItem>
+                    <SelectItem value="Update">Update</SelectItem>
+                    <SelectItem value="Complete">Complete</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Date Filters */}
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium">Created Date Range</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
+                  <div>
+                    <Label htmlFor="createdFromDate" className="text-xs text-gray-500">From</Label>
+                    <Input
+                      id="createdFromDate"
+                      type="datetime-local"
+                      value={eventFilters.createdFromDate || ""}
+                      onChange={(e) => handleFilterChange("createdFromDate", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="createdToDate" className="text-xs text-gray-500">To</Label>
+                    <Input
+                      id="createdToDate"
+                      type="datetime-local"
+                      value={eventFilters.createdToDate || ""}
+                      onChange={(e) => handleFilterChange("createdToDate", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Updated Date Range</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
+                  <div>
+                    <Label htmlFor="updatedFromDate" className="text-xs text-gray-500">From</Label>
+                    <Input
+                      id="updatedFromDate"
+                      type="datetime-local"
+                      value={eventFilters.updatedFromDate || ""}
+                      onChange={(e) => handleFilterChange("updatedFromDate", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="updatedToDate" className="text-xs text-gray-500">To</Label>
+                    <Input
+                      id="updatedToDate"
+                      type="datetime-local"
+                      value={eventFilters.updatedToDate || ""}
+                      onChange={(e) => handleFilterChange("updatedToDate", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
 
       {/* Events Timeline */}
       <div className="space-y-4">
@@ -201,6 +369,14 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
                   <Badge className={getStatusColor(event.status)}>
                     {event.status}
                   </Badge>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleViewDetails(event)}
+                    className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -286,6 +462,13 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
         eventId={deleteDialog.eventId}
         eventTitle={deleteDialog.eventTitle}
         eventType={deleteDialog.eventType}
+      />
+
+      {/* Event Details Modal */}
+      <EventDetailsModal
+        open={showEventDetails}
+        onOpenChange={setShowEventDetails}
+        event={selectedEvent}
       />
     </div>
   );
