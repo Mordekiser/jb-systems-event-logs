@@ -85,15 +85,15 @@ export const ApiListing = () => {
 
   return (
     <div className="fixed inset-0 bg-black text-white overflow-auto">
-      <div className="p-6 space-y-6">
-        <Card className="bg-black border-gray-700">
-          <CardHeader>
+      <div className="bg-black space-y-0">
+        <Card className="bg-black border-gray-700 m-0 rounded-none">
+          <CardHeader className="p-6">
             <CardTitle className="text-xl text-white flex items-center space-x-2">
               <Code className="h-5 w-5" />
               <span>APIs</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6 pt-0">
             {/* Filters and Controls */}
             <div className="flex flex-col md:flex-row gap-4 mb-6">
               <div className="flex items-center space-x-2">
