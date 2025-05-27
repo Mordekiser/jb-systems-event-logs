@@ -1,10 +1,13 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Package, GitBranch, Clock } from "lucide-react";
+import { useState } from "react";
+import { ManualReleaseCreationModal } from "./ManualReleaseCreationModal";
 
 export const ReleaseEvents = () => {
+  const [showAddRelease, setShowAddRelease] = useState(false);
+
   const releases = [
     {
       id: 1,
@@ -90,7 +93,7 @@ export const ReleaseEvents = () => {
                 <Calendar className="h-4 w-4 mr-2" />
                 Schedule Release
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={() => setShowAddRelease(true)}>
                 <Package className="h-4 w-4 mr-2" />
                 New Release
               </Button>
@@ -166,6 +169,12 @@ export const ReleaseEvents = () => {
           </Card>
         ))}
       </div>
+
+      {/* Manual Release Creation Modal */}
+      <ManualReleaseCreationModal 
+        open={showAddRelease} 
+        onOpenChange={setShowAddRelease} 
+      />
     </div>
   );
 };
