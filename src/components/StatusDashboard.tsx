@@ -6,13 +6,6 @@ export const StatusDashboard = () => {
   const domains = [{
     name: "Back of House",
     tenancies: [{
-      name: "Multi Country",
-      alerts: "green",
-      healthchecks: "green",
-      incidents: "green",
-      releases: "green",
-      services: 12
-    }, {
       name: "NZ",
       alerts: "green",
       healthchecks: "green",
@@ -20,7 +13,7 @@ export const StatusDashboard = () => {
       releases: "green",
       services: 8
     }, {
-      name: "AUS",
+      name: "AU",
       alerts: "red",
       healthchecks: "red",
       incidents: "green",
@@ -30,13 +23,6 @@ export const StatusDashboard = () => {
   }, {
     name: "Front of House",
     tenancies: [{
-      name: "Multi Country",
-      alerts: "green",
-      healthchecks: "green",
-      incidents: "green",
-      releases: "green",
-      services: 6
-    }, {
       name: "NZ",
       alerts: "green",
       healthchecks: "green",
@@ -44,7 +30,7 @@ export const StatusDashboard = () => {
       releases: "green",
       services: 4
     }, {
-      name: "AUS",
+      name: "AU",
       alerts: "green",
       healthchecks: "green",
       incidents: "green",
@@ -54,13 +40,6 @@ export const StatusDashboard = () => {
   }, {
     name: "Data Services",
     tenancies: [{
-      name: "Multi Country",
-      alerts: "green",
-      healthchecks: "green",
-      incidents: "green",
-      releases: "green",
-      services: 9
-    }, {
       name: "NZ",
       alerts: "green",
       healthchecks: "green",
@@ -68,7 +47,7 @@ export const StatusDashboard = () => {
       releases: "green",
       services: 7
     }, {
-      name: "AUS",
+      name: "AU",
       alerts: "green",
       healthchecks: "green",
       incidents: "green",
@@ -76,6 +55,7 @@ export const StatusDashboard = () => {
       services: 8
     }]
   }];
+  
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "green":
