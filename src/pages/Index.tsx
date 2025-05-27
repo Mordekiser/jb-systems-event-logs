@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -289,11 +288,11 @@ const Index = () => {
                 </TabsContent>
 
                 <TabsContent value="alerts" className="space-y-6">
-                  <Alerts />
+                  <AzureAlerts />
                 </TabsContent>
 
                 <TabsContent value="azure-health" className="space-y-6">
-                  <AzureAppInsightHealth />
+                  <AzureAlerts />
                 </TabsContent>
 
                 <TabsContent value="api-listing" className="space-y-6">

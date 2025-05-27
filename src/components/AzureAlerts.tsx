@@ -10,15 +10,46 @@ import { AlertDetailsModal } from "./AlertDetailsModal";
 import { AzureHealthDetailsModal } from "./AzureHealthDetailsModal";
 import { useToast } from "@/hooks/use-toast";
 
+interface Alert {
+  id: number;
+  title: string;
+  description: string;
+  severity: string;
+  status: string;
+  domain: string;
+  tenancy: string;
+  timestamp: string;
+  source: string;
+  metric: string;
+  affectedServices: string[];
+  type: "alert";
+}
+
+interface HealthCheck {
+  id: number;
+  name: string;
+  description: string;
+  status: string;
+  domain: string;
+  tenancy: string;
+  lastCheck: string;
+  responseTime: string;
+  endpoint: string;
+  details: string;
+  type: "healthcheck";
+}
+
+type AzureItem = Alert | HealthCheck;
+
 export const AzureAlerts = () => {
   const [selectedDomain, setSelectedDomain] = useState("All Domains");
-  const [selectedAlert, setSelectedAlert] = useState<any>(null);
-  const [selectedHealthCheck, setSelectedHealthCheck] = useState<any>(null);
+  const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
+  const [selectedHealthCheck, setSelectedHealthCheck] = useState<HealthCheck | null>(null);
   const [isAlertDetailsModalOpen, setIsAlertDetailsModalOpen] = useState(false);
   const [isHealthDetailsModalOpen, setIsHealthDetailsModalOpen] = useState(false);
   const { toast } = useToast();
 
-  const alerts = [
+  const alerts: Alert[] = [
     {
       id: 1,
       title: "High CPU Usage - Back of House NZ",
@@ -77,7 +108,7 @@ export const AzureAlerts = () => {
     }
   ];
 
-  const healthChecks = [
+  const healthChecks: HealthCheck[] = [
     {
       id: 5,
       name: "Database Connection",
@@ -145,7 +176,7 @@ export const AzureAlerts = () => {
     }
   ];
 
-  const allItems = [...alerts, ...healthChecks];
+  const allItems: AzureItem[] = [...alerts, ...healthChecks];
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -211,31 +242,33 @@ export const AzureAlerts = () => {
     return matchesDomain;
   });
 
-  const handleViewAlertDetails = (alert: any) => {
+  const handleViewAlertDetails = (alert: Alert) => {
     setSelectedAlert(alert);
     setIsAlertDetailsModalOpen(true);
   };
 
-  const handleViewHealthDetails = (healthCheck: any) => {
+  const handleViewHealthDetails = (healthCheck: HealthCheck) => {
     setSelectedHealthCheck(healthCheck);
     setIsHealthDetailsModalOpen(true);
   };
 
-  const handleAcknowledge = (item: any) => {
+  const handleAcknowledge = (item: AzureItem) => {
+    const title = item.type === 'alert' ? item.title : item.name;
     toast({
       title: "Alert Acknowledged",
-      description: `${item.type === 'alert' ? 'Alert' : 'Health Check'} "${item.title || item.name}" has been acknowledged.`,
+      description: `${item.type === 'alert' ? 'Alert' : 'Health Check'} "${title}" has been acknowledged.`,
     });
   };
 
-  const handleViewInAzure = (item: any) => {
+  const handleViewInAzure = (item: AzureItem) => {
+    const title = item.type === 'alert' ? item.title : item.name;
     toast({
       title: "Opening Azure Portal",
-      description: `Opening ${item.title || item.name} in Azure Application Insights.`,
+      description: `Opening ${title} in Azure Application Insights.`,
     });
   };
 
-  const handleRunCheck = (item: any) => {
+  const handleRunCheck = (item: HealthCheck) => {
     toast({
       title: "Running Health Check",
       description: `Manually triggering health check for ${item.name}.`,
@@ -356,7 +389,9 @@ export const AzureAlerts = () => {
                 <div className="flex items-start space-x-3">
                   {item.type === 'alert' ? getSeverityIcon(item.severity) : getHealthIcon(item.status)}
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{item.title || item.name}</h3>
+                    <h3 className="font-semibold text-lg">
+                      {item.type === 'alert' ? item.title : item.name}
+                    </h3>
                     <p className="text-sm text-gray-600 mt-1">{item.description}</p>
                   </div>
                 </div>
@@ -386,13 +421,17 @@ export const AzureAlerts = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">Source</p>
-                  <p className="text-sm">{item.source || 'Azure Health Check'}</p>
+                  <p className="text-sm">
+                    {item.type === 'alert' ? item.source : 'Azure Health Check'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-500">
                     {item.type === 'alert' ? 'Timestamp' : 'Last Check'}
                   </p>
-                  <p className="text-sm">{item.timestamp || item.lastCheck}</p>
+                  <p className="text-sm">
+                    {item.type === 'alert' ? item.timestamp : item.lastCheck}
+                  </p>
                 </div>
               </div>
 
@@ -401,7 +440,7 @@ export const AzureAlerts = () => {
                   {item.type === 'alert' ? 'Metric' : 'Endpoint'}
                 </p>
                 <p className="text-sm font-mono bg-gray-50 px-2 py-1 rounded">
-                  {item.metric || item.endpoint}
+                  {item.type === 'alert' ? item.metric : item.endpoint}
                 </p>
               </div>
 
@@ -409,7 +448,7 @@ export const AzureAlerts = () => {
                 <HistoryButton
                   entityType={item.type === 'alert' ? 'alert' : 'azure'}
                   entityId={item.id.toString()}
-                  entityTitle={item.title || item.name}
+                  entityTitle={item.type === 'alert' ? item.title : item.name}
                 />
                 <Button 
                   variant="outline" 
