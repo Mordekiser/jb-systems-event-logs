@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -102,9 +103,25 @@ const Index = () => {
     const hasIncidentFilter = incidentFilter.domain || incidentFilter.tenancy;
     const hasApiFilter = apiListingFilter;
 
-    if (!hasTimelineFilter && !hasIncidentFilter && !hasApiFilter) {
+    // Always show breadcrumbs for all tabs except status-dashboard
+    if (activeTab === "status-dashboard" && !hasTimelineFilter && !hasIncidentFilter && !hasApiFilter) {
       return null;
     }
+
+    const getTabLabel = (tabValue: string) => {
+      switch (tabValue) {
+        case "status-dashboard": return "Status Dashboard";
+        case "timeline-history": return "Timeline History";
+        case "alerts": return "Alerts";
+        case "azure-health": return "Azure AppInsight Health";
+        case "release-events": return "Release Events";
+        case "api-listing": return "API Listing";
+        case "events": return "Events";
+        case "incidents": return "Incidents";
+        case "monitoring": return "Monitoring";
+        default: return "Unknown";
+      }
+    };
 
     return (
       <Card className="bg-blue-50 border-blue-200">
@@ -121,17 +138,32 @@ const Index = () => {
                 </BreadcrumbLink>
               </BreadcrumbItem>
               
-              {hasTimelineFilter && activeTab === "timeline-history" && (
+              {activeTab !== "status-dashboard" && (
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    <BreadcrumbLink 
-                      onClick={clearTimelineFilter}
-                      className="cursor-pointer hover:text-blue-600"
-                    >
-                      Timeline History
-                    </BreadcrumbLink>
+                    {hasTimelineFilter || hasIncidentFilter || hasApiFilter ? (
+                      <BreadcrumbLink 
+                        onClick={() => {
+                          if (activeTab === "timeline-history") clearTimelineFilter();
+                          if (activeTab === "incidents") clearIncidentFilter();
+                          if (activeTab === "api-listing") clearApiListingFilter();
+                        }}
+                        className="cursor-pointer hover:text-blue-600"
+                      >
+                        {getTabLabel(activeTab)}
+                      </BreadcrumbLink>
+                    ) : (
+                      <BreadcrumbPage>
+                        {getTabLabel(activeTab)}
+                      </BreadcrumbPage>
+                    )}
                   </BreadcrumbItem>
+                </>
+              )}
+
+              {hasTimelineFilter && activeTab === "timeline-history" && (
+                <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
                     <BreadcrumbPage>
@@ -147,15 +179,6 @@ const Index = () => {
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    <BreadcrumbLink 
-                      onClick={clearIncidentFilter}
-                      className="cursor-pointer hover:text-blue-600"
-                    >
-                      Incidents
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
                     <BreadcrumbPage>
                       {incidentFilter.domain && `${incidentFilter.domain}`}
                       {incidentFilter.tenancy && ` - ${incidentFilter.tenancy}`}
@@ -166,15 +189,6 @@ const Index = () => {
 
               {hasApiFilter && activeTab === "api-listing" && (
                 <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink 
-                      onClick={clearApiListingFilter}
-                      className="cursor-pointer hover:text-blue-600"
-                    >
-                      API Listing
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
                     <BreadcrumbPage>
