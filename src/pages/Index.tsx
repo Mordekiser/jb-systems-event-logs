@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code, Menu, Database, Home } from "lucide-react";
-import { StatusOverview } from "@/components/StatusOverview";
 import { EventsSection } from "@/components/EventsSection";
 import { ConfigPanel } from "@/components/ConfigPanel";
 import { ManualEventCreationModal } from "@/components/ManualEventCreationModal";
@@ -16,6 +15,7 @@ import { StatusDashboard } from "@/components/StatusDashboard";
 import { ApplicationStatusDashboard } from "@/components/ApplicationStatusDashboard";
 import { ApiListing } from "@/components/ApiListing";
 import { AzureAlerts } from "@/components/AzureAlerts";
+import { EventMetrics } from "@/components/EventMetrics";
 import { IncidentProvider } from "@/contexts/IncidentContext";
 import { EventsProvider } from "@/contexts/EventsContext";
 import { ConfigProvider } from "@/contexts/ConfigContext";
@@ -311,7 +311,7 @@ const Index = () => {
                   </TabsContent>
 
                   <TabsContent value="events" className="space-y-6">
-                    <StatusOverview />
+                    <EventMetrics />
                     <EventsSection filter={eventsFilter} />
                   </TabsContent>
 
