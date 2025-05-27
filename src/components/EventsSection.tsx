@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Package, GitBranch, Clock, Trash2, Filter, X, Eye } from "lucide-react";
+import { Calendar, Package, GitBranch, Trash2, Filter, X, Eye, Edit } from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
 import { EventDeleteConfirmDialog } from "@/components/EventDeleteConfirmDialog";
 import { EventDetailsModal } from "@/components/EventDetailsModal";
+import { EventEditModal } from "@/components/EventEditModal";
 
 interface EventFilters {
   createdBy?: string;
@@ -47,6 +47,7 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [showEventDetails, setShowEventDetails] = useState(false);
+  const [showEventEdit, setShowEventEdit] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -108,6 +109,11 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
   const handleViewDetails = (event: any) => {
     setSelectedEvent(event);
     setShowEventDetails(true);
+  };
+
+  const handleEditEvent = (event: any) => {
+    setSelectedEvent(event);
+    setShowEventEdit(true);
   };
 
   const handleFilterChange = (key: keyof EventFilters, value: string | undefined) => {
@@ -380,6 +386,14 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => handleEditEvent(event)}
+                    className="text-green-500 hover:text-green-700 hover:bg-green-50"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleDeleteClick(event.id, event.title, event.eventType)}
                     className="text-red-500 hover:text-red-700 hover:bg-red-50"
                   >
@@ -468,6 +482,13 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
       <EventDetailsModal
         open={showEventDetails}
         onOpenChange={setShowEventDetails}
+        event={selectedEvent}
+      />
+
+      {/* Event Edit Modal */}
+      <EventEditModal
+        open={showEventEdit}
+        onOpenChange={setShowEventEdit}
         event={selectedEvent}
       />
     </div>
