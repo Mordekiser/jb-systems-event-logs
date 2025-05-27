@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,10 +5,48 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CheckCircle, XCircle, AlertTriangle, Activity, Clock, Database, Globe } from "lucide-react";
 import { HistoryButton } from "./HistoryButton";
+import { AzureHealthDetailsModal } from "./AzureHealthDetailsModal";
+import { useToast } from "@/hooks/use-toast";
 
 export const AzureAppInsightHealth = () => {
   const [selectedDomain, setSelectedDomain] = useState("All Domains");
   const [selectedStatus, setSelectedStatus] = useState("All Statuses");
+  const [selectedHealthCheck, setSelectedHealthCheck] = useState<any>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleViewDetails = (healthCheck: any) => {
+    setSelectedHealthCheck(healthCheck);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleViewInAzure = (healthCheck: any) => {
+    toast({
+      title: "Opening Azure Portal",
+      description: `Opening ${healthCheck.name} in Azure Application Insights.`,
+    });
+  };
+
+  const handleRunCheck = (healthCheck: any) => {
+    toast({
+      title: "Running Health Check",
+      description: `Manually triggering health check for ${healthCheck.name}.`,
+    });
+  };
+
+  const handleViewHistory = (healthCheck: any) => {
+    toast({
+      title: "Health Check History",
+      description: `Viewing historical data for ${healthCheck.name}.`,
+    });
+  };
+
+  const handleRefreshAll = () => {
+    toast({
+      title: "Refreshing All Health Checks",
+      description: "Running all health checks manually.",
+    });
+  };
 
   const healthChecks = [
     {
@@ -197,7 +234,7 @@ export const AzureAppInsightHealth = () => {
               </Select>
             </div>
 
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleRefreshAll}>
               <Clock className="h-4 w-4 mr-2" />
               Refresh All
             </Button>
@@ -258,14 +295,32 @@ export const AzureAppInsightHealth = () => {
                   entityId={check.id.toString()}
                   entityTitle={check.name}
                 />
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleViewDetails(check)}
+                >
+                  View Details
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleViewInAzure(check)}
+                >
                   <Globe className="h-4 w-4 mr-2" />
                   View in Azure
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleRunCheck(check)}
+                >
                   Run Check
                 </Button>
-                <Button size="sm">
+                <Button 
+                  size="sm"
+                  onClick={() => handleViewHistory(check)}
+                >
                   View History
                 </Button>
               </div>
@@ -283,6 +338,12 @@ export const AzureAppInsightHealth = () => {
           </CardContent>
         </Card>
       )}
+
+      <AzureHealthDetailsModal
+        open={isDetailsModalOpen}
+        onOpenChange={setIsDetailsModalOpen}
+        healthCheck={selectedHealthCheck}
+      />
     </div>
   );
 };

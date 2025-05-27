@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,10 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle, CheckCircle, XCircle, Clock, Filter, Bell } from "lucide-react";
 import { HistoryButton } from "./HistoryButton";
+import { AlertDetailsModal } from "./AlertDetailsModal";
+import { useToast } from "@/hooks/use-toast";
 
 export const Alerts = () => {
   const [selectedSeverity, setSelectedSeverity] = useState("All Severities");
   const [selectedStatus, setSelectedStatus] = useState("All Statuses");
+  const [selectedAlert, setSelectedAlert] = useState<any>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const { toast } = useToast();
 
   const alerts = [
     {
@@ -22,7 +26,8 @@ export const Alerts = () => {
       tenancy: "NZ",
       timestamp: "2024-01-15 14:30:00",
       source: "Azure Monitor",
-      metric: "CPU Usage: 92%"
+      metric: "CPU Usage: 92%",
+      affectedServices: ["Web Server", "Database Server", "Cache Service"]
     },
     {
       id: 2,
@@ -34,7 +39,8 @@ export const Alerts = () => {
       tenancy: "AU",
       timestamp: "2024-01-15 13:45:00",
       source: "Application Insights",
-      metric: "Memory Usage: 78%"
+      metric: "Memory Usage: 78%",
+      affectedServices: ["Application Server", "Background Jobs"]
     },
     {
       id: 3,
@@ -46,7 +52,8 @@ export const Alerts = () => {
       tenancy: "NZ",
       timestamp: "2024-01-15 12:20:00",
       source: "Database Monitor",
-      metric: "Connection Time: 5.2s"
+      metric: "Connection Time: 5.2s",
+      affectedServices: ["Primary Database", "Backup Database"]
     },
     {
       id: 4,
@@ -58,7 +65,8 @@ export const Alerts = () => {
       tenancy: "AU",
       timestamp: "2024-01-15 11:15:00",
       source: "API Gateway",
-      metric: "Avg Response: 850ms"
+      metric: "Avg Response: 850ms",
+      affectedServices: ["API Gateway", "Load Balancer"]
     }
   ];
 
@@ -111,6 +119,25 @@ export const Alerts = () => {
     return matchesSeverity && matchesStatus;
   });
 
+  const handleViewDetails = (alert: any) => {
+    setSelectedAlert(alert);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleAcknowledge = (alert: any) => {
+    toast({
+      title: "Alert Acknowledged",
+      description: `Alert "${alert.title}" has been acknowledged.`,
+    });
+  };
+
+  const handleMoreFilters = () => {
+    toast({
+      title: "More Filters",
+      description: "Advanced filtering options coming soon.",
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Alerts Header */}
@@ -155,7 +182,7 @@ export const Alerts = () => {
               </Select>
             </div>
 
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleMoreFilters}>
               <Filter className="h-4 w-4 mr-2" />
               More Filters
             </Button>
@@ -216,11 +243,18 @@ export const Alerts = () => {
                   entityId={alert.id.toString()}
                   entityTitle={alert.title}
                 />
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleViewDetails(alert)}
+                >
                   View Details
                 </Button>
                 {alert.status === "active" && (
-                  <Button size="sm">
+                  <Button 
+                    size="sm"
+                    onClick={() => handleAcknowledge(alert)}
+                  >
                     Acknowledge
                   </Button>
                 )}
@@ -239,6 +273,12 @@ export const Alerts = () => {
           </CardContent>
         </Card>
       )}
+
+      <AlertDetailsModal
+        open={isDetailsModalOpen}
+        onOpenChange={setIsDetailsModalOpen}
+        alert={selectedAlert}
+      />
     </div>
   );
 };

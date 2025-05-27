@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Code, Filter, Download, Columns, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { ApiDetailsModal } from "./ApiDetailsModal";
+import { useToast } from "@/hooks/use-toast";
 
 interface ApiListingProps {
   initialDomainFilter?: string;
@@ -14,6 +16,9 @@ interface ApiListingProps {
 export const ApiListing = ({ initialDomainFilter }: ApiListingProps) => {
   const [selectedDomain, setSelectedDomain] = useState("All Domains");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedApi, setSelectedApi] = useState<any>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const { toast } = useToast();
 
   // Set initial domain filter when component receives it
   useEffect(() => {
@@ -21,6 +26,32 @@ export const ApiListing = ({ initialDomainFilter }: ApiListingProps) => {
       setSelectedDomain(initialDomainFilter);
     }
   }, [initialDomainFilter]);
+
+  const handleViewDetails = (api: any) => {
+    setSelectedApi(api);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleColumns = () => {
+    toast({
+      title: "Column Configuration",
+      description: "Column customization options coming soon.",
+    });
+  };
+
+  const handleFilters = () => {
+    toast({
+      title: "Advanced Filters",
+      description: "Additional filtering options coming soon.",
+    });
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Exporting Data",
+      description: "API listing data export initiated.",
+    });
+  };
 
   // Flattened API data for table display
   const apiData = [
@@ -139,15 +170,30 @@ export const ApiListing = ({ initialDomainFilter }: ApiListingProps) => {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
+                  onClick={handleColumns}
+                >
                   <Columns className="h-4 w-4 mr-2" />
                   COLUMNS
                 </Button>
-                <Button variant="outline" size="sm" className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
+                  onClick={handleFilters}
+                >
                   <Filter className="h-4 w-4 mr-2" />
                   FILTERS
                 </Button>
-                <Button variant="outline" size="sm" className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-gray-800 border-gray-600 text-white hover:bg-gray-700"
+                  onClick={handleExport}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   EXPORT
                 </Button>
@@ -166,6 +212,7 @@ export const ApiListing = ({ initialDomainFilter }: ApiListingProps) => {
                     <TableHead className="text-gray-300 font-medium">Method</TableHead>
                     <TableHead className="text-gray-300 font-medium">Endpoint</TableHead>
                     <TableHead className="text-gray-300 font-medium">Status</TableHead>
+                    <TableHead className="text-gray-300 font-medium">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -186,6 +233,16 @@ export const ApiListing = ({ initialDomainFilter }: ApiListingProps) => {
                           {api.status}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-white hover:bg-gray-700"
+                          onClick={() => handleViewDetails(api)}
+                        >
+                          View
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -204,6 +261,12 @@ export const ApiListing = ({ initialDomainFilter }: ApiListingProps) => {
           </CardContent>
         </Card>
       </div>
+
+      <ApiDetailsModal
+        open={isDetailsModalOpen}
+        onOpenChange={setIsDetailsModalOpen}
+        api={selectedApi}
+      />
     </div>
   );
 };
