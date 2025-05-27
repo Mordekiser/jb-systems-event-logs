@@ -315,100 +315,171 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick, onApplicationCli
 
       {/* Status Matrix */}
       <Card>
-        <CardContent className="p-4">
-          <div className={`grid gap-4 ${combineHealthchecks ? 'grid-cols-6' : 'grid-cols-7'}`}>
-            {/* Headers */}
-            <div className="font-medium">
-              {groupingStrategy === "application" ? "Application" : "Domain"}
-            </div>
-            {groupingStrategy !== "application" && (
-              <div className="font-medium">Tenancy</div>
-            )}
-            {combineHealthchecks ? (
-              <div className="font-medium text-center">Health Status</div>
-            ) : (
-              <>
-                <div className="font-medium text-center">Alerts</div>
-                <div className="font-medium text-center">Healthchecks</div>
-              </>
-            )}
-            <div className="font-medium text-center">Incidents</div>
-            <div className="font-medium text-center">Releases</div>
-            <div className="font-medium text-center">Services</div>
+        <CardContent className="p-6">
+          {groupingStrategy === "application" ? (
+            <div className="space-y-4">
+              {/* Header Row */}
+              <div className={`grid gap-4 ${combineHealthchecks ? 'grid-cols-6' : 'grid-cols-7'} bg-gray-50 p-4 rounded-lg font-semibold text-gray-700`}>
+                <div>Application</div>
+                {combineHealthchecks ? (
+                  <div className="text-center">Health Status</div>
+                ) : (
+                  <>
+                    <div className="text-center">Alerts</div>
+                    <div className="text-center">Healthchecks</div>
+                  </>
+                )}
+                <div className="text-center">Incidents</div>
+                <div className="text-center">Releases</div>
+                <div className="text-center">Services</div>
+              </div>
 
-            {/* Status Rows */}
-            {domains.map((domain) => 
-              domain.tenancies.map((tenancy) => {
-                const alertsStatus = groupingStrategy === "application" 
-                  ? getImpactStatusByApplication(domain.name, 'alerts')
-                  : getImpactStatus(domain.name, tenancy.name, 'alerts');
-                const healthchecksStatus = groupingStrategy === "application"
-                  ? getImpactStatusByApplication(domain.name, 'healthchecks')
-                  : getImpactStatus(domain.name, tenancy.name, 'healthchecks');
-                const incidentsStatus = groupingStrategy === "application"
-                  ? getImpactStatusByApplication(domain.name, 'incidents')
-                  : getImpactStatus(domain.name, tenancy.name, 'incidents');
-                const releasesStatus = groupingStrategy === "application"
-                  ? getImpactStatusByApplication(domain.name, 'releases')
-                  : getImpactStatus(domain.name, tenancy.name, 'releases');
-                
-                return (
-                  <React.Fragment key={`${domain.name}-${tenancy.name}`}>
+              {/* Application Rows */}
+              <div className="space-y-3">
+                {applications.map((application, index) => {
+                  const alertsStatus = getImpactStatusByApplication(application.name, 'alerts');
+                  const healthchecksStatus = getImpactStatusByApplication(application.name, 'healthchecks');
+                  const incidentsStatus = getImpactStatusByApplication(application.name, 'incidents');
+                  const releasesStatus = getImpactStatusByApplication(application.name, 'releases');
+                  
+                  return (
                     <div 
-                      className="p-2 border rounded text-sm bg-blue-50 font-medium cursor-pointer hover:bg-blue-100 transition-colors"
-                      onClick={() => handleDomainClick(domain.name)}
+                      key={application.name}
+                      className={`grid gap-4 ${combineHealthchecks ? 'grid-cols-6' : 'grid-cols-7'} p-4 border rounded-lg hover:bg-gray-50 transition-colors ${
+                        index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
+                      }`}
                     >
-                      {domain.name}
+                      <div 
+                        className="font-medium text-blue-700 cursor-pointer hover:text-blue-800 hover:underline transition-colors flex items-center"
+                        onClick={() => handleDomainClick(application.name)}
+                      >
+                        {application.name}
+                      </div>
+                      {combineHealthchecks ? (
+                        <div className="flex justify-center items-center">
+                          <div onClick={() => handleStatusClick('health', 'Combined', application.name)}>
+                            {getStatusIcon(alertsStatus === "major" || healthchecksStatus === "major" ? "major" : 
+                                         alertsStatus === "minor" || healthchecksStatus === "minor" ? "minor" : "trivial", true)}
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex justify-center items-center">
+                            <div onClick={() => handleStatusClick('alerts', 'Combined', application.name)}>
+                              {getStatusIcon(alertsStatus, true)}
+                            </div>
+                          </div>
+                          <div className="flex justify-center items-center">
+                            <div onClick={() => handleStatusClick('healthchecks', 'Combined', application.name)}>
+                              {getStatusIcon(healthchecksStatus, true)}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                      <div className="flex justify-center items-center">
+                        <div onClick={() => handleStatusClick('incidents', 'Combined', application.name)}>
+                          {getStatusIcon(incidentsStatus, true)}
+                        </div>
+                      </div>
+                      <div className="flex justify-center items-center">
+                        <div onClick={() => handleStatusClick('releases', 'Combined', application.name)}>
+                          {getStatusIcon(releasesStatus, true)}
+                        </div>
+                      </div>
+                      <div className="flex justify-center items-center">
+                        <button 
+                          onClick={() => handleStatusClick('services', 'Combined', application.name)}
+                          className="px-3 py-1 bg-blue-100 text-blue-800 rounded-md text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer min-w-[2.5rem]"
+                        >
+                          {application.services}
+                        </button>
+                      </div>
                     </div>
-                    {groupingStrategy !== "application" && (
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className={`grid gap-4 ${combineHealthchecks ? 'grid-cols-6' : 'grid-cols-7'}`}>
+              {/* Headers */}
+              <div className="font-medium">Domain</div>
+              <div className="font-medium">Tenancy</div>
+              {combineHealthchecks ? (
+                <div className="font-medium text-center">Health Status</div>
+              ) : (
+                <>
+                  <div className="font-medium text-center">Alerts</div>
+                  <div className="font-medium text-center">Healthchecks</div>
+                </>
+              )}
+              <div className="font-medium text-center">Incidents</div>
+              <div className="font-medium text-center">Releases</div>
+              <div className="font-medium text-center">Services</div>
+
+              {/* Status Rows */}
+              {domains.map((domain) => 
+                domain.tenancies.map((tenancy) => {
+                  const alertsStatus = getImpactStatus(domain.name, tenancy.name, 'alerts');
+                  const healthchecksStatus = getImpactStatus(domain.name, tenancy.name, 'healthchecks');
+                  const incidentsStatus = getImpactStatus(domain.name, tenancy.name, 'incidents');
+                  const releasesStatus = getImpactStatus(domain.name, tenancy.name, 'releases');
+                  
+                  return (
+                    <React.Fragment key={`${domain.name}-${tenancy.name}`}>
+                      <div 
+                        className="p-2 border rounded text-sm bg-blue-50 font-medium cursor-pointer hover:bg-blue-100 transition-colors"
+                        onClick={() => handleDomainClick(domain.name)}
+                      >
+                        {domain.name}
+                      </div>
                       <div className="p-2 border rounded text-sm bg-gray-50">
                         {tenancy.name}
                       </div>
-                    )}
-                    {combineHealthchecks ? (
+                      {combineHealthchecks ? (
+                        <div className="flex justify-center">
+                          <div onClick={() => handleStatusClick('health', tenancy.name, domain.name)}>
+                            {getStatusIcon(alertsStatus === "major" || healthchecksStatus === "major" ? "major" : 
+                                         alertsStatus === "minor" || healthchecksStatus === "minor" ? "minor" : "trivial", true)}
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex justify-center">
+                            <div onClick={() => handleStatusClick('alerts', tenancy.name, domain.name)}>
+                              {getStatusIcon(alertsStatus, true)}
+                            </div>
+                          </div>
+                          <div className="flex justify-center">
+                            <div onClick={() => handleStatusClick('healthchecks', tenancy.name, domain.name)}>
+                              {getStatusIcon(healthchecksStatus, true)}
+                            </div>
+                          </div>
+                        </>
+                      )}
                       <div className="flex justify-center">
-                        <div onClick={() => handleStatusClick('health', tenancy.name, domain.name)}>
-                          {getStatusIcon(alertsStatus === "major" || healthchecksStatus === "major" ? "major" : 
-                                       alertsStatus === "minor" || healthchecksStatus === "minor" ? "minor" : "trivial", true)}
+                        <div onClick={() => handleStatusClick('incidents', tenancy.name, domain.name)}>
+                          {getStatusIcon(incidentsStatus, true)}
                         </div>
                       </div>
-                    ) : (
-                      <>
-                        <div className="flex justify-center">
-                          <div onClick={() => handleStatusClick('alerts', tenancy.name, domain.name)}>
-                            {getStatusIcon(alertsStatus, true)}
-                          </div>
+                      <div className="flex justify-center">
+                        <div onClick={() => handleStatusClick('releases', tenancy.name, domain.name)}>
+                          {getStatusIcon(releasesStatus, true)}
                         </div>
-                        <div className="flex justify-center">
-                          <div onClick={() => handleStatusClick('healthchecks', tenancy.name, domain.name)}>
-                            {getStatusIcon(healthchecksStatus, true)}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    <div className="flex justify-center">
-                      <div onClick={() => handleStatusClick('incidents', tenancy.name, domain.name)}>
-                        {getStatusIcon(incidentsStatus, true)}
                       </div>
-                    </div>
-                    <div className="flex justify-center">
-                      <div onClick={() => handleStatusClick('releases', tenancy.name, domain.name)}>
-                        {getStatusIcon(releasesStatus, true)}
+                      <div className="flex justify-center">
+                        <button 
+                          onClick={() => handleStatusClick('services', tenancy.name, domain.name)}
+                          className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer"
+                        >
+                          {tenancy.services}
+                        </button>
                       </div>
-                    </div>
-                    <div className="flex justify-center">
-                      <button 
-                        onClick={() => handleStatusClick('services', tenancy.name, domain.name)}
-                        className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer"
-                      >
-                        {tenancy.services}
-                      </button>
-                    </div>
-                  </React.Fragment>
-                );
-              })
-            )}
-          </div>
+                    </React.Fragment>
+                  );
+                })
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
