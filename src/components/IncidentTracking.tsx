@@ -30,7 +30,7 @@ interface IncidentTrackingProps {
 }
 
 export const IncidentTracking = ({ filter }: IncidentTrackingProps) => {
-  const { incidents, updateIncidentStatus, addIncident, deleteIncident } = useIncidents();
+  const { incidents, updateIncidentStatus, addIncident, deleteIncident, setIncidents } = useIncidents();
   const [showCreateIncident, setShowCreateIncident] = useState(false);
   const [showIncidentDetails, setShowIncidentDetails] = useState(false);
   const [showEditIncident, setShowEditIncident] = useState(false);
