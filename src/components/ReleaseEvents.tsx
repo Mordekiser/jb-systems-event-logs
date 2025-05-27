@@ -1,45 +1,56 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Package, GitBranch, Clock } from "lucide-react";
+import { useState } from "react";
+import { ManualReleaseCreationModal } from "./ManualReleaseCreationModal";
+
 export const ReleaseEvents = () => {
-  const releases = [{
-    id: 1,
-    name: "v2.4.1",
-    type: "hotfix",
-    status: "deployed",
-    environment: "production",
-    date: "2024-01-15",
-    time: "14:30",
-    services: ["Back of House", "Front of House", "API Gateway"],
-    deployedBy: "John Doe",
-    branch: "hotfix/critical-fix",
-    description: "Critical security patch for authentication service"
-  }, {
-    id: 2,
-    name: "v2.4.0",
-    type: "feature",
-    status: "scheduled",
-    environment: "production",
-    date: "2024-01-16",
-    time: "02:00",
-    services: ["Customer Portal", "Payment API", "Notification Service"],
-    deployedBy: "Jane Smith",
-    branch: "release/v2.4.0",
-    description: "New customer dashboard and enhanced payment processing"
-  }, {
-    id: 3,
-    name: "v2.3.5",
-    type: "maintenance",
-    status: "in-progress",
-    environment: "staging",
-    date: "2024-01-15",
-    time: "16:00",
-    services: ["Database", "Cache Layer"],
-    deployedBy: "DevOps Team",
-    branch: "maintenance/db-optimization",
-    description: "Database performance optimizations and cache improvements"
-  }];
+  const [showAddRelease, setShowAddRelease] = useState(false);
+
+  const releases = [
+    {
+      id: 1,
+      name: "v2.4.1",
+      type: "hotfix",
+      status: "deployed",
+      environment: "production",
+      date: "2024-01-15",
+      time: "14:30",
+      services: ["Back of House", "Front of House", "API Gateway"],
+      deployedBy: "John Doe",
+      branch: "hotfix/critical-fix",
+      description: "Critical security patch for authentication service"
+    },
+    {
+      id: 2,
+      name: "v2.4.0",
+      type: "feature",
+      status: "scheduled",
+      environment: "production",
+      date: "2024-01-16",
+      time: "02:00",
+      services: ["Customer Portal", "Payment API", "Notification Service"],
+      deployedBy: "Jane Smith",
+      branch: "release/v2.4.0",
+      description: "New customer dashboard and enhanced payment processing"
+    },
+    {
+      id: 3,
+      name: "v2.3.5",
+      type: "maintenance",
+      status: "in-progress",
+      environment: "staging",
+      date: "2024-01-15",
+      time: "16:00",
+      services: ["Database", "Cache Layer"],
+      deployedBy: "DevOps Team",
+      branch: "maintenance/db-optimization",
+      description: "Database performance optimizations and cache improvements"
+    }
+  ];
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "deployed":
@@ -54,6 +65,7 @@ export const ReleaseEvents = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
   const getTypeColor = (type: string) => {
     switch (type) {
       case "feature":
@@ -66,7 +78,9 @@ export const ReleaseEvents = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       {/* Release Events Header */}
       <Card>
         <CardHeader>
@@ -80,7 +94,10 @@ export const ReleaseEvents = () => {
                 <Calendar className="h-4 w-4 mr-2" />
                 Schedule Release
               </Button>
-              
+              <Button size="sm" onClick={() => setShowAddRelease(true)}>
+                <Calendar className="h-4 w-4 mr-2" />
+                Schedule Release
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -88,7 +105,8 @@ export const ReleaseEvents = () => {
 
       {/* Release Timeline */}
       <div className="space-y-4">
-        {releases.map(release => <Card key={release.id} className="hover:shadow-md transition-shadow">
+        {releases.map((release) => (
+          <Card key={release.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
@@ -130,9 +148,11 @@ export const ReleaseEvents = () => {
               <div className="mb-4">
                 <p className="text-sm font-medium text-gray-500 mb-2">Affected Services</p>
                 <div className="flex flex-wrap gap-2">
-                  {release.services.map((service, index) => <Badge key={index} variant="outline" className="text-xs">
+                  {release.services.map((service, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
                       {service}
-                    </Badge>)}
+                    </Badge>
+                  ))}
                 </div>
               </div>
 
@@ -140,12 +160,22 @@ export const ReleaseEvents = () => {
                 <Button variant="outline" size="sm">
                   View Details
                 </Button>
-                {release.status === "scheduled" && <Button variant="outline" size="sm">
+                {release.status === "scheduled" && (
+                  <Button variant="outline" size="sm">
                     Modify Schedule
-                  </Button>}
+                  </Button>
+                )}
               </div>
             </CardContent>
-          </Card>)}
+          </Card>
+        ))}
       </div>
-    </div>;
+
+      {/* Manual Release Creation Modal */}
+      <ManualReleaseCreationModal 
+        open={showAddRelease} 
+        onOpenChange={setShowAddRelease} 
+      />
+    </div>
+  );
 };
