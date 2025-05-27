@@ -29,7 +29,7 @@ export const EventFilters = ({ onFiltersChange, currentFilters }: EventFiltersPr
   const handleFilterChange = (key: keyof EventFilters, value: string | undefined) => {
     const newFilters = {
       ...currentFilters,
-      [key]: value || undefined
+      [key]: value === "all" ? undefined : value || undefined
     };
     onFiltersChange(newFilters);
   };
@@ -100,14 +100,14 @@ export const EventFilters = ({ onFiltersChange, currentFilters }: EventFiltersPr
             <div>
               <Label htmlFor="eventCreationType">Event Creation Type</Label>
               <Select
-                value={currentFilters.eventCreationType || ""}
+                value={currentFilters.eventCreationType || "all"}
                 onValueChange={(value) => handleFilterChange("eventCreationType", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select creation type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="Manual">Manual</SelectItem>
                   <SelectItem value="Azure Alert">Azure Alert</SelectItem>
                 </SelectContent>
@@ -118,14 +118,14 @@ export const EventFilters = ({ onFiltersChange, currentFilters }: EventFiltersPr
             <div>
               <Label htmlFor="historyType">History Type</Label>
               <Select
-                value={currentFilters.historyType || ""}
+                value={currentFilters.historyType || "all"}
                 onValueChange={(value) => handleFilterChange("historyType", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select history type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="Initial">Initial</SelectItem>
                   <SelectItem value="Update">Update</SelectItem>
                   <SelectItem value="Complete">Complete</SelectItem>
