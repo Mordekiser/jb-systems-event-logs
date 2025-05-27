@@ -9,25 +9,25 @@ export const StatusDashboard = () => {
     {
       name: "Back of House",
       tenancies: [
-        { name: "Multi Country", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" },
-        { name: "NZ", alerts: "green", healthchecks: "green", incidents: "orange", releases: "green" },
-        { name: "AUS", alerts: "red", healthchecks: "red", incidents: "green", releases: "green" }
+        { name: "Multi Country", alerts: "green", healthchecks: "green", incidents: "green", releases: "green", services: 12 },
+        { name: "NZ", alerts: "green", healthchecks: "green", incidents: "orange", releases: "green", services: 8 },
+        { name: "AUS", alerts: "red", healthchecks: "red", incidents: "green", releases: "green", services: 15 }
       ]
     },
     {
       name: "Front of House",
       tenancies: [
-        { name: "Multi Country", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" },
-        { name: "NZ", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" },
-        { name: "AUS", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" }
+        { name: "Multi Country", alerts: "green", healthchecks: "green", incidents: "green", releases: "green", services: 6 },
+        { name: "NZ", alerts: "green", healthchecks: "green", incidents: "green", releases: "green", services: 4 },
+        { name: "AUS", alerts: "green", healthchecks: "green", incidents: "green", releases: "green", services: 5 }
       ]
     },
     {
       name: "Data Services",
       tenancies: [
-        { name: "Multi Country", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" },
-        { name: "NZ", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" },
-        { name: "AUS", alerts: "green", healthchecks: "green", incidents: "green", releases: "green" }
+        { name: "Multi Country", alerts: "green", healthchecks: "green", incidents: "green", releases: "green", services: 9 },
+        { name: "NZ", alerts: "green", healthchecks: "green", incidents: "green", releases: "green", services: 7 },
+        { name: "AUS", alerts: "green", healthchecks: "green", incidents: "green", releases: "green", services: 8 }
       ]
     }
   ];
@@ -60,7 +60,7 @@ export const StatusDashboard = () => {
       {/* Status Matrix */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-6 gap-4">
+          <div className="grid grid-cols-7 gap-4">
             {/* Headers */}
             <div className="font-medium">Domain</div>
             <div className="font-medium">Tenancy</div>
@@ -68,6 +68,7 @@ export const StatusDashboard = () => {
             <div className="font-medium text-center">Healthchecks</div>
             <div className="font-medium text-center">Incidents</div>
             <div className="font-medium text-center">Releases</div>
+            <div className="font-medium text-center">Services</div>
 
             {/* Status Rows */}
             {domains.map((domain, domainIndex) => 
@@ -90,6 +91,11 @@ export const StatusDashboard = () => {
                   </div>
                   <div className="flex justify-center">
                     {getStatusIcon(tenancy.releases)}
+                  </div>
+                  <div className="flex justify-center">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium">
+                      {tenancy.services}
+                    </span>
                   </div>
                 </React.Fragment>
               ))
