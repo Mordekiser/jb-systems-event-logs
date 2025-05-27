@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package } from "lucide-react";
+import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap } from "lucide-react";
 import { StatusOverview } from "@/components/StatusOverview";
 import { EventsSection } from "@/components/EventsSection";
 import { IncidentTracking } from "@/components/IncidentTracking";
@@ -13,11 +13,14 @@ import { NotificationCenter } from "@/components/NotificationCenter";
 import { StatusDashboard } from "@/components/StatusDashboard";
 import { TimelineHistory } from "@/components/TimelineHistory";
 import { ReleaseEvents } from "@/components/ReleaseEvents";
+
 const Index = () => {
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  return <div className="min-h-screen bg-yellow-400">
+
+  return (
+    <div className="min-h-screen bg-yellow-400">
       {/* Header */}
       <header className="bg-yellow-400 shadow-sm border-b border-yellow-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,14 +70,17 @@ const Index = () => {
                 <Package className="h-4 w-4" />
                 <span>Release Events</span>
               </TabsTrigger>
-              <TabsTrigger value="events" className="data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                Events
+              <TabsTrigger value="events" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
+                <Calendar className="h-4 w-4" />
+                <span>Events</span>
               </TabsTrigger>
-              <TabsTrigger value="incidents" className="data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                Incidents
+              <TabsTrigger value="incidents" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
+                <AlertTriangle className="h-4 w-4" />
+                <span>Incidents</span>
               </TabsTrigger>
-              <TabsTrigger value="monitoring" className="data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                Monitoring
+              <TabsTrigger value="monitoring" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
+                <BarChart3 className="h-4 w-4" />
+                <span>Monitoring</span>
               </TabsTrigger>
             </TabsList>
 
@@ -146,6 +152,8 @@ const Index = () => {
       <ManualEventCreationModal open={showAddEvent} onOpenChange={setShowAddEvent} />
       <ConfigPanel open={showConfig} onOpenChange={setShowConfig} />
       <NotificationCenter open={showNotifications} onOpenChange={setShowNotifications} />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
