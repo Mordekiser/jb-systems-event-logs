@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,13 @@ export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCrea
   const { toast } = useToast();
   const [eventType, setEventType] = useState<string>("");
 
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!open) {
+      setEventType("");
+    }
+  }, [open]);
+
   const handleEventCreated = (eventData: any) => {
     console.log("Event created:", eventData);
     toast({
@@ -33,6 +40,11 @@ export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCrea
     onOpenChange(false);
   };
 
+  const handleEventTypeChange = (value: string) => {
+    console.log("Event type changed to:", value);
+    setEventType(value);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
@@ -43,7 +55,7 @@ export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCrea
         <div className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="eventType">Event Type *</Label>
-            <Select value={eventType} onValueChange={setEventType}>
+            <Select value={eventType} onValueChange={handleEventTypeChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select event type" />
               </SelectTrigger>
@@ -55,11 +67,15 @@ export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCrea
           </div>
 
           {eventType === "incident" && (
-            <IncidentForm onSave={handleEventCreated} onCancel={handleCancel} />
+            <div key="incident-form">
+              <IncidentForm onSave={handleEventCreated} onCancel={handleCancel} />
+            </div>
           )}
 
           {eventType === "release" && (
-            <ReleaseEventForm onSave={handleEventCreated} onCancel={handleCancel} />
+            <div key="release-form">
+              <ReleaseEventForm onSave={handleEventCreated} onCancel={handleCancel} />
+            </div>
           )}
 
           {!eventType && (
