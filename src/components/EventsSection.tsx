@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -326,7 +327,7 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
                         {event.type === "release" ? "Scheduled/Deployed" : "Started"}
                       </p>
                       <p className="text-sm">
-                        {event.startTime || event.scheduledTime || (event as any).createdAt}
+                        {event.startTime || (event as any).scheduledTime || (event as any).createdAt}
                       </p>
                     </div>
                     <div>
