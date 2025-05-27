@@ -435,7 +435,7 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
               )}
 
               {event.domainsAffected.length > 0 && (
-                <div className="mb-4">
+                <div>
                   <p className="text-sm font-medium text-gray-500 mb-2">Domains Affected</p>
                   <div className="flex flex-wrap gap-2">
                     {event.domainsAffected.map((domain, index) => (
@@ -446,15 +446,6 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
                   </div>
                 </div>
               )}
-
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" size="sm">
-                  View Details
-                </Button>
-                <Button variant="outline" size="sm">
-                  Edit
-                </Button>
-              </div>
             </CardContent>
           </Card>
         ))}
