@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { X, Plus } from "lucide-react";
+import { useEvents } from "@/contexts/EventsContext";
 
 interface Location {
   tenant: string;
@@ -56,6 +56,7 @@ interface ManualEventCreationModalProps {
 
 export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCreationModalProps) => {
   const { toast } = useToast();
+  const { addEvent } = useEvents();
   const [formData, setFormData] = useState<Partial<SystemEvent>>({
     eventType: undefined,
     impact: undefined,
@@ -201,7 +202,7 @@ export const ManualEventCreationModal = ({ open, onOpenChange }: ManualEventCrea
       }]
     };
 
-    console.log("Event created:", event);
+    addEvent(event);
     toast({
       title: "Event created successfully",
       description: `${event.title} has been created.`,

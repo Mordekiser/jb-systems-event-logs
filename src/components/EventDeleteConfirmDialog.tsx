@@ -10,6 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useEvents } from "@/contexts/EventsContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface EventDeleteConfirmDialogProps {
   open: boolean;
@@ -28,7 +30,15 @@ export const EventDeleteConfirmDialog = ({
   eventTitle,
   eventType 
 }: EventDeleteConfirmDialogProps) => {
+  const { deleteEvent } = useEvents();
+  const { toast } = useToast();
+
   const handleConfirm = () => {
+    deleteEvent(eventId);
+    toast({
+      title: "Event deleted",
+      description: `${eventType} "${eventTitle}" has been deleted successfully.`,
+    });
     onConfirm();
     onOpenChange(false);
   };
