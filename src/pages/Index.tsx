@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,8 +14,7 @@ import { ManualEventCreationModal } from "@/components/ManualEventCreationModal"
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { StatusDashboard } from "@/components/StatusDashboard";
 import { ApiListing } from "@/components/ApiListing";
-import { Alerts } from "@/components/Alerts";
-import { AzureAppInsightHealth } from "@/components/AzureAppInsightHealth";
+import { AzureAlerts } from "@/components/AzureAlerts";
 import { IncidentProvider } from "@/contexts/IncidentContext";
 import { EventsProvider } from "@/contexts/EventsContext";
 
