@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +40,162 @@ interface HealthCheck {
 
 type AzureItem = Alert | HealthCheck;
 
+const generateDemoAlerts = (): Alert[] => {
+  const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
+  const tenancies = ["AU", "NZ", "UK", "US"];
+  const severities = ["critical", "high", "medium", "low"];
+  const statuses = ["active", "investigating", "resolved"];
+  const sources = ["Azure Monitor", "Application Insights", "Database Monitor", "API Gateway", "Load Balancer"];
+  
+  const alertTitles = [
+    "High CPU Usage", "Memory Leak Detected", "Database Connection Timeout", "API Response Time Degradation",
+    "Disk Space Warning", "Network Latency Spike", "SSL Certificate Expiring", "Failed Login Attempts",
+    "Payment Gateway Timeout", "Email Service Failure", "Cache Miss Rate High", "Queue Length Growing",
+    "Error Rate Elevated", "Backup Job Failed", "Security Scan Alert", "Performance Degradation",
+    "Service Unavailable", "Connection Pool Exhausted", "Thread Count High", "GC Pressure Alert",
+    "Database Deadlock", "File System Full", "Network Packet Loss", "Service Discovery Failed",
+    "Load Balancer Health Check Failed", "CDN Cache Miss", "Search Index Lag", "Notification Delivery Failed",
+    "User Session Timeout", "API Rate Limit Exceeded", "Database Query Slow", "Memory Usage High",
+    "Connection Refused", "Service Dependency Down", "Authentication Failed", "Authorization Error"
+  ];
+
+  const descriptions = [
+    "CPU usage has exceeded threshold for extended period",
+    "Memory consumption increasing without release",
+    "Multiple database connection timeouts detected",
+    "API response times have increased significantly",
+    "Disk space usage has exceeded warning threshold",
+    "Network latency has spiked above acceptable levels",
+    "SSL certificate will expire within warning period",
+    "Multiple failed login attempts detected",
+    "Payment gateway experiencing timeout issues",
+    "Email service failing to deliver messages",
+    "Cache miss rate has increased significantly",
+    "Message queue length growing beyond capacity",
+    "Error rate has elevated above normal levels",
+    "Automated backup job has failed",
+    "Security scan has detected potential issues",
+    "Overall system performance has degraded",
+    "Service is reporting as unavailable",
+    "Database connection pool is exhausted",
+    "Thread count has exceeded safe limits",
+    "Garbage collection pressure detected"
+  ];
+
+  const alerts: Alert[] = [];
+  
+  for (let i = 1; i <= 50; i++) {
+    const domain = domains[Math.floor(Math.random() * domains.length)];
+    const tenancy = tenancies[Math.floor(Math.random() * tenancies.length)];
+    const severity = severities[Math.floor(Math.random() * severities.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const source = sources[Math.floor(Math.random() * sources.length)];
+    const title = alertTitles[Math.floor(Math.random() * alertTitles.length)];
+    const description = descriptions[Math.floor(Math.random() * descriptions.length)];
+    
+    const timestamp = new Date(2025, 0, Math.floor(Math.random() * 27) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+    
+    const services = ["Web Server", "Database", "API Gateway", "Cache Service", "Load Balancer", "Auth Service"];
+    const affectedServices = services.slice(0, Math.floor(Math.random() * 3) + 1);
+    
+    const metrics = [
+      "CPU Usage: 92%", "Memory Usage: 85%", "Disk Usage: 95%", "Response Time: 2.5s",
+      "Error Rate: 5.2%", "Queue Length: 1250", "Connection Count: 850", "Throughput: 45 req/s"
+    ];
+    
+    alerts.push({
+      id: i,
+      title: `${title} - ${domain} ${tenancy}`,
+      description,
+      severity,
+      status,
+      domain,
+      tenancy,
+      timestamp: timestamp.toISOString().slice(0, 19).replace('T', ' '),
+      source,
+      metric: metrics[Math.floor(Math.random() * metrics.length)],
+      affectedServices,
+      type: "alert"
+    });
+  }
+  
+  return alerts;
+};
+
+const generateDemoHealthChecks = (): HealthCheck[] => {
+  const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
+  const tenancies = ["AU", "NZ", "UK", "US"];
+  const statuses = ["healthy", "degraded", "unhealthy"];
+  
+  const healthCheckNames = [
+    "Database Connection", "API Gateway Health", "Cache Service", "Authentication Service",
+    "Payment Processing", "Email Service", "File Storage", "Message Queue", "Analytics Engine",
+    "Monitoring System", "Backup Service", "CDN Health", "Search Engine", "Notification Service",
+    "Load Balancer", "Security Scanner", "Order Processing", "Customer Portal", "Admin Dashboard",
+    "Inventory Management", "User Session Service", "Logging Service", "Metrics Collector"
+  ];
+
+  const descriptions = [
+    "SQL Server database connectivity check",
+    "Main API gateway availability check", 
+    "Redis cache service health check",
+    "Identity and authentication service check",
+    "Payment gateway connectivity check",
+    "Email service functionality check",
+    "File storage system health check",
+    "Message queue service availability",
+    "Analytics processing engine check",
+    "System monitoring service health"
+  ];
+
+  const endpoints = [
+    "/health/database", "/health/api-gateway", "/health/cache", "/health/auth",
+    "/health/payments", "/health/email", "/health/storage", "/health/queue",
+    "/health/analytics", "/health/monitoring", "/health/backup", "/health/cdn"
+  ];
+
+  const healthChecks: HealthCheck[] = [];
+  
+  for (let i = 51; i <= 80; i++) {
+    const domain = domains[Math.floor(Math.random() * domains.length)];
+    const tenancy = tenancies[Math.floor(Math.random() * tenancies.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const name = healthCheckNames[Math.floor(Math.random() * healthCheckNames.length)];
+    const description = descriptions[Math.floor(Math.random() * descriptions.length)];
+    const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
+    
+    const lastCheck = new Date(Date.now() - Math.random() * 10 * 60 * 1000);
+    
+    const responseTimes = status === "healthy" ? ["25ms", "45ms", "67ms", "89ms"] :
+                         status === "degraded" ? ["250ms", "350ms", "450ms", "550ms"] :
+                         ["timeout", "error", "5000ms", "timeout"];
+    
+    const responseTime = responseTimes[Math.floor(Math.random() * responseTimes.length)];
+    
+    const healthDetails = status === "healthy" ? 
+      "All systems operating normally" :
+      status === "degraded" ?
+      "Elevated response times detected, investigating" :
+      "Service unresponsive, failover activated";
+    
+    healthChecks.push({
+      id: i,
+      name,
+      description,
+      status,
+      domain,
+      tenancy,
+      lastCheck: lastCheck.toISOString().slice(0, 19).replace('T', ' '),
+      responseTime,
+      endpoint,
+      details: healthDetails,
+      type: "healthcheck"
+    });
+  }
+  
+  return healthChecks;
+};
+
 export const AzureAlerts = () => {
   const [selectedDomain, setSelectedDomain] = useState("All Domains");
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
@@ -49,133 +204,8 @@ export const AzureAlerts = () => {
   const [isHealthDetailsModalOpen, setIsHealthDetailsModalOpen] = useState(false);
   const { toast } = useToast();
 
-  const alerts: Alert[] = [
-    {
-      id: 1,
-      title: "High CPU Usage - Back of House NZ",
-      description: "CPU usage has exceeded 85% for the past 10 minutes",
-      severity: "critical",
-      status: "active",
-      domain: "Back of House",
-      tenancy: "NZ",
-      timestamp: "2024-01-15 14:30:00",
-      source: "Azure Monitor",
-      metric: "CPU Usage: 92%",
-      affectedServices: ["Web Server", "Database Server", "Cache Service"],
-      type: "alert"
-    },
-    {
-      id: 2,
-      title: "Memory Leak Detected - Back of House AU",
-      description: "Memory consumption increasing steadily over 2 hours",
-      severity: "high",
-      status: "active", 
-      domain: "Back of House",
-      tenancy: "AU",
-      timestamp: "2024-01-15 13:45:00",
-      source: "Application Insights",
-      metric: "Memory Usage: 78%",
-      affectedServices: ["Application Server", "Background Jobs"],
-      type: "alert"
-    },
-    {
-      id: 3,
-      title: "Database Connection Timeout",
-      description: "Multiple database connection timeouts detected",
-      severity: "medium",
-      status: "resolved",
-      domain: "Data Services",
-      tenancy: "NZ",
-      timestamp: "2024-01-15 12:20:00",
-      source: "Database Monitor",
-      metric: "Connection Time: 5.2s",
-      affectedServices: ["Primary Database", "Backup Database"],
-      type: "alert"
-    },
-    {
-      id: 4,
-      title: "API Response Time Degradation",
-      description: "API response times have increased by 40%",
-      severity: "low",
-      status: "investigating",
-      domain: "Front of House",
-      tenancy: "AU",
-      timestamp: "2024-01-15 11:15:00",
-      source: "API Gateway",
-      metric: "Avg Response: 850ms",
-      affectedServices: ["API Gateway", "Load Balancer"],
-      type: "alert"
-    }
-  ];
-
-  const healthChecks: HealthCheck[] = [
-    {
-      id: 5,
-      name: "Database Connection",
-      description: "SQL Server database connectivity check",
-      status: "healthy",
-      domain: "Back of House",
-      tenancy: "NZ",
-      lastCheck: "2024-01-15 14:35:00",
-      responseTime: "45ms",
-      endpoint: "/health/database",
-      details: "Connection successful, query response within acceptable limits",
-      type: "healthcheck"
-    },
-    {
-      id: 6,
-      name: "API Gateway Health",
-      description: "Main API gateway availability check",
-      status: "degraded",
-      domain: "Front of House",
-      tenancy: "AU",
-      lastCheck: "2024-01-15 14:34:00",
-      responseTime: "350ms",
-      endpoint: "/health/api-gateway",
-      details: "Elevated response times detected, investigating load balancer",
-      type: "healthcheck"
-    },
-    {
-      id: 7,
-      name: "Cache Service",
-      description: "Redis cache service health check",
-      status: "unhealthy",
-      domain: "Back of House",
-      tenancy: "AU",
-      lastCheck: "2024-01-15 14:33:00",
-      responseTime: "timeout",
-      endpoint: "/health/cache",
-      details: "Cache service unresponsive, failover to secondary cache activated",
-      type: "healthcheck"
-    },
-    {
-      id: 8,
-      name: "Authentication Service",
-      description: "Identity and authentication service check",
-      status: "healthy",
-      domain: "Front of House",
-      tenancy: "NZ",
-      lastCheck: "2024-01-15 14:35:00",
-      responseTime: "28ms",
-      endpoint: "/health/auth",
-      details: "All authentication endpoints responding normally",
-      type: "healthcheck"
-    },
-    {
-      id: 9,
-      name: "Payment Processing",
-      description: "Payment gateway connectivity check",
-      status: "healthy",
-      domain: "Core Retail",
-      tenancy: "AU",
-      lastCheck: "2024-01-15 14:34:00",
-      responseTime: "120ms",
-      endpoint: "/health/payments",
-      details: "Payment processing services operational",
-      type: "healthcheck"
-    }
-  ];
-
+  const alerts: Alert[] = generateDemoAlerts();
+  const healthChecks: HealthCheck[] = generateDemoHealthChecks();
   const allItems: AzureItem[] = [...alerts, ...healthChecks];
 
   const getSeverityColor = (severity: string) => {
@@ -368,7 +398,7 @@ export const AzureAlerts = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {["All Domains", "Front of House", "Back of House", "Core Retail", "Data Services"].map((domain) => (
+                  {["All Domains", "Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"].map((domain) => (
                     <SelectItem key={domain} value={domain}>
                       {domain}
                     </SelectItem>

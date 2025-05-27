@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +8,88 @@ import { HistoryButton } from "./HistoryButton";
 import { AlertDetailsModal } from "./AlertDetailsModal";
 import { useToast } from "@/hooks/use-toast";
 
+const generateDemoAlerts = () => {
+  const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
+  const tenancies = ["AU", "NZ", "UK", "US"];
+  const severities = ["critical", "high", "medium", "low"];
+  const statuses = ["active", "investigating", "resolved"];
+  const sources = ["Azure Monitor", "Application Insights", "Database Monitor", "API Gateway", "System Monitor"];
+  
+  const alertTitles = [
+    "High CPU Usage", "Memory Leak Detected", "Database Connection Timeout", "API Response Time Degradation",
+    "Disk Space Warning", "Network Latency Spike", "SSL Certificate Expiring", "Failed Login Attempts",
+    "Payment Gateway Timeout", "Email Service Failure", "Cache Miss Rate High", "Queue Length Growing",
+    "Error Rate Elevated", "Backup Job Failed", "Security Scan Alert", "Performance Degradation",
+    "Service Unavailable", "Connection Pool Exhausted", "Thread Count High", "GC Pressure Alert",
+    "Database Deadlock", "File System Full", "Network Packet Loss", "Service Discovery Failed",
+    "Load Balancer Health Check Failed", "CDN Cache Miss", "Search Index Lag", "Notification Delivery Failed",
+    "User Session Timeout", "API Rate Limit Exceeded", "Database Query Slow", "Memory Usage High",
+    "Connection Refused", "Service Dependency Down", "Authentication Failed", "Authorization Error"
+  ];
+
+  const descriptions = [
+    "CPU usage has exceeded threshold for extended period",
+    "Memory consumption increasing without release patterns",
+    "Multiple database connection timeouts detected across services",
+    "API response times have increased significantly above SLA",
+    "Disk space usage has exceeded critical warning threshold",
+    "Network latency has spiked above acceptable service levels",
+    "SSL certificate will expire within critical warning period",
+    "Multiple failed login attempts detected from various sources",
+    "Payment gateway experiencing timeout issues with transactions",
+    "Email service failing to deliver messages to recipients",
+    "Cache miss rate has increased significantly affecting performance",
+    "Message queue length growing beyond configured capacity limits",
+    "Error rate has elevated above normal operational levels",
+    "Automated backup job has failed multiple consecutive times",
+    "Security scan has detected potential vulnerabilities or threats",
+    "Overall system performance has degraded below acceptable levels",
+    "Critical service is reporting as completely unavailable",
+    "Database connection pool resources are completely exhausted",
+    "Application thread count has exceeded safe operational limits",
+    "Garbage collection pressure detected affecting application performance"
+  ];
+
+  const alerts = [];
+  
+  for (let i = 1; i <= 60; i++) {
+    const domain = domains[Math.floor(Math.random() * domains.length)];
+    const tenancy = tenancies[Math.floor(Math.random() * tenancies.length)];
+    const severity = severities[Math.floor(Math.random() * severities.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const source = sources[Math.floor(Math.random() * sources.length)];
+    const title = alertTitles[Math.floor(Math.random() * alertTitles.length)];
+    const description = descriptions[Math.floor(Math.random() * descriptions.length)];
+    
+    const timestamp = new Date(2025, 0, Math.floor(Math.random() * 27) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+    
+    const services = ["Web Server", "Database", "API Gateway", "Cache Service", "Load Balancer", "Auth Service", "Payment Service", "Email Service"];
+    const affectedServices = services.slice(0, Math.floor(Math.random() * 4) + 1);
+    
+    const metrics = [
+      "CPU Usage: 92%", "Memory Usage: 85%", "Disk Usage: 95%", "Response Time: 2.5s",
+      "Error Rate: 5.2%", "Queue Length: 1250", "Connection Count: 850", "Throughput: 45 req/s",
+      "Latency: 850ms", "Success Rate: 94.2%", "Cache Hit Rate: 65%", "Active Sessions: 2850"
+    ];
+    
+    alerts.push({
+      id: i,
+      title: `${title} - ${domain} ${tenancy}`,
+      description,
+      severity,
+      status,
+      domain,
+      tenancy,
+      timestamp: timestamp.toISOString().slice(0, 19).replace('T', ' '),
+      source,
+      metric: metrics[Math.floor(Math.random() * metrics.length)],
+      affectedServices
+    });
+  }
+  
+  return alerts;
+};
+
 export const Alerts = () => {
   const [selectedSeverity, setSelectedSeverity] = useState("All Severities");
   const [selectedStatus, setSelectedStatus] = useState("All Statuses");
@@ -17,60 +98,7 @@ export const Alerts = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const { toast } = useToast();
 
-  const alerts = [
-    {
-      id: 1,
-      title: "High CPU Usage - Back of House NZ",
-      description: "CPU usage has exceeded 85% for the past 10 minutes",
-      severity: "critical",
-      status: "active",
-      domain: "Back of House",
-      tenancy: "NZ",
-      timestamp: "2024-01-15 14:30:00",
-      source: "Azure Monitor",
-      metric: "CPU Usage: 92%",
-      affectedServices: ["Web Server", "Database Server", "Cache Service"]
-    },
-    {
-      id: 2,
-      title: "Memory Leak Detected - Back of House AU",
-      description: "Memory consumption increasing steadily over 2 hours",
-      severity: "high",
-      status: "active", 
-      domain: "Back of House",
-      tenancy: "AU",
-      timestamp: "2024-01-15 13:45:00",
-      source: "Application Insights",
-      metric: "Memory Usage: 78%",
-      affectedServices: ["Application Server", "Background Jobs"]
-    },
-    {
-      id: 3,
-      title: "Database Connection Timeout",
-      description: "Multiple database connection timeouts detected",
-      severity: "medium",
-      status: "resolved",
-      domain: "Data Services",
-      tenancy: "NZ",
-      timestamp: "2024-01-15 12:20:00",
-      source: "Database Monitor",
-      metric: "Connection Time: 5.2s",
-      affectedServices: ["Primary Database", "Backup Database"]
-    },
-    {
-      id: 4,
-      title: "API Response Time Degradation",
-      description: "API response times have increased by 40%",
-      severity: "low",
-      status: "investigating",
-      domain: "Front of House",
-      tenancy: "AU",
-      timestamp: "2024-01-15 11:15:00",
-      source: "API Gateway",
-      metric: "Avg Response: 850ms",
-      affectedServices: ["API Gateway", "Load Balancer"]
-    }
-  ];
+  const alerts = generateDemoAlerts();
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -160,7 +188,7 @@ export const Alerts = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {["All Domains", "Front of House", "Back of House", "Core Retail", "Data Services"].map((domain) => (
+                  {["All Domains", "Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"].map((domain) => (
                     <SelectItem key={domain} value={domain}>
                       {domain}
                     </SelectItem>

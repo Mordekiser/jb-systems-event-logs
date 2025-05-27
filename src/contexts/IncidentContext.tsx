@@ -33,45 +33,70 @@ export const useIncidents = () => {
   return context;
 };
 
+const generateDemoIncidents = (): Incident[] => {
+  const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
+  const tenancies = ["AU", "NZ", "UK", "US"];
+  const severities = ["low", "medium", "high", "critical"];
+  const statuses = ["investigating", "in-progress", "resolved", "closed"];
+  
+  const services = [
+    "API Gateway", "Database", "Authentication", "Payment Gateway", "Email Service",
+    "File Storage", "Cache Service", "Load Balancer", "Monitoring", "Backup Service",
+    "CDN", "Search Engine", "Analytics", "Notification Service", "Order Processing"
+  ];
+
+  const incidentTitles = [
+    "Database Performance Issues", "API Gateway Timeout", "Authentication Service Down", 
+    "Payment Processing Failure", "Email Delivery Delays", "File Upload Errors",
+    "Cache Service Unresponsive", "Load Balancer Health Check Failed", "High Error Rates",
+    "Memory Leak Detected", "Disk Space Critical", "Network Connectivity Issues",
+    "SSL Certificate Expired", "Backup Job Failed", "Security Breach Detected",
+    "Performance Degradation", "Service Unavailable", "Data Corruption Detected",
+    "Queue Processing Delays", "Search Index Corruption", "Notification Failures",
+    "User Session Issues", "Integration Endpoint Down", "Monitoring Alert Storm",
+    "Resource Exhaustion", "Configuration Error", "Deployment Rollback Required",
+    "Third-party Service Outage", "Database Deadlock", "Application Crash"
+  ];
+
+  const creators = [
+    "System Monitor", "John Smith", "Sarah Johnson", "Mike Wilson", "Emma Davis",
+    "Support Team", "DevOps Team", "Security Team", "Database Admin", "Network Team"
+  ];
+
+  const incidents: Incident[] = [];
+  
+  for (let i = 1; i <= 75; i++) {
+    const domain = domains[Math.floor(Math.random() * domains.length)];
+    const tenancy = tenancies[Math.floor(Math.random() * tenancies.length)];
+    const severity = severities[Math.floor(Math.random() * severities.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const title = incidentTitles[Math.floor(Math.random() * incidentTitles.length)];
+    const creator = creators[Math.floor(Math.random() * creators.length)];
+    
+    const createdDate = new Date(2025, 0, Math.floor(Math.random() * 27) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+    const updatedDate = new Date(createdDate.getTime() + Math.random() * 48 * 60 * 60 * 1000);
+    
+    const affectedServices = services.slice(0, Math.floor(Math.random() * 4) + 1);
+    
+    incidents.push({
+      id: `INC-${String(i).padStart(3, '0')}`,
+      title: `${title} - ${domain} ${tenancy}`,
+      severity,
+      status,
+      createdBy: creator,
+      createdAt: createdDate.toISOString().slice(0, 16).replace('T', ' '),
+      updatedAt: updatedDate.toISOString().slice(0, 16).replace('T', ' '),
+      affectedServices,
+      domain,
+      tenancy
+    });
+  }
+  
+  return incidents.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+};
+
 export const IncidentProvider = ({ children }: { children: ReactNode }) => {
-  const [incidents, setIncidents] = useState<Incident[]>([
-    {
-      id: "INC-001",
-      title: "High API Response Times",
-      severity: "high",
-      status: "investigating",
-      createdBy: "System Monitor",
-      createdAt: "2024-01-15 15:45",
-      updatedAt: "2024-01-15 16:00",
-      affectedServices: ["API Gateway", "Database"],
-      domain: "Back of House",
-      tenancy: "NZ"
-    },
-    {
-      id: "INC-002", 
-      title: "Email Service Intermittent Failures",
-      severity: "medium",
-      status: "in-progress",
-      createdBy: "John Doe",
-      createdAt: "2024-01-15 14:20",
-      updatedAt: "2024-01-15 15:30",
-      affectedServices: ["Email Service"],
-      domain: "Back of House",
-      tenancy: "AU"
-    },
-    {
-      id: "INC-003",
-      title: "Login Authentication Delays",
-      severity: "low",
-      status: "resolved",
-      createdBy: "Jane Smith",
-      createdAt: "2024-01-15 09:15",
-      updatedAt: "2024-01-15 11:45",
-      affectedServices: ["Authentication"],
-      domain: "Front of House",
-      tenancy: "NZ"
-    }
-  ]);
+  const [incidents, setIncidents] = useState<Incident[]>(generateDemoIncidents());
 
   const updateIncidentStatus = (incidentId: string, newStatus: string) => {
     setIncidents(prev => prev.map(incident => 
