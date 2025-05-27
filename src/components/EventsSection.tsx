@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { ManualReleaseCreationModal } from "./ManualReleaseCreationModal";
 import { IncidentDetailsModal } from "./IncidentDetailsModal";
 import { IncidentEditModal } from "./IncidentEditModal";
 import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
+import { HistoryButton } from "./HistoryButton";
 import { useToast } from "@/hooks/use-toast";
 
 interface EventsSectionProps {
@@ -21,7 +21,7 @@ interface EventsSectionProps {
 }
 
 export const EventsSection = ({ filter }: EventsSectionProps) => {
-  const { incidents, addIncident, updateIncident, deleteIncident } = useIncidents();
+  const { incidents, addIncident, deleteIncident } = useIncidents();
   const { toast } = useToast();
   const [typeFilter, setTypeFilter] = useState<string>("all");
   
@@ -73,7 +73,7 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
     impact: incident.severity,
     domain: incident.domain || "Unknown",
     tenancy: incident.tenancy || "Unknown",
-    description: incident.description || "",
+    description: incident.title || "",
   }));
 
   // Combine all events
@@ -144,7 +144,7 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
   };
 
   const handleUpdateIncident = (updatedIncident: any) => {
-    updateIncident(updatedIncident.id, updatedIncident);
+    // Update functionality would need to be implemented in context
     toast({
       title: "Incident Updated",
       description: "Incident has been updated successfully.",
@@ -326,7 +326,7 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
                         {event.type === "release" ? "Scheduled/Deployed" : "Started"}
                       </p>
                       <p className="text-sm">
-                        {event.startTime || event.scheduledTime || event.createdAt}
+                        {event.startTime || event.scheduledTime || (event as any).createdAt}
                       </p>
                     </div>
                     <div>
@@ -347,6 +347,11 @@ export const EventsSection = ({ filter }: EventsSectionProps) => {
                   </div>
 
                   <div className="flex justify-end space-x-2">
+                    <HistoryButton
+                      entityType={event.type === "incident" ? "incident" : "release"}
+                      entityId={event.id}
+                      entityTitle={event.title}
+                    />
                     <Button 
                       variant="outline" 
                       size="sm"

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,6 @@ import { ConfigPanel } from "@/components/ConfigPanel";
 import { ManualEventCreationModal } from "@/components/ManualEventCreationModal";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { StatusDashboard } from "@/components/StatusDashboard";
-import { TimelineHistory } from "@/components/TimelineHistory";
 import { ApiListing } from "@/components/ApiListing";
 import { Alerts } from "@/components/Alerts";
 import { AzureAppInsightHealth } from "@/components/AzureAppInsightHealth";
@@ -23,11 +23,6 @@ const Index = () => {
   const [showConfig, setShowConfig] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeTab, setActiveTab] = useState("status-dashboard");
-  const [timelineFilter, setTimelineFilter] = useState<{
-    statusType?: string;
-    tenancy?: string;
-    domain?: string;
-  }>({});
   const [apiListingFilter, setApiListingFilter] = useState<string>("");
   const [eventsFilter, setEventsFilter] = useState<{
     type?: string;
@@ -36,14 +31,9 @@ const Index = () => {
   }>({});
 
   const clearAllFilters = () => {
-    setTimelineFilter({});
     setApiListingFilter("");
     setEventsFilter({});
     setActiveTab("status-dashboard");
-  };
-
-  const clearTimelineFilter = () => {
-    setTimelineFilter({});
   };
 
   const clearEventsFilter = () => {
@@ -67,8 +57,9 @@ const Index = () => {
       setEventsFilter({ type: 'release', domain, tenancy });
       setActiveTab("events");
     } else {
-      setTimelineFilter({ statusType, tenancy, domain });
-      setActiveTab("timeline-history");
+      // For other status types, navigate to events
+      setEventsFilter({ domain, tenancy });
+      setActiveTab("events");
     }
   };
 
@@ -92,25 +83,21 @@ const Index = () => {
       setEventsFilter({});
     } else if (value === "api-listing") {
       setApiListingFilter("");
-    } else if (value === "timeline-history") {
-      setTimelineFilter({});
     }
   };
 
   const renderBreadcrumbs = () => {
-    const hasTimelineFilter = timelineFilter.statusType || timelineFilter.tenancy || timelineFilter.domain;
     const hasEventsFilter = eventsFilter.type || eventsFilter.domain || eventsFilter.tenancy;
     const hasApiFilter = apiListingFilter;
 
     // Always show breadcrumbs for all tabs except status-dashboard
-    if (activeTab === "status-dashboard" && !hasTimelineFilter && !hasEventsFilter && !hasApiFilter) {
+    if (activeTab === "status-dashboard" && !hasEventsFilter && !hasApiFilter) {
       return null;
     }
 
     const getTabLabel = (tabValue: string) => {
       switch (tabValue) {
         case "status-dashboard": return "Status Dashboard";
-        case "timeline-history": return "Timeline History";
         case "alerts": return "Alerts";
         case "azure-health": return "Azure AppInsight Health";
         case "api-listing": return "API Listing";
@@ -139,10 +126,9 @@ const Index = () => {
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    {hasTimelineFilter || hasEventsFilter || hasApiFilter ? (
+                    {hasEventsFilter || hasApiFilter ? (
                       <BreadcrumbLink 
                         onClick={() => {
-                          if (activeTab === "timeline-history") clearTimelineFilter();
                           if (activeTab === "events") clearEventsFilter();
                           if (activeTab === "api-listing") clearApiListingFilter();
                         }}
@@ -155,19 +141,6 @@ const Index = () => {
                         {getTabLabel(activeTab)}
                       </BreadcrumbPage>
                     )}
-                  </BreadcrumbItem>
-                </>
-              )}
-
-              {hasTimelineFilter && activeTab === "timeline-history" && (
-                <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>
-                      {timelineFilter.domain && `${timelineFilter.domain}`}
-                      {timelineFilter.tenancy && ` - ${timelineFilter.tenancy}`}
-                      {timelineFilter.statusType && ` - ${timelineFilter.statusType}`}
-                    </BreadcrumbPage>
                   </BreadcrumbItem>
                 </>
               )}
@@ -204,7 +177,6 @@ const Index = () => {
 
   const tabItems = [
     { value: "status-dashboard", label: "Status Dashboard", icon: Activity },
-    { value: "timeline-history", label: "Timeline History", icon: Clock },
     { value: "alerts", label: "Alerts", icon: AlertTriangle },
     { value: "azure-health", label: "Azure AppInsight Health", icon: Database },
     { value: "api-listing", label: "API Listing", icon: Code },
@@ -313,10 +285,6 @@ const Index = () => {
             <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
               <TabsContent value="status-dashboard" className="space-y-6">
                 <StatusDashboard onStatusClick={handleStatusClick} onDomainClick={handleDomainClick} />
-              </TabsContent>
-
-              <TabsContent value="timeline-history" className="space-y-6">
-                <TimelineHistory filter={timelineFilter} />
               </TabsContent>
 
               <TabsContent value="alerts" className="space-y-6">
