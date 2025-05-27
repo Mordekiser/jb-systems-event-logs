@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap } from "lucide-react";
+import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code } from "lucide-react";
 import { StatusOverview } from "@/components/StatusOverview";
 import { EventsSection } from "@/components/EventsSection";
 import { IncidentTracking } from "@/components/IncidentTracking";
@@ -13,6 +14,7 @@ import { NotificationCenter } from "@/components/NotificationCenter";
 import { StatusDashboard } from "@/components/StatusDashboard";
 import { TimelineHistory } from "@/components/TimelineHistory";
 import { ReleaseEvents } from "@/components/ReleaseEvents";
+import { ApiListing } from "@/components/ApiListing";
 
 const Index = () => {
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -57,7 +59,7 @@ const Index = () => {
         {/* Main Dashboard */}
         <div className="space-y-8">
           <Tabs defaultValue="status-dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 border border-yellow-500 bg-slate-950">
+            <TabsList className="grid w-full grid-cols-7 border border-yellow-500 bg-slate-950">
               <TabsTrigger value="status-dashboard" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
                 <Activity className="h-4 w-4" />
                 <span>Status Dashboard</span>
@@ -69,6 +71,10 @@ const Index = () => {
               <TabsTrigger value="release-events" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
                 <Package className="h-4 w-4" />
                 <span>Release Events</span>
+              </TabsTrigger>
+              <TabsTrigger value="api-listing" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
+                <Code className="h-4 w-4" />
+                <span>API Listing</span>
               </TabsTrigger>
               <TabsTrigger value="events" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
                 <Calendar className="h-4 w-4" />
@@ -94,6 +100,10 @@ const Index = () => {
 
             <TabsContent value="release-events" className="space-y-6">
               <ReleaseEvents />
+            </TabsContent>
+
+            <TabsContent value="api-listing" className="space-y-6">
+              <ApiListing />
             </TabsContent>
 
             <TabsContent value="events" className="space-y-6">
