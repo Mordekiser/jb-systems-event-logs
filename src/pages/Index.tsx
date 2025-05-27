@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { ConfigPanel } from "@/components/ConfigPanel";
 import { ManualEventCreationModal } from "@/components/ManualEventCreationModal";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { StatusDashboard } from "@/components/StatusDashboard";
+import { ApplicationStatusDashboard } from "@/components/ApplicationStatusDashboard";
 import { ApiListing } from "@/components/ApiListing";
 import { AzureAlerts } from "@/components/AzureAlerts";
 import { IncidentProvider } from "@/contexts/IncidentContext";
@@ -106,11 +108,11 @@ const Index = () => {
 
     const getTabLabel = (tabValue: string) => {
       switch (tabValue) {
-        case "status-dashboard": return "Status Dashboard";
+        case "status-dashboard": return "Application Status";
         case "azure-alerts": return "Azure Alerts";
         case "api-listing": return "API Listing";
         case "events": return "Events";
-        case "monitoring": return "Monitoring";
+        case "monitoring": return "System Monitoring";
         default: return "Unknown";
       }
     };
@@ -126,7 +128,7 @@ const Index = () => {
                   className="flex items-center cursor-pointer hover:text-blue-600"
                 >
                   <Home className="h-4 w-4 mr-1" />
-                  Status Dashboard
+                  Application Status
                 </BreadcrumbLink>
               </BreadcrumbItem>
               
@@ -185,11 +187,11 @@ const Index = () => {
   };
 
   const tabItems = [
-    { value: "status-dashboard", label: "Status Dashboard", icon: Activity },
+    { value: "status-dashboard", label: "Application Status", icon: Activity },
     { value: "azure-alerts", label: "Azure Alerts", icon: AlertTriangle },
     { value: "api-listing", label: "API Listing", icon: Code },
     { value: "events", label: "Events", icon: Calendar },
-    { value: "monitoring", label: "Monitoring", icon: BarChart3 },
+    { value: "monitoring", label: "System Monitoring", icon: BarChart3 },
   ];
 
   return (
@@ -294,11 +296,7 @@ const Index = () => {
               <div className="space-y-8">
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
                   <TabsContent value="status-dashboard" className="space-y-6">
-                    <StatusDashboard 
-                      onStatusClick={handleStatusClick} 
-                      onDomainClick={handleDomainClick}
-                      onApplicationClick={handleApplicationClick}
-                    />
+                    <ApplicationStatusDashboard onApplicationClick={handleApplicationClick} />
                   </TabsContent>
 
                   <TabsContent value="azure-alerts" className="space-y-6">
@@ -318,43 +316,11 @@ const Index = () => {
                   </TabsContent>
 
                   <TabsContent value="monitoring" className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      <Card className="bg-white border-yellow-300">
-                        <CardHeader>
-                          <CardTitle className="text-sm text-black">Azure Alerts</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center space-x-2">
-                            <CheckCircle className="h-5 w-5 text-green-500" />
-                            <span className="text-sm text-black">Connected</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-white border-yellow-300">
-                        <CardHeader>
-                          <CardTitle className="text-sm text-black">App Insights</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center space-x-2">
-                            <CheckCircle className="h-5 w-5 text-green-500" />
-                            <span className="text-sm text-black">Health Check Active</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-white border-yellow-300">
-                        <CardHeader>
-                          <CardTitle className="text-sm text-black">Automated Tests</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center space-x-2">
-                            <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                            <span className="text-sm text-black">2 Failed Tests</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
+                    <StatusDashboard 
+                      onStatusClick={handleStatusClick} 
+                      onDomainClick={handleDomainClick}
+                      onApplicationClick={handleApplicationClick}
+                    />
                   </TabsContent>
                 </Tabs>
               </div>

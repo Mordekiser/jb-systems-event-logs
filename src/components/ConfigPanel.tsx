@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -103,7 +104,7 @@ export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
     
     toast({
       title: "Configuration Applied",
-      description: `Dashboard updated with "${suggestion.title}" grouping strategy.`,
+      description: `System Monitoring updated with "${suggestion.title}" grouping strategy.`,
     });
   };
 
@@ -240,10 +241,10 @@ export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
                 <CardHeader className="bg-orange-50 border-b">
                   <CardTitle className="flex items-center space-x-2 text-lg">
                     <Shield className="h-5 w-5 text-orange-600" />
-                    <span>Dashboard Grouping Strategy</span>
+                    <span>System Monitoring Grouping Strategy</span>
                   </CardTitle>
                   <CardDescription>
-                    Configure how services are grouped and displayed in the Status Dashboard.
+                    Configure how services are grouped and displayed in the System Monitoring tab.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 p-6">
@@ -291,7 +292,7 @@ export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
                   <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="flex items-center space-x-2 mb-2">
                       <Info className="h-4 w-4 text-blue-600" />
-                      <span className="font-medium text-blue-800">Dashboard Preview</span>
+                      <span className="font-medium text-blue-800">System Monitoring Preview</span>
                     </div>
                     <p className="text-sm text-blue-700">{currentConfigPreview()}</p>
                   </div>
