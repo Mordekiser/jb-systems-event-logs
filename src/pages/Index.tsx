@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code, Menu } from "lucide-react";
 import { StatusOverview } from "@/components/StatusOverview";
 import { EventsSection } from "@/components/EventsSection";
 import { IncidentTracking } from "@/components/IncidentTracking";
@@ -20,6 +21,17 @@ const Index = () => {
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [activeTab, setActiveTab] = useState("status-dashboard");
+
+  const tabItems = [
+    { value: "status-dashboard", label: "Status Dashboard", icon: Activity },
+    { value: "timeline-history", label: "Timeline History", icon: Clock },
+    { value: "release-events", label: "Release Events", icon: Package },
+    { value: "api-listing", label: "API Listing", icon: Code },
+    { value: "events", label: "Events", icon: Calendar },
+    { value: "incidents", label: "Incidents", icon: AlertTriangle },
+    { value: "monitoring", label: "Monitoring", icon: BarChart3 },
+  ];
 
   return (
     <div className="min-h-screen bg-yellow-400">
@@ -54,42 +66,68 @@ const Index = () => {
         </div>
       </header>
 
+      {/* Navigation Bar */}
+      <nav className="bg-slate-950 border-b border-yellow-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex">
+            <div className="flex space-x-1 w-full">
+              {tabItems.map((item) => (
+                <button
+                  key={item.value}
+                  onClick={() => setActiveTab(item.value)}
+                  className={`flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-none border-b-2 transition-colors ${
+                    activeTab === item.value
+                      ? "bg-yellow-400 text-black border-yellow-400"
+                      : "text-white hover:bg-slate-800 border-transparent"
+                  }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden flex justify-between items-center py-3">
+            <span className="text-white font-medium">
+              {tabItems.find(item => item.value === activeTab)?.label}
+            </span>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-white">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64 bg-slate-950 border-yellow-500">
+                <div className="flex flex-col space-y-2 mt-8">
+                  {tabItems.map((item) => (
+                    <button
+                      key={item.value}
+                      onClick={() => setActiveTab(item.value)}
+                      className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-md transition-colors w-full text-left ${
+                        activeTab === item.value
+                          ? "bg-yellow-400 text-black"
+                          : "text-white hover:bg-slate-800"
+                      }`}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </nav>
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Main Dashboard */}
         <div className="space-y-8">
-          <Tabs defaultValue="status-dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7 border border-yellow-500 bg-slate-950">
-              <TabsTrigger value="status-dashboard" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                <Activity className="h-4 w-4" />
-                <span>Status Dashboard</span>
-              </TabsTrigger>
-              <TabsTrigger value="timeline-history" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                <Clock className="h-4 w-4" />
-                <span>Timeline History</span>
-              </TabsTrigger>
-              <TabsTrigger value="release-events" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                <Package className="h-4 w-4" />
-                <span>Release Events</span>
-              </TabsTrigger>
-              <TabsTrigger value="api-listing" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                <Code className="h-4 w-4" />
-                <span>API Listing</span>
-              </TabsTrigger>
-              <TabsTrigger value="events" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                <Calendar className="h-4 w-4" />
-                <span>Events</span>
-              </TabsTrigger>
-              <TabsTrigger value="incidents" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                <AlertTriangle className="h-4 w-4" />
-                <span>Incidents</span>
-              </TabsTrigger>
-              <TabsTrigger value="monitoring" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
-                <BarChart3 className="h-4 w-4" />
-                <span>Monitoring</span>
-              </TabsTrigger>
-            </TabsList>
-
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsContent value="status-dashboard" className="space-y-6">
               <StatusDashboard />
             </TabsContent>
