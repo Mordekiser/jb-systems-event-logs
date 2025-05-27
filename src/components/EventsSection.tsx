@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Package, GitBranch, Clock, Trash2 } from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
 import { EventDeleteConfirmDialog } from "@/components/EventDeleteConfirmDialog";
+import { EventFilters, type EventFilters as EventFiltersType } from "@/components/EventFilters";
 
 interface EventsSectionProps {
   filter?: {
@@ -28,6 +28,7 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
     eventTitle: "",
     eventType: ""
   });
+  const [eventFilters, setEventFilters] = useState<EventFiltersType>({});
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -78,7 +79,6 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
   };
 
   const handleDeleteConfirm = () => {
-    // The delete confirmation dialog will handle the actual deletion
     setDeleteDialog({
       open: false,
       eventId: "",
@@ -86,6 +86,73 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
       eventType: ""
     });
   };
+
+  const filterEvents = () => {
+    let filteredEvents = events;
+
+    // Apply legacy filters
+    if (filter.type) {
+      filteredEvents = filteredEvents.filter(event => 
+        event.eventType.toLowerCase() === filter.type?.toLowerCase()
+      );
+    }
+    if (filter.domain) {
+      filteredEvents = filteredEvents.filter(event => 
+        event.domainsAffected.includes(filter.domain!)
+      );
+    }
+    if (filter.tenancy) {
+      filteredEvents = filteredEvents.filter(event => 
+        event.locations.some(location => location.tenant.includes(filter.tenancy!.toLowerCase()))
+      );
+    }
+
+    // Apply new event filters
+    if (eventFilters.createdBy) {
+      filteredEvents = filteredEvents.filter(event => 
+        event.createdBy.toLowerCase().includes(eventFilters.createdBy!.toLowerCase())
+      );
+    }
+    if (eventFilters.updatedBy) {
+      filteredEvents = filteredEvents.filter(event => 
+        event.updatedBy.toLowerCase().includes(eventFilters.updatedBy!.toLowerCase())
+      );
+    }
+    if (eventFilters.eventCreationType) {
+      filteredEvents = filteredEvents.filter(event => 
+        event.createdBySource === eventFilters.eventCreationType
+      );
+    }
+    if (eventFilters.historyType) {
+      filteredEvents = filteredEvents.filter(event => 
+        event.statusHistory.some(history => history.historyType === eventFilters.historyType)
+      );
+    }
+    if (eventFilters.createdFromDate) {
+      filteredEvents = filteredEvents.filter(event => 
+        new Date(event.createdTimestamp) >= new Date(eventFilters.createdFromDate!)
+      );
+    }
+    if (eventFilters.createdToDate) {
+      filteredEvents = filteredEvents.filter(event => 
+        new Date(event.createdTimestamp) <= new Date(eventFilters.createdToDate!)
+      );
+    }
+    if (eventFilters.updatedFromDate) {
+      filteredEvents = filteredEvents.filter(event => 
+        new Date(event.updatedTimestamp) >= new Date(eventFilters.updatedFromDate!)
+      );
+    }
+    if (eventFilters.updatedToDate) {
+      filteredEvents = filteredEvents.filter(event => 
+        new Date(event.updatedTimestamp) <= new Date(eventFilters.updatedToDate!)
+      );
+    }
+
+    return filteredEvents;
+  };
+
+  const filteredEvents = filterEvents();
 
   return (
     <div className="space-y-6">
@@ -101,9 +168,15 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
         </CardHeader>
       </Card>
 
+      {/* Event Filters */}
+      <EventFilters 
+        onFiltersChange={setEventFilters}
+        currentFilters={eventFilters}
+      />
+
       {/* Events Timeline */}
       <div className="space-y-4">
-        {events.map((event) => (
+        {filteredEvents.map((event) => (
           <Card key={event.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
@@ -196,10 +269,10 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
           </Card>
         ))}
 
-        {events.length === 0 && (
+        {filteredEvents.length === 0 && (
           <Card>
             <CardContent className="p-6 text-center">
-              <p className="text-gray-500">No events found.</p>
+              <p className="text-gray-500">No events found matching the current filters.</p>
             </CardContent>
           </Card>
         )}
