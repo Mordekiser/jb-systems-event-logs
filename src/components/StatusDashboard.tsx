@@ -1,11 +1,14 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
 import { StatusLegend } from "./StatusLegend";
 
-export const StatusDashboard = () => {
+interface StatusDashboardProps {
+  onStatusClick?: (statusType: string, tenancy: string, domain: string) => void;
+}
+
+export const StatusDashboard = ({ onStatusClick }: StatusDashboardProps) => {
   const domains = [{
     name: "Back of House",
     tenancies: [{
@@ -59,18 +62,27 @@ export const StatusDashboard = () => {
     }]
   }];
   
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string, isClickable: boolean = false) => {
+    const baseClasses = "w-5 h-5";
+    const clickableClasses = isClickable ? "cursor-pointer hover:scale-110 transition-transform" : "";
+    
     switch (status) {
       case "green":
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className={`${baseClasses} ${clickableClasses} text-green-600`} />;
       case "orange":
-        return <AlertTriangle className="w-5 h-5 text-orange-600" />;
+        return <AlertTriangle className={`${baseClasses} ${clickableClasses} text-orange-600`} />;
       case "red":
-        return <XCircle className="w-5 h-5 text-red-600" />;
+        return <XCircle className={`${baseClasses} ${clickableClasses} text-red-600`} />;
       case "blue":
-        return <Info className="w-5 h-5 text-blue-600" />;
+        return <Info className={`${baseClasses} ${clickableClasses} text-blue-600`} />;
       default:
-        return <div className="w-5 h-5 rounded-full bg-gray-500"></div>;
+        return <div className={`${baseClasses} ${clickableClasses} rounded-full bg-gray-500`}></div>;
+    }
+  };
+
+  const handleStatusClick = (statusType: string, tenancy: string, domain: string) => {
+    if (onStatusClick) {
+      onStatusClick(statusType, tenancy, domain);
     }
   };
 
@@ -107,21 +119,32 @@ export const StatusDashboard = () => {
                     {tenancy.name}
                   </div>
                   <div className="flex justify-center">
-                    {getStatusIcon(tenancy.alerts)}
+                    <div onClick={() => handleStatusClick('alerts', tenancy.name, domain.name)}>
+                      {getStatusIcon(tenancy.alerts, true)}
+                    </div>
                   </div>
                   <div className="flex justify-center">
-                    {getStatusIcon(tenancy.healthchecks)}
+                    <div onClick={() => handleStatusClick('healthchecks', tenancy.name, domain.name)}>
+                      {getStatusIcon(tenancy.healthchecks, true)}
+                    </div>
                   </div>
                   <div className="flex justify-center">
-                    {getStatusIcon(tenancy.incidents)}
+                    <div onClick={() => handleStatusClick('incidents', tenancy.name, domain.name)}>
+                      {getStatusIcon(tenancy.incidents, true)}
+                    </div>
                   </div>
                   <div className="flex justify-center">
-                    {getStatusIcon(tenancy.releases)}
+                    <div onClick={() => handleStatusClick('releases', tenancy.name, domain.name)}>
+                      {getStatusIcon(tenancy.releases, true)}
+                    </div>
                   </div>
                   <div className="flex justify-center">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium">
+                    <button 
+                      onClick={() => handleStatusClick('services', tenancy.name, domain.name)}
+                      className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer"
+                    >
                       {tenancy.services}
-                    </span>
+                    </button>
                   </div>
                 </React.Fragment>))}
           </div>

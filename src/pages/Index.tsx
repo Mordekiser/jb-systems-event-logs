@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +21,16 @@ const Index = () => {
   const [showConfig, setShowConfig] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeTab, setActiveTab] = useState("status-dashboard");
+  const [timelineFilter, setTimelineFilter] = useState<{
+    statusType?: string;
+    tenancy?: string;
+    domain?: string;
+  }>({});
+
+  const handleStatusClick = (statusType: string, tenancy: string, domain: string) => {
+    setTimelineFilter({ statusType, tenancy, domain });
+    setActiveTab("timeline-history");
+  };
 
   const tabItems = [
     { value: "status-dashboard", label: "Status Dashboard", icon: Activity },
@@ -129,11 +138,11 @@ const Index = () => {
         <div className="space-y-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsContent value="status-dashboard" className="space-y-6">
-              <StatusDashboard />
+              <StatusDashboard onStatusClick={handleStatusClick} />
             </TabsContent>
 
             <TabsContent value="timeline-history" className="space-y-6">
-              <TimelineHistory />
+              <TimelineHistory filter={timelineFilter} />
             </TabsContent>
 
             <TabsContent value="release-events" className="space-y-6">

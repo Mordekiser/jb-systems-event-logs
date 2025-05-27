@@ -2,15 +2,28 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Filter, CheckCircle, AlertTriangle, User } from "lucide-react";
+import { Calendar, Clock, Filter, CheckCircle, AlertTriangle, User, X } from "lucide-react";
 
-export const TimelineHistory = () => {
+interface TimelineFilter {
+  statusType?: string;
+  tenancy?: string;
+  domain?: string;
+}
+
+interface TimelineHistoryProps {
+  filter?: TimelineFilter;
+}
+
+export const TimelineHistory = ({ filter }: TimelineHistoryProps) => {
   const timelineEvents = [
     {
       id: 1,
       date: "2024-01-15",
       time: "14:30",
       type: "incident",
+      statusType: "incidents",
+      tenancy: "NZ",
+      domain: "Back of House",
       title: "Final update",
       description: "Back of House Front of House API - NZ - List APPU API Was it being hit?",
       status: "resolved",
@@ -24,6 +37,9 @@ export const TimelineHistory = () => {
       date: "2024-01-15",
       time: "12:15",
       type: "maintenance",
+      statusType: "healthchecks",
+      tenancy: "AU",
+      domain: "Front of House",
       title: "Update",
       description: "Database Maintenance - Scheduled maintenance window",
       status: "completed",
@@ -37,6 +53,9 @@ export const TimelineHistory = () => {
       date: "2024-01-14",
       time: "09:45",
       type: "release",
+      statusType: "releases",
+      tenancy: "NZ",
+      domain: "Data Services",
       title: "Update",
       description: "Feature Deployment - New customer portal features",
       status: "successful",
@@ -50,6 +69,9 @@ export const TimelineHistory = () => {
       date: "2024-01-14",
       time: "16:20",
       type: "incident",
+      statusType: "alerts",
+      tenancy: "AU",
+      domain: "Back of House",
       title: "Initial communication",
       description: "Authentication Service - Login delays reported",
       status: "resolved",
@@ -57,8 +79,33 @@ export const TimelineHistory = () => {
       author: "DevOps Incident Scout",
       icon: AlertTriangle,
       iconColor: "text-orange-500"
+    },
+    {
+      id: 5,
+      date: "2024-01-13",
+      time: "10:30",
+      type: "service",
+      statusType: "services",
+      tenancy: "NZ",
+      domain: "Front of House",
+      title: "Service Update",
+      description: "API Gateway - Performance optimization completed",
+      status: "completed",
+      details: "Service performance improvements have been successfully deployed across all regions.",
+      author: "Platform Team",
+      icon: CheckCircle,
+      iconColor: "text-green-500"
     }
   ];
+
+  // Filter events based on the provided filter
+  const filteredEvents = filter && (filter.statusType || filter.tenancy || filter.domain) 
+    ? timelineEvents.filter(event => {
+        return (!filter.statusType || event.statusType === filter.statusType) &&
+               (!filter.tenancy || event.tenancy === filter.tenancy) &&
+               (!filter.domain || event.domain === filter.domain);
+      })
+    : timelineEvents;
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
@@ -68,8 +115,27 @@ export const TimelineHistory = () => {
         return "bg-blue-100 text-blue-800";
       case "release":
         return "bg-green-100 text-green-800";
+      case "service":
+        return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusTypeLabel = (statusType: string) => {
+    switch (statusType) {
+      case "alerts":
+        return "Alerts";
+      case "healthchecks":
+        return "Health Checks";
+      case "incidents":
+        return "Incidents";
+      case "releases":
+        return "Releases";
+      case "services":
+        return "Services";
+      default:
+        return statusType;
     }
   };
 
@@ -81,6 +147,13 @@ export const TimelineHistory = () => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-bold">
               System Availability Events History
+              {filter && (filter.statusType || filter.tenancy || filter.domain) && (
+                <div className="text-sm font-normal text-gray-600 mt-2">
+                  Filtered by: {filter.statusType && getStatusTypeLabel(filter.statusType)}
+                  {filter.tenancy && ` • ${filter.tenancy}`}
+                  {filter.domain && ` • ${filter.domain}`}
+                </div>
+              )}
             </CardTitle>
             <div className="flex space-x-2">
               <Button variant="outline" size="sm">
@@ -91,6 +164,17 @@ export const TimelineHistory = () => {
                 <Calendar className="h-4 w-4 mr-2" />
                 Date Range
               </Button>
+              {filter && (filter.statusType || filter.tenancy || filter.domain) && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.location.reload()}
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Clear Filter
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -102,42 +186,58 @@ export const TimelineHistory = () => {
         <div className="lg:col-span-2">
           <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
             <h3 className="font-semibold text-blue-900 mb-2">Event log</h3>
+            <p className="text-sm text-blue-700">
+              {filteredEvents.length} event{filteredEvents.length !== 1 ? 's' : ''} found
+              {filter && (filter.statusType || filter.tenancy || filter.domain) && ' matching your filter'}
+            </p>
           </div>
           
           <Card>
             <CardContent className="p-6">
               <div className="space-y-6">
-                {timelineEvents.map((event, index) => {
-                  const IconComponent = event.icon;
-                  return (
-                    <div key={event.id} className="flex items-start space-x-4 pb-6 border-b border-gray-100 last:border-b-0">
-                      {/* Timeline Icon */}
-                      <div className="flex-shrink-0 mt-1">
-                        <div className={`w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center ${
-                          event.id === 1 ? 'border-green-500' : 'border-gray-300'
-                        }`}>
-                          <IconComponent className={`h-4 w-4 ${event.iconColor}`} />
-                        </div>
-                      </div>
-                      
-                      {/* Event Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="font-semibold text-lg">{event.title}</h3>
+                {filteredEvents.length > 0 ? (
+                  filteredEvents.map((event, index) => {
+                    const IconComponent = event.icon;
+                    return (
+                      <div key={event.id} className="flex items-start space-x-4 pb-6 border-b border-gray-100 last:border-b-0">
+                        {/* Timeline Icon */}
+                        <div className="flex-shrink-0 mt-1">
+                          <div className={`w-8 h-8 rounded-full bg-white border-2 flex items-center justify-center ${
+                            event.id === 1 ? 'border-green-500' : 'border-gray-300'
+                          }`}>
+                            <IconComponent className={`h-4 w-4 ${event.iconColor}`} />
+                          </div>
                         </div>
                         
-                        <div className="flex items-center space-x-2 mb-3 text-sm text-gray-600">
-                          <User className="h-4 w-4" />
-                          <span>{event.author}</span>
-                          <span>•</span>
-                          <span>{event.date} at {event.time}</span>
+                        {/* Event Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h3 className="font-semibold text-lg">{event.title}</h3>
+                            <Badge className={getEventTypeColor(event.type)}>
+                              {getStatusTypeLabel(event.statusType)}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {event.domain} • {event.tenancy}
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2 mb-3 text-sm text-gray-600">
+                            <User className="h-4 w-4" />
+                            <span>{event.author}</span>
+                            <span>•</span>
+                            <span>{event.date} at {event.time}</span>
+                          </div>
+                          
+                          <p className="text-gray-700 leading-relaxed">{event.details}</p>
                         </div>
-                        
-                        <p className="text-gray-700 leading-relaxed">{event.details}</p>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No events found matching your filter criteria.</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -206,6 +306,32 @@ export const TimelineHistory = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Filter Information */}
+          {filter && (filter.statusType || filter.tenancy || filter.domain) && (
+            <Card className="border-blue-200 bg-blue-50">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-blue-900">Active Filter</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {filter.statusType && (
+                  <div className="text-sm">
+                    <span className="font-medium">Status Type:</span> {getStatusTypeLabel(filter.statusType)}
+                  </div>
+                )}
+                {filter.tenancy && (
+                  <div className="text-sm">
+                    <span className="font-medium">Tenancy:</span> {filter.tenancy}
+                  </div>
+                )}
+                {filter.domain && (
+                  <div className="text-sm">
+                    <span className="font-medium">Domain:</span> {filter.domain}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 
