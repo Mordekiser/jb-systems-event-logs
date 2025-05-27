@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +9,19 @@ import { HistoryButton } from "./HistoryButton";
 import { AddEventModal } from "./AddEventModal";
 import { useToast } from "@/hooks/use-toast";
 
-export const EventsSection = () => {
-  const [selectedDomain, setSelectedDomain] = useState("All Domains");
-  const [selectedType, setSelectedType] = useState("All Types");
+interface EventsFilter {
+  type?: string;
+  domain?: string;
+  tenancy?: string;
+}
+
+interface EventsSectionProps {
+  filter?: EventsFilter;
+}
+
+export const EventsSection = ({ filter: externalFilter }: EventsSectionProps) => {
+  const [selectedDomain, setSelectedDomain] = useState(externalFilter?.domain || "All Domains");
+  const [selectedType, setSelectedType] = useState(externalFilter?.type ? externalFilter.type.charAt(0).toUpperCase() + externalFilter.type.slice(1) : "All Types");
   const [selectedCreatedBy, setSelectedCreatedBy] = useState("All Users");
   const [createdFromDate, setCreatedFromDate] = useState("");
   const [createdToDate, setCreatedToDate] = useState("");
@@ -21,6 +30,16 @@ export const EventsSection = () => {
   const [updatedToDate, setUpdatedToDate] = useState("");
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const { toast } = useToast();
+
+  // Update local state when external filter changes
+  React.useEffect(() => {
+    if (externalFilter?.domain) {
+      setSelectedDomain(externalFilter.domain);
+    }
+    if (externalFilter?.type) {
+      setSelectedType(externalFilter.type.charAt(0).toUpperCase() + externalFilter.type.slice(1));
+    }
+  }, [externalFilter]);
 
   const events = [
     {
