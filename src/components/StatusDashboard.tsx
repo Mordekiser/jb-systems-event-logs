@@ -1,7 +1,10 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, AlertTriangle, XCircle, Clock } from "lucide-react";
+import { CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
+import { StatusLegend } from "./StatusLegend";
+
 export const StatusDashboard = () => {
   const domains = [{
     name: "Back of House",
@@ -59,15 +62,18 @@ export const StatusDashboard = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "green":
-        return <div className="w-6 h-6 rounded-full bg-green-500"></div>;
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
       case "orange":
-        return <div className="w-6 h-6 rounded-full bg-orange-500"></div>;
+        return <AlertTriangle className="w-5 h-5 text-orange-600" />;
       case "red":
-        return <div className="w-6 h-6 rounded-full bg-red-500"></div>;
+        return <XCircle className="w-5 h-5 text-red-600" />;
+      case "blue":
+        return <Info className="w-5 h-5 text-blue-600" />;
       default:
-        return <div className="w-6 h-6 rounded-full bg-gray-500"></div>;
+        return <div className="w-5 h-5 rounded-full bg-gray-500"></div>;
     }
   };
+
   return <div className="space-y-6">
       {/* Active Events Banner */}
       <Card className="bg-yellow-50 border-yellow-200">
@@ -121,5 +127,8 @@ export const StatusDashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Status Legend */}
+      <StatusLegend />
     </div>;
 };
