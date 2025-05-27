@@ -97,25 +97,6 @@ export const StatusDashboard = () => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Drill Down Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Drill into Domain from status dashboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="p-4 border rounded bg-gray-50">
-              <h3 className="font-medium mb-2">Back of House</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-3 border rounded">Multi Country</div>
-              <div className="p-3 border rounded">Carrier API</div>
-              <div className="p-3 border rounded">Customer Order API</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
