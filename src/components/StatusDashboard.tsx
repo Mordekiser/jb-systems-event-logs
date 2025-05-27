@@ -28,52 +28,65 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
     return "green";
   };
 
-  const domains = [{
-    name: "Back of House",
-    tenancies: [{
-      name: "NZ",
-      alerts: "green",
-      healthchecks: "green",
-      releases: "green",
-      services: 8
-    }, {
-      name: "AU",
-      alerts: "red",
-      healthchecks: "red",
-      releases: "green",
-      services: 15
-    }]
-  }, {
-    name: "Front of House",
-    tenancies: [{
-      name: "NZ",
-      alerts: "green",
-      healthchecks: "green",
-      releases: "green",
-      services: 4
-    }, {
-      name: "AU",
-      alerts: "green",
-      healthchecks: "green",
-      releases: "green",
-      services: 5
-    }]
-  }, {
-    name: "Data Services",
-    tenancies: [{
-      name: "NZ",
-      alerts: "green",
-      healthchecks: "green",
-      releases: "green",
-      services: 7
-    }, {
-      name: "AU",
-      alerts: "green",
-      healthchecks: "green",
-      releases: "green",
-      services: 8
-    }]
-  }];
+  const domains = [
+    {
+      name: "Back of House",
+      tenancies: [
+        {
+          name: "AU",
+          alerts: "red",
+          healthchecks: "red",
+          releases: "green",
+          services: 15
+        },
+        {
+          name: "NZ",
+          alerts: "green",
+          healthchecks: "green",
+          releases: "green",
+          services: 8
+        }
+      ]
+    },
+    {
+      name: "Front of House",
+      tenancies: [
+        {
+          name: "AU",
+          alerts: "green",
+          healthchecks: "green",
+          releases: "green",
+          services: 5
+        },
+        {
+          name: "NZ",
+          alerts: "green",
+          healthchecks: "green",
+          releases: "green",
+          services: 4
+        }
+      ]
+    },
+    {
+      name: "Data Services",
+      tenancies: [
+        {
+          name: "AU",
+          alerts: "green",
+          healthchecks: "green",
+          releases: "green",
+          services: 8
+        },
+        {
+          name: "NZ",
+          alerts: "green",
+          healthchecks: "green",
+          releases: "green",
+          services: 7
+        }
+      ]
+    }
+  ];
   
   const getStatusIcon = (status: string, isClickable: boolean = false) => {
     const baseClasses = "w-5 h-5";
@@ -105,7 +118,8 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
     }
   };
 
-  return <div className="space-y-6">
+  return (
+    <div className="space-y-6">
       {/* Active Events Banner */}
       <Card className="bg-yellow-50 border-yellow-200">
         <CardContent className="p-4">
@@ -130,54 +144,59 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
             <div className="font-medium text-center">Services</div>
 
             {/* Status Rows */}
-            {domains.map((domain, domainIndex) => domain.tenancies.map((tenancy, tenancyIndex) => {
-              const incidentStatus = getIncidentStatus(domain.name, tenancy.name);
-              
-              return <React.Fragment key={`${domainIndex}-${tenancyIndex}`}>
-                  <div 
-                    className="p-2 border rounded text-sm bg-blue-50 font-medium cursor-pointer hover:bg-blue-100 transition-colors"
-                    onClick={() => handleDomainClick(domain.name)}
-                  >
-                    {domain.name}
-                  </div>
-                  <div className="p-2 border rounded text-sm bg-gray-50">
-                    {tenancy.name}
-                  </div>
-                  <div className="flex justify-center">
-                    <div onClick={() => handleStatusClick('alerts', tenancy.name, domain.name)}>
-                      {getStatusIcon(tenancy.alerts, true)}
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <div onClick={() => handleStatusClick('healthchecks', tenancy.name, domain.name)}>
-                      {getStatusIcon(tenancy.healthchecks, true)}
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <div onClick={() => handleStatusClick('incidents', tenancy.name, domain.name)}>
-                      {getStatusIcon(incidentStatus, true)}
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <div onClick={() => handleStatusClick('releases', tenancy.name, domain.name)}>
-                      {getStatusIcon(tenancy.releases, true)}
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <button 
-                      onClick={() => handleStatusClick('services', tenancy.name, domain.name)}
-                      className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer"
+            {domains.map((domain) => 
+              domain.tenancies.map((tenancy) => {
+                const incidentStatus = getIncidentStatus(domain.name, tenancy.name);
+                
+                return (
+                  <React.Fragment key={`${domain.name}-${tenancy.name}`}>
+                    <div 
+                      className="p-2 border rounded text-sm bg-blue-50 font-medium cursor-pointer hover:bg-blue-100 transition-colors"
+                      onClick={() => handleDomainClick(domain.name)}
                     >
-                      {tenancy.services}
-                    </button>
-                  </div>
-                </React.Fragment>
-            }))}
+                      {domain.name}
+                    </div>
+                    <div className="p-2 border rounded text-sm bg-gray-50">
+                      {tenancy.name}
+                    </div>
+                    <div className="flex justify-center">
+                      <div onClick={() => handleStatusClick('alerts', tenancy.name, domain.name)}>
+                        {getStatusIcon(tenancy.alerts, true)}
+                      </div>
+                    </div>
+                    <div className="flex justify-center">
+                      <div onClick={() => handleStatusClick('healthchecks', tenancy.name, domain.name)}>
+                        {getStatusIcon(tenancy.healthchecks, true)}
+                      </div>
+                    </div>
+                    <div className="flex justify-center">
+                      <div onClick={() => handleStatusClick('incidents', tenancy.name, domain.name)}>
+                        {getStatusIcon(incidentStatus, true)}
+                      </div>
+                    </div>
+                    <div className="flex justify-center">
+                      <div onClick={() => handleStatusClick('releases', tenancy.name, domain.name)}>
+                        {getStatusIcon(tenancy.releases, true)}
+                      </div>
+                    </div>
+                    <div className="flex justify-center">
+                      <button 
+                        onClick={() => handleStatusClick('services', tenancy.name, domain.name)}
+                        className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer"
+                      >
+                        {tenancy.services}
+                      </button>
+                    </div>
+                  </React.Fragment>
+                );
+              })
+            )}
           </div>
         </CardContent>
       </Card>
 
       {/* Status Legend */}
       <StatusLegend />
-    </div>;
+    </div>
+  );
 };
