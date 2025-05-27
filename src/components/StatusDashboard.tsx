@@ -187,7 +187,7 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
       case "major":
         return <XCircle className={`${baseClasses} ${clickableClasses} text-red-600`} />;
       default:
-        return <div className={`${baseClasses} ${clickableClasses} rounded-full bg-gray-500`}></div>;
+        return <Info className={`${baseClasses} ${clickableClasses} text-blue-600`} />;
     }
   };
 

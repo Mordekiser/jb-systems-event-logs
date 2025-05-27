@@ -1,13 +1,12 @@
 
 import React from "react";
-import { CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
+import { AlertTriangle, XCircle, Info } from "lucide-react";
 
 export const StatusLegend = () => {
   const statusItems = [
-    { icon: <CheckCircle className="w-4 h-4" />, label: "Healthy", color: "text-green-600" },
-    { icon: <AlertTriangle className="w-4 h-4" />, label: "Degraded", color: "text-orange-600" },
-    { icon: <XCircle className="w-4 h-4" />, label: "Unhealthy", color: "text-red-600" },
-    { icon: <Info className="w-4 h-4" />, label: "Advisory", color: "text-blue-600" }
+    { icon: <Info className="w-4 h-4" />, label: "Trivial", color: "text-blue-600" },
+    { icon: <AlertTriangle className="w-4 h-4" />, label: "Minor", color: "text-orange-600" },
+    { icon: <XCircle className="w-4 h-4" />, label: "Major", color: "text-red-600" }
   ];
 
   return (
