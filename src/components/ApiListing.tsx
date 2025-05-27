@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,9 +7,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Code, Filter, Download, Columns, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-export const ApiListing = () => {
+interface ApiListingProps {
+  initialDomainFilter?: string;
+}
+
+export const ApiListing = ({ initialDomainFilter }: ApiListingProps) => {
   const [selectedDomain, setSelectedDomain] = useState("All Domains");
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Set initial domain filter when component receives it
+  useEffect(() => {
+    if (initialDomainFilter && initialDomainFilter !== selectedDomain) {
+      setSelectedDomain(initialDomainFilter);
+    }
+  }, [initialDomainFilter]);
 
   // Flattened API data for table display
   const apiData = [
@@ -92,6 +102,11 @@ export const ApiListing = () => {
             <CardTitle className="text-xl text-white flex items-center space-x-2">
               <Code className="h-5 w-5" />
               <span>APIs</span>
+              {initialDomainFilter && (
+                <Badge className="bg-yellow-500 text-black ml-2">
+                  Filtered by: {initialDomainFilter}
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 pt-0">

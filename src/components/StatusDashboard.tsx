@@ -6,9 +6,10 @@ import { StatusLegend } from "./StatusLegend";
 
 interface StatusDashboardProps {
   onStatusClick?: (statusType: string, tenancy: string, domain: string) => void;
+  onDomainClick?: (domain: string) => void;
 }
 
-export const StatusDashboard = ({ onStatusClick }: StatusDashboardProps) => {
+export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboardProps) => {
   const domains = [{
     name: "Back of House",
     tenancies: [{
@@ -86,6 +87,12 @@ export const StatusDashboard = ({ onStatusClick }: StatusDashboardProps) => {
     }
   };
 
+  const handleDomainClick = (domainName: string) => {
+    if (onDomainClick) {
+      onDomainClick(domainName);
+    }
+  };
+
   return <div className="space-y-6">
       {/* Active Events Banner */}
       <Card className="bg-yellow-50 border-yellow-200">
@@ -112,7 +119,10 @@ export const StatusDashboard = ({ onStatusClick }: StatusDashboardProps) => {
 
             {/* Status Rows */}
             {domains.map((domain, domainIndex) => domain.tenancies.map((tenancy, tenancyIndex) => <React.Fragment key={`${domainIndex}-${tenancyIndex}`}>
-                  <div className="p-2 border rounded text-sm bg-blue-50 font-medium">
+                  <div 
+                    className="p-2 border rounded text-sm bg-blue-50 font-medium cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={() => handleDomainClick(domain.name)}
+                  >
                     {domain.name}
                   </div>
                   <div className="p-2 border rounded text-sm bg-gray-50">

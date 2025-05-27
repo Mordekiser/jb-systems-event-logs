@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code, Menu } from "lucide-react";
+import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code, Menu, Database } from "lucide-react";
 import { StatusOverview } from "@/components/StatusOverview";
 import { EventsSection } from "@/components/EventsSection";
 import { IncidentTracking } from "@/components/IncidentTracking";
@@ -15,6 +16,8 @@ import { StatusDashboard } from "@/components/StatusDashboard";
 import { TimelineHistory } from "@/components/TimelineHistory";
 import { ReleaseEvents } from "@/components/ReleaseEvents";
 import { ApiListing } from "@/components/ApiListing";
+import { Alerts } from "@/components/Alerts";
+import { AzureAppInsightHealth } from "@/components/AzureAppInsightHealth";
 
 const Index = () => {
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -26,15 +29,39 @@ const Index = () => {
     tenancy?: string;
     domain?: string;
   }>({});
+  const [apiListingFilter, setApiListingFilter] = useState<string>("");
 
   const handleStatusClick = (statusType: string, tenancy: string, domain: string) => {
-    setTimelineFilter({ statusType, tenancy, domain });
-    setActiveTab("timeline-history");
+    // Navigate to different tabs based on status type
+    if (statusType === 'alerts') {
+      setActiveTab("alerts");
+    } else if (statusType === 'healthchecks') {
+      setActiveTab("azure-health");
+    } else if (statusType === 'releases') {
+      setActiveTab("release-events");
+    } else {
+      setTimelineFilter({ statusType, tenancy, domain });
+      setActiveTab("timeline-history");
+    }
+  };
+
+  const handleDomainClick = (domain: string) => {
+    // Map domain names to API listing filter values
+    const domainMapping: { [key: string]: string } = {
+      "Back of House": "Back of House",
+      "Front of House": "Front of House", 
+      "Data Services": "Core Retail" // Assuming Data Services maps to Core Retail in API listing
+    };
+    
+    setApiListingFilter(domainMapping[domain] || domain);
+    setActiveTab("api-listing");
   };
 
   const tabItems = [
     { value: "status-dashboard", label: "Status Dashboard", icon: Activity },
     { value: "timeline-history", label: "Timeline History", icon: Clock },
+    { value: "alerts", label: "Alerts", icon: AlertTriangle },
+    { value: "azure-health", label: "Azure AppInsight Health", icon: Database },
     { value: "release-events", label: "Release Events", icon: Package },
     { value: "api-listing", label: "API Listing", icon: Code },
     { value: "events", label: "Events", icon: Calendar },
@@ -138,11 +165,19 @@ const Index = () => {
         <div className="space-y-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsContent value="status-dashboard" className="space-y-6">
-              <StatusDashboard onStatusClick={handleStatusClick} />
+              <StatusDashboard onStatusClick={handleStatusClick} onDomainClick={handleDomainClick} />
             </TabsContent>
 
             <TabsContent value="timeline-history" className="space-y-6">
               <TimelineHistory filter={timelineFilter} />
+            </TabsContent>
+
+            <TabsContent value="alerts" className="space-y-6">
+              <Alerts />
+            </TabsContent>
+
+            <TabsContent value="azure-health" className="space-y-6">
+              <AzureAppInsightHealth />
             </TabsContent>
 
             <TabsContent value="release-events" className="space-y-6">
@@ -150,7 +185,7 @@ const Index = () => {
             </TabsContent>
 
             <TabsContent value="api-listing" className="space-y-6">
-              <ApiListing />
+              <ApiListing initialDomainFilter={apiListingFilter} />
             </TabsContent>
 
             <TabsContent value="events" className="space-y-6">
