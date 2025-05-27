@@ -64,6 +64,19 @@ const Index = () => {
     setActiveTab("api-listing");
   };
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    
+    // Clear filters when navigating directly to tabs (not through status dashboard)
+    if (value === "incidents") {
+      setIncidentFilter({});
+    } else if (value === "api-listing") {
+      setApiListingFilter("");
+    } else if (value === "timeline-history") {
+      setTimelineFilter({});
+    }
+  };
+
   const tabItems = [
     { value: "status-dashboard", label: "Status Dashboard", icon: Activity },
     { value: "timeline-history", label: "Timeline History", icon: Clock },
@@ -119,7 +132,7 @@ const Index = () => {
                 {tabItems.map((item) => (
                   <button
                     key={item.value}
-                    onClick={() => setActiveTab(item.value)}
+                    onClick={() => handleTabChange(item.value)}
                     className={`flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-none border-b-2 transition-colors ${
                       activeTab === item.value
                         ? "bg-yellow-400 text-black border-yellow-400"
@@ -149,7 +162,7 @@ const Index = () => {
                     {tabItems.map((item) => (
                       <button
                         key={item.value}
-                        onClick={() => setActiveTab(item.value)}
+                        onClick={() => handleTabChange(item.value)}
                         className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-md transition-colors w-full text-left ${
                           activeTab === item.value
                             ? "bg-yellow-400 text-black"
@@ -171,7 +184,7 @@ const Index = () => {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Main Dashboard */}
           <div className="space-y-8">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
               <TabsContent value="status-dashboard" className="space-y-6">
                 <StatusDashboard onStatusClick={handleStatusClick} onDomainClick={handleDomainClick} />
               </TabsContent>
