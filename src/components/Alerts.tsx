@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 export const Alerts = () => {
   const [selectedSeverity, setSelectedSeverity] = useState("All Severities");
   const [selectedStatus, setSelectedStatus] = useState("All Statuses");
+  const [selectedDomain, setSelectedDomain] = useState("All Domains");
   const [selectedAlert, setSelectedAlert] = useState<any>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const { toast } = useToast();
@@ -116,7 +118,8 @@ export const Alerts = () => {
   const filteredAlerts = alerts.filter(alert => {
     const matchesSeverity = selectedSeverity === "All Severities" || alert.severity === selectedSeverity.toLowerCase();
     const matchesStatus = selectedStatus === "All Statuses" || alert.status === selectedStatus.toLowerCase();
-    return matchesSeverity && matchesStatus;
+    const matchesDomain = selectedDomain === "All Domains" || alert.domain === selectedDomain;
+    return matchesSeverity && matchesStatus && matchesDomain;
   });
 
   const handleViewDetails = (alert: any) => {
@@ -150,6 +153,22 @@ export const Alerts = () => {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-medium">Domain:</span>
+              <Select value={selectedDomain} onValueChange={setSelectedDomain}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {["All Domains", "Front of House", "Back of House", "Core Retail", "Data Services"].map((domain) => (
+                    <SelectItem key={domain} value={domain}>
+                      {domain}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex items-center space-x-2">
               <span className="text-sm font-medium">Severity:</span>
               <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
