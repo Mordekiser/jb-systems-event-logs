@@ -54,8 +54,8 @@ const Index = () => {
         {/* Main Dashboard */}
         <div className="space-y-8">
           <Tabs defaultValue="status-dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 border border-yellow-500 bg-neutral-950 rounded-none">
-              <TabsTrigger value="status-dashboard" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black rounded-none mx-0 my-0 px-0 py-0">
+            <TabsList className="grid w-full grid-cols-6 border border-yellow-500 bg-neutral-950">
+              <TabsTrigger value="status-dashboard" className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
                 <BarChart3 className="h-4 w-4" />
                 <span>Status Dashboard</span>
               </TabsTrigger>
