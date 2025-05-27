@@ -5,10 +5,28 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, Eye, Clock, Edit, Trash2, Plus } from "lucide-react";
 import { useState } from "react";
 import { ManualIncidentCreationModal } from "./ManualIncidentCreationModal";
+import { IncidentDetailsModal } from "./IncidentDetailsModal";
+import { IncidentEditModal } from "./IncidentEditModal";
+import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
+
+interface Incident {
+  id: string;
+  title: string;
+  severity: string;
+  status: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  affectedServices: string[];
+}
 
 export const IncidentTracking = () => {
   const [showCreateIncident, setShowCreateIncident] = useState(false);
-  const [incidents, setIncidents] = useState([
+  const [showIncidentDetails, setShowIncidentDetails] = useState(false);
+  const [showEditIncident, setShowEditIncident] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+  const [incidents, setIncidents] = useState<Incident[]>([
     {
       id: "INC-001",
       title: "High API Response Times",
@@ -41,8 +59,11 @@ export const IncidentTracking = () => {
     }
   ]);
 
-  const handleDeleteIncident = (incidentId: string) => {
-    setIncidents(incidents.filter(incident => incident.id !== incidentId));
+  const handleDeleteIncident = () => {
+    if (selectedIncident) {
+      setIncidents(incidents.filter(incident => incident.id !== selectedIncident.id));
+      setSelectedIncident(null);
+    }
   };
 
   const handleUpdateIncidentStatus = (incidentId: string, newStatus: string) => {
@@ -51,6 +72,35 @@ export const IncidentTracking = () => {
         ? { ...incident, status: newStatus, updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ') }
         : incident
     ));
+  };
+
+  const handleSaveIncident = (updatedIncident: Incident) => {
+    setIncidents(incidents.map(incident => 
+      incident.id === updatedIncident.id ? updatedIncident : incident
+    ));
+  };
+
+  const handleAddIncident = (newIncident: Omit<Incident, 'id'>) => {
+    const incident: Incident = {
+      ...newIncident,
+      id: `INC-${String(incidents.length + 1).padStart(3, '0')}`
+    };
+    setIncidents([incident, ...incidents]);
+  };
+
+  const handleViewDetails = (incident: Incident) => {
+    setSelectedIncident(incident);
+    setShowIncidentDetails(true);
+  };
+
+  const handleEditIncident = (incident: Incident) => {
+    setSelectedIncident(incident);
+    setShowEditIncident(true);
+  };
+
+  const handleDeleteClick = (incident: Incident) => {
+    setSelectedIncident(incident);
+    setShowDeleteConfirm(true);
   };
 
   const getSeverityBadge = (severity: string) => {
@@ -110,18 +160,26 @@ export const IncidentTracking = () => {
                     <h3 className="font-semibold text-lg">{incident.title}</h3>
                   </div>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewDetails(incident)}
+                    >
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEditIncident(incident)}
+                    >
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
                     </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => handleDeleteIncident(incident.id)}
+                      onClick={() => handleDeleteClick(incident)}
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
@@ -184,6 +242,28 @@ export const IncidentTracking = () => {
       <ManualIncidentCreationModal
         open={showCreateIncident}
         onOpenChange={setShowCreateIncident}
+        onSave={handleAddIncident}
+      />
+      
+      <IncidentDetailsModal
+        open={showIncidentDetails}
+        onOpenChange={setShowIncidentDetails}
+        incident={selectedIncident}
+      />
+      
+      <IncidentEditModal
+        open={showEditIncident}
+        onOpenChange={setShowEditIncident}
+        incident={selectedIncident}
+        onSave={handleSaveIncident}
+      />
+      
+      <DeleteConfirmationDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={handleDeleteIncident}
+        incidentId={selectedIncident?.id || ""}
+        incidentTitle={selectedIncident?.title || ""}
       />
     </>
   );

@@ -1,35 +1,46 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 
-interface ManualIncidentCreationModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: (incident: {
-    title: string;
-    description?: string;
-    severity: string;
-    status: string;
-    createdBy: string;
-    createdAt: string;
-    updatedAt: string;
-    affectedServices: string[];
-  }) => void;
+interface Incident {
+  id: string;
+  title: string;
+  severity: string;
+  status: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  affectedServices: string[];
 }
 
-export const ManualIncidentCreationModal = ({ open, onOpenChange, onSave }: ManualIncidentCreationModalProps) => {
+interface IncidentEditModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  incident: Incident | null;
+  onSave: (updatedIncident: Incident) => void;
+}
+
+export const IncidentEditModal = ({ open, onOpenChange, incident, onSave }: IncidentEditModalProps) => {
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [severity, setSeverity] = useState("");
+  const [status, setStatus] = useState("");
   const [affectedServices, setAffectedServices] = useState<string[]>([]);
   const [newService, setNewService] = useState("");
+
+  useEffect(() => {
+    if (incident) {
+      setTitle(incident.title);
+      setSeverity(incident.severity);
+      setStatus(incident.status);
+      setAffectedServices(incident.affectedServices);
+    }
+  }, [incident]);
 
   const handleAddService = () => {
     if (newService.trim() && !affectedServices.includes(newService.trim())) {
@@ -44,33 +55,28 @@ export const ManualIncidentCreationModal = ({ open, onOpenChange, onSave }: Manu
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
-    onSave({
+    if (!incident) return;
+
+    const updatedIncident: Incident = {
+      ...incident,
       title,
-      description,
       severity,
+      status,
       affectedServices,
-      status: "investigating",
-      createdBy: "Manual Entry",
-      createdAt: now,
-      updatedAt: now
-    });
-    
-    // Reset form
-    setTitle("");
-    setDescription("");
-    setSeverity("");
-    setAffectedServices([]);
-    setNewService("");
+      updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
+    };
+
+    onSave(updatedIncident);
     onOpenChange(false);
   };
+
+  if (!incident) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Manual Incident</DialogTitle>
+          <DialogTitle>Edit Incident - {incident.id}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -86,17 +92,6 @@ export const ManualIncidentCreationModal = ({ open, onOpenChange, onSave }: Manu
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the incident"
-              rows={3}
-            />
-          </div>
-
-          <div>
             <Label htmlFor="severity">Severity</Label>
             <Select value={severity} onValueChange={setSeverity} required>
               <SelectTrigger>
@@ -106,6 +101,20 @@ export const ManualIncidentCreationModal = ({ open, onOpenChange, onSave }: Manu
                 <SelectItem value="low">Low</SelectItem>
                 <SelectItem value="medium">Medium</SelectItem>
                 <SelectItem value="high">High</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="status">Status</Label>
+            <Select value={status} onValueChange={setStatus} required>
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="investigating">Investigating</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="resolved">Resolved</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -140,7 +149,7 @@ export const ManualIncidentCreationModal = ({ open, onOpenChange, onSave }: Manu
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Create Incident</Button>
+            <Button type="submit">Save Changes</Button>
           </div>
         </form>
       </DialogContent>
