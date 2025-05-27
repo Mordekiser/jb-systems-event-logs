@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { ManualIncidentCreationModal } from "./ManualIncidentCreationModal";
 import { IncidentDetailsModal } from "./IncidentDetailsModal";
 import { IncidentEditModal } from "./IncidentEditModal";
 import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
+import { useIncidents } from "@/contexts/IncidentContext";
 
 interface Incident {
   id: string;
@@ -18,60 +18,34 @@ interface Incident {
   createdAt: string;
   updatedAt: string;
   affectedServices: string[];
+  domain?: string;
+  tenancy?: string;
 }
 
-export const IncidentTracking = () => {
+interface IncidentTrackingProps {
+  filter?: {
+    domain?: string;
+    tenancy?: string;
+  };
+}
+
+export const IncidentTracking = ({ filter }: IncidentTrackingProps) => {
+  const { incidents, updateIncidentStatus, addIncident, deleteIncident } = useIncidents();
   const [showCreateIncident, setShowCreateIncident] = useState(false);
   const [showIncidentDetails, setShowIncidentDetails] = useState(false);
   const [showEditIncident, setShowEditIncident] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
-  const [incidents, setIncidents] = useState<Incident[]>([
-    {
-      id: "INC-001",
-      title: "High API Response Times",
-      severity: "high",
-      status: "investigating",
-      createdBy: "System Monitor",
-      createdAt: "2024-01-15 15:45",
-      updatedAt: "2024-01-15 16:00",
-      affectedServices: ["API Gateway", "Database"]
-    },
-    {
-      id: "INC-002", 
-      title: "Email Service Intermittent Failures",
-      severity: "medium",
-      status: "in-progress",
-      createdBy: "John Doe",
-      createdAt: "2024-01-15 14:20",
-      updatedAt: "2024-01-15 15:30",
-      affectedServices: ["Email Service"]
-    },
-    {
-      id: "INC-003",
-      title: "Login Authentication Delays",
-      severity: "low",
-      status: "resolved",
-      createdBy: "Jane Smith",
-      createdAt: "2024-01-15 09:15",
-      updatedAt: "2024-01-15 11:45",
-      affectedServices: ["Authentication"]
-    }
-  ]);
+
+  const filteredIncidents = filter?.domain && filter?.tenancy 
+    ? incidents.filter(incident => incident.domain === filter.domain && incident.tenancy === filter.tenancy)
+    : incidents;
 
   const handleDeleteIncident = () => {
     if (selectedIncident) {
-      setIncidents(incidents.filter(incident => incident.id !== selectedIncident.id));
+      deleteIncident(selectedIncident.id);
       setSelectedIncident(null);
     }
-  };
-
-  const handleUpdateIncidentStatus = (incidentId: string, newStatus: string) => {
-    setIncidents(incidents.map(incident => 
-      incident.id === incidentId 
-        ? { ...incident, status: newStatus, updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ') }
-        : incident
-    ));
   };
 
   const handleSaveIncident = (updatedIncident: Incident) => {
@@ -81,11 +55,7 @@ export const IncidentTracking = () => {
   };
 
   const handleAddIncident = (newIncident: Omit<Incident, 'id'>) => {
-    const incident: Incident = {
-      ...newIncident,
-      id: `INC-${String(incidents.length + 1).padStart(3, '0')}`
-    };
-    setIncidents([incident, ...incidents]);
+    addIncident(newIncident);
   };
 
   const handleViewDetails = (incident: Incident) => {
@@ -139,6 +109,11 @@ export const IncidentTracking = () => {
             <CardTitle className="flex items-center space-x-2">
               <AlertTriangle className="h-5 w-5" />
               <span>Incident Tracking</span>
+              {filter?.domain && filter?.tenancy && (
+                <Badge variant="outline" className="ml-2">
+                  {filter.domain} - {filter.tenancy}
+                </Badge>
+              )}
             </CardTitle>
             <Button size="sm" onClick={() => setShowCreateIncident(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -148,7 +123,7 @@ export const IncidentTracking = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {incidents.map((incident) => (
+            {filteredIncidents.map((incident) => (
               <div key={incident.id} className="p-4 border rounded-lg bg-white">
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -218,7 +193,7 @@ export const IncidentTracking = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => handleUpdateIncidentStatus(incident.id, "in-progress")}
+                      onClick={() => updateIncidentStatus(incident.id, "in-progress")}
                       disabled={incident.status === "in-progress"}
                     >
                       Mark In Progress
@@ -226,7 +201,7 @@ export const IncidentTracking = () => {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => handleUpdateIncidentStatus(incident.id, "resolved")}
+                      onClick={() => updateIncidentStatus(incident.id, "resolved")}
                       className="text-green-600 hover:text-green-700"
                     >
                       Mark Resolved

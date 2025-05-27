@@ -1,8 +1,10 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
 import { StatusLegend } from "./StatusLegend";
+import { useIncidents } from "@/contexts/IncidentContext";
 
 interface StatusDashboardProps {
   onStatusClick?: (statusType: string, tenancy: string, domain: string) => void;
@@ -10,20 +12,34 @@ interface StatusDashboardProps {
 }
 
 export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboardProps) => {
+  const { getIncidentsByDomainAndTenancy } = useIncidents();
+
+  const getIncidentStatus = (domain: string, tenancy: string) => {
+    const domainIncidents = getIncidentsByDomainAndTenancy(domain, tenancy);
+    const activeIncidents = domainIncidents.filter(incident => incident.status !== 'resolved');
+    
+    if (activeIncidents.length === 0) return "green";
+    
+    const hasCritical = activeIncidents.some(incident => incident.severity === "high");
+    const hasMedium = activeIncidents.some(incident => incident.severity === "medium");
+    
+    if (hasCritical) return "red";
+    if (hasMedium) return "orange";
+    return "green";
+  };
+
   const domains = [{
     name: "Back of House",
     tenancies: [{
       name: "NZ",
       alerts: "green",
       healthchecks: "green",
-      incidents: "orange",
       releases: "green",
       services: 8
     }, {
       name: "AU",
       alerts: "red",
       healthchecks: "red",
-      incidents: "green",
       releases: "green",
       services: 15
     }]
@@ -33,14 +49,12 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
       name: "NZ",
       alerts: "green",
       healthchecks: "green",
-      incidents: "green",
       releases: "green",
       services: 4
     }, {
       name: "AU",
       alerts: "green",
       healthchecks: "green",
-      incidents: "green",
       releases: "green",
       services: 5
     }]
@@ -50,14 +64,12 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
       name: "NZ",
       alerts: "green",
       healthchecks: "green",
-      incidents: "green",
       releases: "green",
       services: 7
     }, {
       name: "AU",
       alerts: "green",
       healthchecks: "green",
-      incidents: "green",
       releases: "green",
       services: 8
     }]
@@ -118,7 +130,10 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
             <div className="font-medium text-center">Services</div>
 
             {/* Status Rows */}
-            {domains.map((domain, domainIndex) => domain.tenancies.map((tenancy, tenancyIndex) => <React.Fragment key={`${domainIndex}-${tenancyIndex}`}>
+            {domains.map((domain, domainIndex) => domain.tenancies.map((tenancy, tenancyIndex) => {
+              const incidentStatus = getIncidentStatus(domain.name, tenancy.name);
+              
+              return <React.Fragment key={`${domainIndex}-${tenancyIndex}`}>
                   <div 
                     className="p-2 border rounded text-sm bg-blue-50 font-medium cursor-pointer hover:bg-blue-100 transition-colors"
                     onClick={() => handleDomainClick(domain.name)}
@@ -140,7 +155,7 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
                   </div>
                   <div className="flex justify-center">
                     <div onClick={() => handleStatusClick('incidents', tenancy.name, domain.name)}>
-                      {getStatusIcon(tenancy.incidents, true)}
+                      {getStatusIcon(incidentStatus, true)}
                     </div>
                   </div>
                   <div className="flex justify-center">
@@ -156,7 +171,8 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
                       {tenancy.services}
                     </button>
                   </div>
-                </React.Fragment>))}
+                </React.Fragment>
+            }))}
           </div>
         </CardContent>
       </Card>
