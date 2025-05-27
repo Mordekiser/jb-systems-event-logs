@@ -4,13 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity } from "lucide-react";
+import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package } from "lucide-react";
 import { StatusOverview } from "@/components/StatusOverview";
 import { EventsSection } from "@/components/EventsSection";
 import { IncidentTracking } from "@/components/IncidentTracking";
 import { ConfigPanel } from "@/components/ConfigPanel";
 import { AddEventModal } from "@/components/AddEventModal";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { StatusDashboard } from "@/components/StatusDashboard";
+import { TimelineHistory } from "@/components/TimelineHistory";
+import { ReleaseEvents } from "@/components/ReleaseEvents";
 
 const Index = () => {
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -64,42 +67,46 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Status Overview */}
-        <StatusOverview />
-
         {/* Main Dashboard */}
-        <div className="mt-8">
-          <Tabs defaultValue="events" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+        <div className="space-y-8">
+          <Tabs defaultValue="status-dashboard" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="status-dashboard" className="flex items-center space-x-2">
+                <BarChart3 className="h-4 w-4" />
+                <span>Status Dashboard</span>
+              </TabsTrigger>
+              <TabsTrigger value="timeline-history" className="flex items-center space-x-2">
+                <Clock className="h-4 w-4" />
+                <span>Timeline History</span>
+              </TabsTrigger>
+              <TabsTrigger value="release-events" className="flex items-center space-x-2">
+                <Package className="h-4 w-4" />
+                <span>Release Events</span>
+              </TabsTrigger>
               <TabsTrigger value="events">Events</TabsTrigger>
               <TabsTrigger value="incidents">Incidents</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
               <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
             </TabsList>
 
+            <TabsContent value="status-dashboard" className="space-y-6">
+              <StatusDashboard />
+            </TabsContent>
+
+            <TabsContent value="timeline-history" className="space-y-6">
+              <TimelineHistory />
+            </TabsContent>
+
+            <TabsContent value="release-events" className="space-y-6">
+              <ReleaseEvents />
+            </TabsContent>
+
             <TabsContent value="events" className="space-y-6">
+              <StatusOverview />
               <EventsSection />
             </TabsContent>
 
             <TabsContent value="incidents" className="space-y-6">
               <IncidentTracking />
-            </TabsContent>
-
-            <TabsContent value="history" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>System History & Timeline</CardTitle>
-                  <CardDescription>
-                    View past events, incidents, and system changes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8 text-gray-500">
-                    <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Timeline view coming soon...</p>
-                  </div>
-                </CardContent>
-              </Card>
             </TabsContent>
 
             <TabsContent value="monitoring" className="space-y-6">
