@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -8,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Settings, Bell, Database, Shield, Info, Lightbulb, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useConfig } from "@/contexts/ConfigContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface ConfigPanelProps {
   open: boolean;
@@ -16,34 +18,46 @@ interface ConfigPanelProps {
 }
 
 export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
-  const [groupingStrategy, setGroupingStrategy] = useState("domain");
-  const [showRegionalBreakdown, setShowRegionalBreakdown] = useState(true);
-  const [combineHealthchecks, setCombineHealthchecks] = useState(false);
+  const {
+    groupingStrategy,
+    showRegionalBreakdown,
+    combineHealthchecks,
+    setGroupingStrategy,
+    setShowRegionalBreakdown,
+    setCombineHealthchecks,
+    applyGroupingStrategy,
+  } = useConfig();
+  
+  const { toast } = useToast();
 
   const groupingSuggestions = [
     {
       title: "By Service Type",
       description: "Group APIs, Databases, and Auth services separately",
       example: "API Services → Database Services → Authentication",
-      impact: "Clearer separation of concerns, easier to identify service-specific issues"
+      impact: "Clearer separation of concerns, easier to identify service-specific issues",
+      strategy: "service-type"
     },
     {
       title: "By Business Function", 
       description: "Group by customer-facing vs internal services",
       example: "Customer Services → Internal Tools → Infrastructure",
-      impact: "Business-aligned view, prioritize customer-impacting issues"
+      impact: "Business-aligned view, prioritize customer-impacting issues",
+      strategy: "business-function"
     },
     {
       title: "By Criticality Level",
       description: "Group services by their business criticality",
       example: "Critical → High → Medium → Low Priority",
-      impact: "Focus attention on most important services first"
+      impact: "Focus attention on most important services first",
+      strategy: "criticality"
     },
     {
       title: "Regional Consolidation",
       description: "Combine AU/NZ regions into single status indicators",
       example: "Back of House (Combined) → Front of House (Combined)",
-      impact: "Simplified overview, reduce visual clutter"
+      impact: "Simplified overview, reduce visual clutter",
+      strategy: "domain"
     }
   ];
 
@@ -54,10 +68,25 @@ export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
       return "Preview: API Services | Database Services | Auth Services";
     } else if (groupingStrategy === "criticality") {
       return "Preview: Critical Services | Standard Services | Support Services";
+    } else if (groupingStrategy === "business-function") {
+      return "Preview: Customer Services | Internal Tools | Infrastructure";
     } else if (!showRegionalBreakdown) {
       return "Preview: Consolidated regional view (AU+NZ combined)";
     }
     return "Current: Default domain-based grouping";
+  };
+
+  const handleApplyConfiguration = (suggestion: any) => {
+    if (suggestion.strategy === "domain" && suggestion.title === "Regional Consolidation") {
+      setShowRegionalBreakdown(false);
+    } else {
+      applyGroupingStrategy(suggestion.strategy);
+    }
+    
+    toast({
+      title: "Configuration Applied",
+      description: `Dashboard updated with "${suggestion.title}" grouping strategy.`,
+    });
   };
 
   return (
@@ -291,7 +320,11 @@ export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
                               <li>Test the new layout with sample data</li>
                               <li>Deploy changes to production dashboard</li>
                             </ol>
-                            <Button size="sm" className="w-full mt-2">
+                            <Button 
+                              size="sm" 
+                              className="w-full mt-2"
+                              onClick={() => handleApplyConfiguration(suggestion)}
+                            >
                               Apply Configuration
                             </Button>
                           </div>

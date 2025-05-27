@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, AlertTriangle, XCircle, Info } from "lucide-react";
 import { StatusLegend } from "./StatusLegend";
 import { useIncidents } from "@/contexts/IncidentContext";
+import { useConfig } from "@/contexts/ConfigContext";
 
 interface StatusDashboardProps {
   onStatusClick?: (statusType: string, tenancy: string, domain: string) => void;
@@ -13,6 +14,7 @@ interface StatusDashboardProps {
 
 export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboardProps) => {
   const { getIncidentsByDomainAndTenancy } = useIncidents();
+  const { groupingStrategy, showRegionalBreakdown, combineHealthchecks } = useConfig();
 
   const getIncidentStatus = (domain: string, tenancy: string) => {
     const domainIncidents = getIncidentsByDomainAndTenancy(domain, tenancy);
@@ -28,65 +30,122 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
     return "green";
   };
 
-  const domains = [
+  const originalDomains = [
     {
       name: "Back of House",
       tenancies: [
-        {
-          name: "AU",
-          alerts: "red",
-          healthchecks: "red",
-          releases: "green",
-          services: 15
-        },
-        {
-          name: "NZ",
-          alerts: "green",
-          healthchecks: "green",
-          releases: "green",
-          services: 8
-        }
+        { name: "AU", alerts: "red", healthchecks: "red", releases: "green", services: 15 },
+        { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 8 }
       ]
     },
     {
       name: "Front of House",
       tenancies: [
-        {
-          name: "AU",
-          alerts: "green",
-          healthchecks: "green",
-          releases: "green",
-          services: 5
-        },
-        {
-          name: "NZ",
-          alerts: "green",
-          healthchecks: "green",
-          releases: "green",
-          services: 4
-        }
+        { name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 5 },
+        { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 4 }
       ]
     },
     {
       name: "Data Services",
       tenancies: [
-        {
-          name: "AU",
-          alerts: "green",
-          healthchecks: "green",
-          releases: "green",
-          services: 8
-        },
-        {
-          name: "NZ",
-          alerts: "green",
-          healthchecks: "green",
-          releases: "green",
-          services: 7
-        }
+        { name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 8 },
+        { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 7 }
       ]
     }
   ];
+
+  const getTransformedDomains = () => {
+    if (groupingStrategy === "service-type") {
+      return [
+        {
+          name: "API Services",
+          tenancies: showRegionalBreakdown ? 
+            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 12 },
+             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 8 }] :
+            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 20 }]
+        },
+        {
+          name: "Database Services",
+          tenancies: showRegionalBreakdown ?
+            [{ name: "AU", alerts: "red", healthchecks: "red", releases: "green", services: 8 },
+             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 5 }] :
+            [{ name: "Combined", alerts: "red", healthchecks: "red", releases: "green", services: 13 }]
+        },
+        {
+          name: "Authentication",
+          tenancies: showRegionalBreakdown ?
+            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 8 },
+             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 6 }] :
+            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 14 }]
+        }
+      ];
+    } else if (groupingStrategy === "criticality") {
+      return [
+        {
+          name: "Critical Services",
+          tenancies: showRegionalBreakdown ?
+            [{ name: "AU", alerts: "red", healthchecks: "red", releases: "green", services: 10 },
+             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 7 }] :
+            [{ name: "Combined", alerts: "red", healthchecks: "red", releases: "green", services: 17 }]
+        },
+        {
+          name: "Standard Services", 
+          tenancies: showRegionalBreakdown ?
+            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 15 },
+             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 10 }] :
+            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 25 }]
+        },
+        {
+          name: "Support Services",
+          tenancies: showRegionalBreakdown ?
+            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 3 },
+             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 2 }] :
+            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 5 }]
+        }
+      ];
+    } else if (groupingStrategy === "business-function") {
+      return [
+        {
+          name: "Customer Services",
+          tenancies: showRegionalBreakdown ?
+            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 12 },
+             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 8 }] :
+            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 20 }]
+        },
+        {
+          name: "Internal Tools",
+          tenancies: showRegionalBreakdown ?
+            [{ name: "AU", alerts: "red", healthchecks: "red", releases: "green", services: 10 },
+             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 7 }] :
+            [{ name: "Combined", alerts: "red", healthchecks: "red", releases: "green", services: 17 }]
+        },
+        {
+          name: "Infrastructure",
+          tenancies: showRegionalBreakdown ?
+            [{ name: "AU", alerts: "green", healthchecks: "green", releases: "green", services: 6 },
+             { name: "NZ", alerts: "green", healthchecks: "green", releases: "green", services: 4 }] :
+            [{ name: "Combined", alerts: "green", healthchecks: "green", releases: "green", services: 10 }]
+        }
+      ];
+    } else {
+      // Default domain grouping
+      if (!showRegionalBreakdown) {
+        return originalDomains.map(domain => ({
+          name: domain.name,
+          tenancies: [{
+            name: "Combined",
+            alerts: domain.tenancies.some(t => t.alerts === "red") ? "red" : "green",
+            healthchecks: domain.tenancies.some(t => t.healthchecks === "red") ? "red" : "green", 
+            releases: "green",
+            services: domain.tenancies.reduce((sum, t) => sum + t.services, 0)
+          }]
+        }));
+      }
+      return originalDomains;
+    }
+  };
+
+  const domains = getTransformedDomains();
   
   const getStatusIcon = (status: string, isClickable: boolean = false) => {
     const baseClasses = "w-5 h-5";
@@ -120,6 +179,23 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
 
   return (
     <div className="space-y-6">
+      {/* Configuration Indicator */}
+      {(groupingStrategy !== "domain" || !showRegionalBreakdown || combineHealthchecks) && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-blue-800">
+                Dashboard Configuration: {groupingStrategy === "domain" ? "Domain-based" : 
+                  groupingStrategy === "service-type" ? "Service Type" :
+                  groupingStrategy === "criticality" ? "Criticality Level" : "Business Function"}
+                {!showRegionalBreakdown && " (Regional Consolidation)"}
+                {combineHealthchecks && " (Combined Health Indicators)"}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Active Events Banner */}
       <Card className="bg-yellow-50 border-yellow-200">
         <CardContent className="p-4">
@@ -133,12 +209,18 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
       {/* Status Matrix */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-7 gap-4">
+          <div className={`grid gap-4 ${combineHealthchecks ? 'grid-cols-6' : 'grid-cols-7'}`}>
             {/* Headers */}
             <div className="font-medium">Domain</div>
             <div className="font-medium">Tenancy</div>
-            <div className="font-medium text-center">Alerts</div>
-            <div className="font-medium text-center">Healthchecks</div>
+            {combineHealthchecks ? (
+              <div className="font-medium text-center">Health Status</div>
+            ) : (
+              <>
+                <div className="font-medium text-center">Alerts</div>
+                <div className="font-medium text-center">Healthchecks</div>
+              </>
+            )}
             <div className="font-medium text-center">Incidents</div>
             <div className="font-medium text-center">Releases</div>
             <div className="font-medium text-center">Services</div>
@@ -159,16 +241,26 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
                     <div className="p-2 border rounded text-sm bg-gray-50">
                       {tenancy.name}
                     </div>
-                    <div className="flex justify-center">
-                      <div onClick={() => handleStatusClick('alerts', tenancy.name, domain.name)}>
-                        {getStatusIcon(tenancy.alerts, true)}
+                    {combineHealthchecks ? (
+                      <div className="flex justify-center">
+                        <div onClick={() => handleStatusClick('health', tenancy.name, domain.name)}>
+                          {getStatusIcon(tenancy.alerts === "red" || tenancy.healthchecks === "red" ? "red" : "green", true)}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex justify-center">
-                      <div onClick={() => handleStatusClick('healthchecks', tenancy.name, domain.name)}>
-                        {getStatusIcon(tenancy.healthchecks, true)}
-                      </div>
-                    </div>
+                    ) : (
+                      <>
+                        <div className="flex justify-center">
+                          <div onClick={() => handleStatusClick('alerts', tenancy.name, domain.name)}>
+                            {getStatusIcon(tenancy.alerts, true)}
+                          </div>
+                        </div>
+                        <div className="flex justify-center">
+                          <div onClick={() => handleStatusClick('healthchecks', tenancy.name, domain.name)}>
+                            {getStatusIcon(tenancy.healthchecks, true)}
+                          </div>
+                        </div>
+                      </>
+                    )}
                     <div className="flex justify-center">
                       <div onClick={() => handleStatusClick('incidents', tenancy.name, domain.name)}>
                         {getStatusIcon(incidentStatus, true)}
