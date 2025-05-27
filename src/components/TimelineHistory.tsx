@@ -90,7 +90,7 @@ export const TimelineHistory = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Event Log - Left Side */}
         <div className="lg:col-span-2">
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+          <div className="border-l-4 border-black-500 p-4 mb-6 bg-slate-50">
             <h3 className="font-semibold mb-2 text-slate-950">Event log</h3>
           </div>
           
