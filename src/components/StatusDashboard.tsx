@@ -10,12 +10,73 @@ import { useConfig } from "@/contexts/ConfigContext";
 interface StatusDashboardProps {
   onStatusClick?: (statusType: string, tenancy: string, domain: string) => void;
   onDomainClick?: (domain: string) => void;
+  onApplicationClick?: (application: string) => void;
 }
 
-export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboardProps) => {
+export const StatusDashboard = ({ onStatusClick, onDomainClick, onApplicationClick }: StatusDashboardProps) => {
   const { getIncidentsByDomainAndTenancy } = useIncidents();
   const { events } = useEvents();
   const { groupingStrategy, showRegionalBreakdown, combineHealthchecks } = useConfig();
+
+  const applications = [
+    { name: "JB Direct", services: 15 },
+    { name: "In-Store", services: 12 },
+    { name: "Online", services: 18 },
+    { name: "Fulfilment & Consignment", services: 10 },
+    { name: "Receiving & Transfer", services: 8 },
+    { name: "SMS Communication", services: 6 },
+    { name: "Email Communication", services: 4 },
+    { name: "Fraud Prevention", services: 7 }
+  ];
+
+  const getImpactStatusByApplication = (application: string, statusType: string) => {
+    // Get incidents for this application (exclude resolved incidents)
+    const applicationIncidents = events.filter(event => 
+      event.eventType === 'Incident' && 
+      event.application === application &&
+      event.status !== 'Complete'
+    );
+    
+    // Get events for this application (exclude completed events)
+    const applicationEvents = events.filter(event => 
+      event.application === application &&
+      event.status !== 'Complete'
+    );
+
+    // Combine all impacts from incidents and events
+    const allImpacts: string[] = [];
+    
+    // Add incident impacts
+    applicationIncidents.forEach(incident => {
+      allImpacts.push(incident.impact);
+    });
+    
+    // Add event impacts
+    applicationEvents.forEach(event => {
+      allImpacts.push(event.impact);
+    });
+
+    // For Azure alerts simulation, add some demo impact data based on application
+    if (statusType === 'alerts' || statusType === 'healthchecks') {
+      if (application === "JB Direct") {
+        allImpacts.push('Major');
+      }
+      if (application === "Online") {
+        allImpacts.push('Minor');
+      }
+      if (application === "Fraud Prevention") {
+        allImpacts.push('Trivial');
+      }
+    }
+
+    // Apply impact hierarchy logic - only consider active/non-resolved items
+    if (allImpacts.includes('Major')) return 'major';
+    if (allImpacts.includes('Minor')) return 'minor';
+    if (allImpacts.includes('Trivial')) return 'trivial';
+    
+    // Default to trivial if no active issues
+    return 'trivial';
+  };
 
   const getImpactStatus = (domain: string, tenancy: string, statusType: string) => {
     // Get incidents for this domain and tenancy (exclude resolved incidents)
@@ -93,7 +154,12 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
   ];
 
   const getTransformedDomains = () => {
-    if (groupingStrategy === "service-type") {
+    if (groupingStrategy === "application") {
+      return applications.map(app => ({
+        name: app.name,
+        tenancies: [{ name: "Combined", services: app.services }]
+      }));
+    } else if (groupingStrategy === "service-type") {
       return [
         {
           name: "API Services",
@@ -205,9 +271,19 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
   };
 
   const handleDomainClick = (domainName: string) => {
-    if (onDomainClick) {
+    if (groupingStrategy === "application" && onApplicationClick) {
+      onApplicationClick(domainName);
+    } else if (onDomainClick) {
       onDomainClick(domainName);
     }
+  };
+
+  const getConfigurationLabel = () => {
+    if (groupingStrategy === "application") return "Application-based";
+    if (groupingStrategy === "service-type") return "Service Type";
+    if (groupingStrategy === "criticality") return "Criticality Level";
+    if (groupingStrategy === "business-function") return "Business Function";
+    return "Domain-based";
   };
 
   return (
@@ -218,9 +294,7 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="font-medium text-blue-800">
-                Dashboard Configuration: {groupingStrategy === "domain" ? "Domain-based" : 
-                  groupingStrategy === "service-type" ? "Service Type" :
-                  groupingStrategy === "criticality" ? "Criticality Level" : "Business Function"}
+                Dashboard Configuration: {getConfigurationLabel()}
                 {!showRegionalBreakdown && " (Regional Consolidation)"}
                 {combineHealthchecks && " (Combined Health Indicators)"}
               </span>
@@ -244,8 +318,12 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
         <CardContent className="p-4">
           <div className={`grid gap-4 ${combineHealthchecks ? 'grid-cols-6' : 'grid-cols-7'}`}>
             {/* Headers */}
-            <div className="font-medium">Domain</div>
-            <div className="font-medium">Tenancy</div>
+            <div className="font-medium">
+              {groupingStrategy === "application" ? "Application" : "Domain"}
+            </div>
+            {groupingStrategy !== "application" && (
+              <div className="font-medium">Tenancy</div>
+            )}
             {combineHealthchecks ? (
               <div className="font-medium text-center">Health Status</div>
             ) : (
@@ -261,10 +339,18 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
             {/* Status Rows */}
             {domains.map((domain) => 
               domain.tenancies.map((tenancy) => {
-                const alertsStatus = getImpactStatus(domain.name, tenancy.name, 'alerts');
-                const healthchecksStatus = getImpactStatus(domain.name, tenancy.name, 'healthchecks');
-                const incidentsStatus = getImpactStatus(domain.name, tenancy.name, 'incidents');
-                const releasesStatus = getImpactStatus(domain.name, tenancy.name, 'releases');
+                const alertsStatus = groupingStrategy === "application" 
+                  ? getImpactStatusByApplication(domain.name, 'alerts')
+                  : getImpactStatus(domain.name, tenancy.name, 'alerts');
+                const healthchecksStatus = groupingStrategy === "application"
+                  ? getImpactStatusByApplication(domain.name, 'healthchecks')
+                  : getImpactStatus(domain.name, tenancy.name, 'healthchecks');
+                const incidentsStatus = groupingStrategy === "application"
+                  ? getImpactStatusByApplication(domain.name, 'incidents')
+                  : getImpactStatus(domain.name, tenancy.name, 'incidents');
+                const releasesStatus = groupingStrategy === "application"
+                  ? getImpactStatusByApplication(domain.name, 'releases')
+                  : getImpactStatus(domain.name, tenancy.name, 'releases');
                 
                 return (
                   <React.Fragment key={`${domain.name}-${tenancy.name}`}>
@@ -274,9 +360,11 @@ export const StatusDashboard = ({ onStatusClick, onDomainClick }: StatusDashboar
                     >
                       {domain.name}
                     </div>
-                    <div className="p-2 border rounded text-sm bg-gray-50">
-                      {tenancy.name}
-                    </div>
+                    {groupingStrategy !== "application" && (
+                      <div className="p-2 border rounded text-sm bg-gray-50">
+                        {tenancy.name}
+                      </div>
+                    )}
                     {combineHealthchecks ? (
                       <div className="flex justify-center">
                         <div onClick={() => handleStatusClick('health', tenancy.name, domain.name)}>

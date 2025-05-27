@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -8,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Settings, Bell, Database, Shield, Info, Lightbulb, ArrowRight, Zap } from "lucide-react";
+import { Settings, Bell, Database, Shield, Info, Lightbulb, ArrowRight, Zap, Package } from "lucide-react";
 import { useConfig } from "@/contexts/ConfigContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -31,6 +30,15 @@ export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
   const { toast } = useToast();
 
   const groupingSuggestions = [
+    {
+      title: "By Application",
+      description: "Group by business applications like JB Direct, In-Store, Online",
+      example: "JB Direct → In-Store → Online → Fulfilment & Consignment",
+      impact: "Application-focused view, align with business application structure",
+      strategy: "application",
+      icon: Package,
+      color: "bg-purple-50 border-purple-200 hover:bg-purple-100"
+    },
     {
       title: "By Service Type",
       description: "Group APIs, Databases, and Auth services separately",
@@ -65,12 +73,14 @@ export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
       impact: "Simplified overview, reduce visual clutter",
       strategy: "domain",
       icon: Settings,
-      color: "bg-purple-50 border-purple-200 hover:bg-purple-100"
+      color: "bg-gray-50 border-gray-200 hover:bg-gray-100"
     }
   ];
 
   const currentConfigPreview = () => {
-    if (groupingStrategy === "domain" && showRegionalBreakdown) {
+    if (groupingStrategy === "application") {
+      return "Preview: JB Direct | In-Store | Online | Fulfilment & Consignment";
+    } else if (groupingStrategy === "domain" && showRegionalBreakdown) {
       return "Current: Domain-based with AU/NZ breakdown (Default view)";
     } else if (groupingStrategy === "service-type") {
       return "Preview: API Services | Database Services | Auth Services";
@@ -245,6 +255,7 @@ export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
                       </SelectTrigger>
                       <SelectContent className="bg-white border shadow-lg z-50">
                         <SelectItem value="domain">By Domain (Current)</SelectItem>
+                        <SelectItem value="application">By Application</SelectItem>
                         <SelectItem value="service-type">By Service Type</SelectItem>
                         <SelectItem value="criticality">By Criticality Level</SelectItem>
                         <SelectItem value="business-function">By Business Function</SelectItem>
@@ -252,16 +263,18 @@ export const ConfigPanel = ({ open, onOpenChange }: ConfigPanelProps) => {
                     </Select>
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <Label className="font-medium">Show Regional Breakdown</Label>
-                      <p className="text-sm text-gray-500">Display AU/NZ as separate rows</p>
+                  {groupingStrategy !== "application" && (
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <Label className="font-medium">Show Regional Breakdown</Label>
+                        <p className="text-sm text-gray-500">Display AU/NZ as separate rows</p>
+                      </div>
+                      <Switch 
+                        checked={showRegionalBreakdown} 
+                        onCheckedChange={setShowRegionalBreakdown} 
+                      />
                     </div>
-                    <Switch 
-                      checked={showRegionalBreakdown} 
-                      onCheckedChange={setShowRegionalBreakdown} 
-                    />
-                  </div>
+                  )}
                   
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div>

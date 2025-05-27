@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface Location {
@@ -36,6 +35,7 @@ interface SystemEvent {
   notificationTimestamp?: string;
   systemsAffected: string[];
   domainsAffected: string[];
+  application?: string; // Add application field
   statusHistory: StatusHistoryEntry[];
 }
 
@@ -59,6 +59,10 @@ export const useEvents = () => {
 
 const generateDemoEvents = (): SystemEvent[] => {
   const domains = ["Front of House", "Back of House", "Core Retail", "Data Services", "Cloud Infrastructure"];
+  const applications = [
+    "JB Direct", "In-Store", "Online", "Fulfilment & Consignment", 
+    "Receiving & Transfer", "SMS Communication", "Email Communication", "Fraud Prevention"
+  ];
   const tenants = ["jbh-au", "jbh-nz", "jbh-uk", "jbh-us"];
   const eventTypes: ("Incident" | "Deployment")[] = ["Incident", "Deployment"];
   const impacts: ("Trivial" | "Minor" | "Major")[] = ["Trivial", "Minor", "Major"];
@@ -81,6 +85,7 @@ const generateDemoEvents = (): SystemEvent[] => {
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     const createdBySource = createdBySources[Math.floor(Math.random() * createdBySources.length)];
     const domain = domains[Math.floor(Math.random() * domains.length)];
+    const application = applications[Math.floor(Math.random() * applications.length)];
     const tenant = tenants[Math.floor(Math.random() * tenants.length)];
     
     const createdDate = new Date(2025, 0, Math.floor(Math.random() * 27) + 1, Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
@@ -99,7 +104,7 @@ const generateDemoEvents = (): SystemEvent[] => {
 
     const titles = eventType === "Incident" ? [
       "Database Connection Timeout",
-      "High CPU Usage Alert",
+      "High CPU Usage Alert", 
       "Memory Leak Detected",
       "API Response Time Degradation",
       "Payment Processing Failure",
@@ -207,6 +212,7 @@ const generateDemoEvents = (): SystemEvent[] => {
       toTimestamp: toDate.toISOString(),
       systemsAffected: affectedSystems,
       domainsAffected: affectedDomains,
+      application,
       statusHistory: [{
         createdBySource,
         createdTimestamp: createdDate.toISOString(),

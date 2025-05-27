@@ -24,6 +24,7 @@ const Index = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeTab, setActiveTab] = useState("status-dashboard");
   const [apiListingFilter, setApiListingFilter] = useState<string>("");
+  const [apiApplicationFilter, setApiApplicationFilter] = useState<string>("");
   const [eventsFilter, setEventsFilter] = useState<{
     type?: string;
     domain?: string;
@@ -32,6 +33,7 @@ const Index = () => {
 
   const clearAllFilters = () => {
     setApiListingFilter("");
+    setApiApplicationFilter("");
     setEventsFilter({});
     setActiveTab("status-dashboard");
   };
@@ -42,6 +44,7 @@ const Index = () => {
 
   const clearApiListingFilter = () => {
     setApiListingFilter("");
+    setApiApplicationFilter("");
   };
 
   const handleStatusClick = (statusType: string, tenancy: string, domain: string) => {
@@ -70,6 +73,13 @@ const Index = () => {
     };
     
     setApiListingFilter(domainMapping[domain] || domain);
+    setApiApplicationFilter("");
+    setActiveTab("api-listing");
+  };
+
+  const handleApplicationClick = (application: string) => {
+    setApiApplicationFilter(application);
+    setApiListingFilter("");
     setActiveTab("api-listing");
   };
 
@@ -81,12 +91,13 @@ const Index = () => {
       setEventsFilter({});
     } else if (value === "api-listing") {
       setApiListingFilter("");
+      setApiApplicationFilter("");
     }
   };
 
   const renderBreadcrumbs = () => {
     const hasEventsFilter = eventsFilter.type || eventsFilter.domain || eventsFilter.tenancy;
-    const hasApiFilter = apiListingFilter;
+    const hasApiFilter = apiListingFilter || apiApplicationFilter;
 
     // Always show breadcrumbs for all tabs except status-dashboard
     if (activeTab === "status-dashboard" && !hasEventsFilter && !hasApiFilter) {
@@ -160,7 +171,8 @@ const Index = () => {
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
                     <BreadcrumbPage>
-                      {apiListingFilter}
+                      {apiListingFilter && `Domain: ${apiListingFilter}`}
+                      {apiApplicationFilter && `Application: ${apiApplicationFilter}`}
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </>
@@ -282,7 +294,11 @@ const Index = () => {
               <div className="space-y-8">
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
                   <TabsContent value="status-dashboard" className="space-y-6">
-                    <StatusDashboard onStatusClick={handleStatusClick} onDomainClick={handleDomainClick} />
+                    <StatusDashboard 
+                      onStatusClick={handleStatusClick} 
+                      onDomainClick={handleDomainClick}
+                      onApplicationClick={handleApplicationClick}
+                    />
                   </TabsContent>
 
                   <TabsContent value="azure-alerts" className="space-y-6">
@@ -290,7 +306,10 @@ const Index = () => {
                   </TabsContent>
 
                   <TabsContent value="api-listing" className="space-y-6">
-                    <ApiListing initialDomainFilter={apiListingFilter} />
+                    <ApiListing 
+                      initialDomainFilter={apiListingFilter}
+                      initialApplicationFilter={apiApplicationFilter}
+                    />
                   </TabsContent>
 
                   <TabsContent value="events" className="space-y-6">
