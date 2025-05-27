@@ -81,7 +81,7 @@ const Index = () => {
                 value="status-dashboard" 
                 className="flex items-center space-x-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black"
               >
-                <BarChart3 className="h-4 w-4" />
+                <Activity className="h-4 w-4" />
                 <span>Status Dashboard</span>
               </TabsTrigger>
               <TabsTrigger 
