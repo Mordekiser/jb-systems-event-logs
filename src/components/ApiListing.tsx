@@ -1,146 +1,60 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronDown, ChevronRight, Server, Globe, Database, Code, Shield } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Code, Filter, Download, Columns, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export const ApiListing = () => {
-  const [expandedDomains, setExpandedDomains] = useState<string[]>([]);
-  const [expandedApplications, setExpandedApplications] = useState<string[]>([]);
+  const [selectedDomain, setSelectedDomain] = useState("All Domains");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const toggleDomain = (domainName: string) => {
-    setExpandedDomains(prev => 
-      prev.includes(domainName) 
-        ? prev.filter(d => d !== domainName)
-        : [...prev, domainName]
-    );
-  };
-
-  const toggleApplication = (appName: string) => {
-    setExpandedApplications(prev => 
-      prev.includes(appName) 
-        ? prev.filter(a => a !== appName)
-        : [...prev, appName]
-    );
-  };
-
-  // Updated data structure with new domains
+  // Flattened API data for table display
   const apiData = [
-    {
-      domain: "Front of House",
-      applications: [
-        {
-          name: "Customer Management App",
-          systems: [
-            {
-              name: "User Authentication System",
-              apis: [
-                { name: "Login API", method: "POST", endpoint: "/auth/login", status: "active" },
-                { name: "Register API", method: "POST", endpoint: "/auth/register", status: "active" },
-                { name: "Password Reset API", method: "PUT", endpoint: "/auth/reset", status: "maintenance" }
-              ]
-            },
-            {
-              name: "Profile Management System",
-              apis: [
-                { name: "Get Profile API", method: "GET", endpoint: "/profile/{id}", status: "active" },
-                { name: "Update Profile API", method: "PUT", endpoint: "/profile/{id}", status: "active" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Order Processing App",
-          systems: [
-            {
-              name: "Cart Management System",
-              apis: [
-                { name: "Add to Cart API", method: "POST", endpoint: "/cart/add", status: "active" },
-                { name: "Remove from Cart API", method: "DELETE", endpoint: "/cart/remove", status: "active" },
-                { name: "Get Cart API", method: "GET", endpoint: "/cart/{userId}", status: "deprecated" }
-              ]
-            },
-            {
-              name: "Payment Processing System",
-              apis: [
-                { name: "Process Payment API", method: "POST", endpoint: "/payment/process", status: "active" },
-                { name: "Refund API", method: "POST", endpoint: "/payment/refund", status: "active" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      domain: "Back of House",
-      applications: [
-        {
-          name: "Data Analytics App",
-          systems: [
-            {
-              name: "Reporting System",
-              apis: [
-                { name: "Generate Report API", method: "POST", endpoint: "/reports/generate", status: "active" },
-                { name: "Get Report API", method: "GET", endpoint: "/reports/{id}", status: "active" },
-                { name: "Export Report API", method: "GET", endpoint: "/reports/{id}/export", status: "maintenance" }
-              ]
-            },
-            {
-              name: "Metrics Collection System",
-              apis: [
-                { name: "Track Event API", method: "POST", endpoint: "/metrics/track", status: "active" },
-                { name: "Get Metrics API", method: "GET", endpoint: "/metrics/{type}", status: "active" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      domain: "Online",
-      applications: [
-        {
-          name: "Access Control App",
-          systems: [
-            {
-              name: "Authorization System",
-              apis: [
-                { name: "Check Permissions API", method: "GET", endpoint: "/auth/permissions", status: "active" },
-                { name: "Grant Access API", method: "POST", endpoint: "/auth/grant", status: "active" },
-                { name: "Revoke Access API", method: "DELETE", endpoint: "/auth/revoke", status: "deprecated" }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      domain: "Core Retail",
-      applications: [
-        {
-          name: "Inventory Management App",
-          systems: [
-            {
-              name: "Stock Management System",
-              apis: [
-                { name: "Get Stock API", method: "GET", endpoint: "/inventory/stock", status: "active" },
-                { name: "Update Stock API", method: "PUT", endpoint: "/inventory/stock/{id}", status: "active" },
-                { name: "Low Stock Alert API", method: "GET", endpoint: "/inventory/alerts", status: "active" }
-              ]
-            },
-            {
-              name: "Product Management System",
-              apis: [
-                { name: "Create Product API", method: "POST", endpoint: "/products/create", status: "active" },
-                { name: "Update Product API", method: "PUT", endpoint: "/products/{id}", status: "active" }
-              ]
-            }
-          ]
-        }
-      ]
-    }
+    // Front of House APIs
+    { name: "Login API", description: "User authentication for login", domain: "Front of House", type: "Web Api", method: "POST", endpoint: "/auth/login", status: "active", application: "Customer Management App", system: "User Authentication System" },
+    { name: "Register API", description: "User registration endpoint", domain: "Front of House", type: "Web Api", method: "POST", endpoint: "/auth/register", status: "active", application: "Customer Management App", system: "User Authentication System" },
+    { name: "Password Reset API", description: "Password reset functionality", domain: "Front of House", type: "Web Api", method: "PUT", endpoint: "/auth/reset", status: "maintenance", application: "Customer Management App", system: "User Authentication System" },
+    { name: "Get Profile API", description: "Retrieve user profile information", domain: "Front of House", type: "Web Api", method: "GET", endpoint: "/profile/{id}", status: "active", application: "Customer Management App", system: "Profile Management System" },
+    { name: "Update Profile API", description: "Update user profile data", domain: "Front of House", type: "Web Api", method: "PUT", endpoint: "/profile/{id}", status: "active", application: "Customer Management App", system: "Profile Management System" },
+    { name: "Add to Cart API", description: "Add items to shopping cart", domain: "Front of House", type: "Web Api", method: "POST", endpoint: "/cart/add", status: "active", application: "Order Processing App", system: "Cart Management System" },
+    { name: "Remove from Cart API", description: "Remove items from cart", domain: "Front of House", type: "Web Api", method: "DELETE", endpoint: "/cart/remove", status: "active", application: "Order Processing App", system: "Cart Management System" },
+    { name: "Get Cart API", description: "Retrieve cart contents", domain: "Front of House", type: "Web Api", method: "GET", endpoint: "/cart/{userId}", status: "deprecated", application: "Order Processing App", system: "Cart Management System" },
+    { name: "Process Payment API", description: "Process customer payments", domain: "Front of House", type: "Web Api", method: "POST", endpoint: "/payment/process", status: "active", application: "Order Processing App", system: "Payment Processing System" },
+    { name: "Refund API", description: "Process payment refunds", domain: "Front of House", type: "Web Api", method: "POST", endpoint: "/payment/refund", status: "active", application: "Order Processing App", system: "Payment Processing System" },
+    
+    // Back of House APIs
+    { name: "Generate Report API", description: "Generate analytics reports", domain: "Back of House", type: "Web Api", method: "POST", endpoint: "/reports/generate", status: "active", application: "Data Analytics App", system: "Reporting System" },
+    { name: "Get Report API", description: "Retrieve generated reports", domain: "Back of House", type: "Web Api", method: "GET", endpoint: "/reports/{id}", status: "active", application: "Data Analytics App", system: "Reporting System" },
+    { name: "Export Report API", description: "Export reports to various formats", domain: "Back of House", type: "Web Api", method: "GET", endpoint: "/reports/{id}/export", status: "maintenance", application: "Data Analytics App", system: "Reporting System" },
+    { name: "Track Event API", description: "Track user events and metrics", domain: "Back of House", type: "Web Api", method: "POST", endpoint: "/metrics/track", status: "active", application: "Data Analytics App", system: "Metrics Collection System" },
+    { name: "Get Metrics API", description: "Retrieve performance metrics", domain: "Back of House", type: "Web Api", method: "GET", endpoint: "/metrics/{type}", status: "active", application: "Data Analytics App", system: "Metrics Collection System" },
+    
+    // Online APIs
+    { name: "Check Permissions API", description: "Verify user permissions", domain: "Online", type: "Web Api", method: "GET", endpoint: "/auth/permissions", status: "active", application: "Access Control App", system: "Authorization System" },
+    { name: "Grant Access API", description: "Grant user access rights", domain: "Online", type: "Web Api", method: "POST", endpoint: "/auth/grant", status: "active", application: "Access Control App", system: "Authorization System" },
+    { name: "Revoke Access API", description: "Revoke user access rights", domain: "Online", type: "Web Api", method: "DELETE", endpoint: "/auth/revoke", status: "deprecated", application: "Access Control App", system: "Authorization System" },
+    
+    // Core Retail APIs
+    { name: "Get Stock API", description: "Retrieve current stock levels", domain: "Core Retail", type: "Web Api", method: "GET", endpoint: "/inventory/stock", status: "active", application: "Inventory Management App", system: "Stock Management System" },
+    { name: "Update Stock API", description: "Update inventory stock levels", domain: "Core Retail", type: "Web Api", method: "PUT", endpoint: "/inventory/stock/{id}", status: "active", application: "Inventory Management App", system: "Stock Management System" },
+    { name: "Low Stock Alert API", description: "Get low stock alerts", domain: "Core Retail", type: "Web Api", method: "GET", endpoint: "/inventory/alerts", status: "active", application: "Inventory Management App", system: "Stock Management System" },
+    { name: "Create Product API", description: "Create new product entries", domain: "Core Retail", type: "Web Api", method: "POST", endpoint: "/products/create", status: "active", application: "Inventory Management App", system: "Product Management System" },
+    { name: "Update Product API", description: "Update existing product information", domain: "Core Retail", type: "Web Api", method: "PUT", endpoint: "/products/{id}", status: "active", application: "Inventory Management App", system: "Product Management System" },
   ];
+
+  const domains = ["All Domains", "Front of House", "Back of House", "Online", "Core Retail"];
+
+  const filteredData = apiData.filter(api => {
+    const matchesDomain = selectedDomain === "All Domains" || api.domain === selectedDomain;
+    const matchesSearch = api.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         api.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         api.endpoint.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesDomain && matchesSearch;
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -176,99 +90,100 @@ export const ApiListing = () => {
         <CardHeader>
           <CardTitle className="text-xl text-black flex items-center space-x-2">
             <Code className="h-5 w-5" />
-            <span>API Listing by Domain</span>
+            <span>APIs</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {apiData.map((domain, domainIndex) => (
-              <div key={domainIndex} className="border rounded-lg bg-gray-50">
-                <div 
-                  className="p-4 cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => toggleDomain(domain.domain)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {expandedDomains.includes(domain.domain) ? (
-                        <ChevronDown className="h-5 w-5 text-gray-500" />
-                      ) : (
-                        <ChevronRight className="h-5 w-5 text-gray-500" />
-                      )}
-                      <Globe className="h-5 w-5 text-blue-600" />
-                      <span className="font-semibold text-lg text-black">{domain.domain}</span>
-                    </div>
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                      {domain.applications.length} Applications
-                    </Badge>
-                  </div>
-                </div>
+          {/* Filters and Controls */}
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-medium text-black">Owner:</span>
+              <Select value={selectedDomain} onValueChange={setSelectedDomain}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                  {domains.map((domain) => (
+                    <SelectItem key={domain} value={domain}>
+                      {domain}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex items-center space-x-2 flex-1">
+              <Search className="h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Search APIs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
 
-                {expandedDomains.includes(domain.domain) && (
-                  <div className="px-4 pb-4 space-y-3">
-                    {domain.applications.map((app, appIndex) => (
-                      <div key={appIndex} className="ml-6 border rounded-lg bg-white">
-                        <div 
-                          className="p-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                          onClick={() => toggleApplication(`${domain.domain}-${app.name}`)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              {expandedApplications.includes(`${domain.domain}-${app.name}`) ? (
-                                <ChevronDown className="h-4 w-4 text-gray-500" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4 text-gray-500" />
-                              )}
-                              <Server className="h-4 w-4 text-green-600" />
-                              <span className="font-medium text-black">{app.name}</span>
-                            </div>
-                            <Badge variant="outline" className="bg-green-50 text-green-700">
-                              {app.systems.length} Systems
-                            </Badge>
-                          </div>
-                        </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" className="bg-white border-gray-300 text-black hover:bg-gray-50">
+                <Columns className="h-4 w-4 mr-2" />
+                COLUMNS
+              </Button>
+              <Button variant="outline" size="sm" className="bg-white border-gray-300 text-black hover:bg-gray-50">
+                <Filter className="h-4 w-4 mr-2" />
+                FILTERS
+              </Button>
+              <Button variant="outline" size="sm" className="bg-white border-gray-300 text-black hover:bg-gray-50">
+                <Download className="h-4 w-4 mr-2" />
+                EXPORT
+              </Button>
+            </div>
+          </div>
 
-                        {expandedApplications.includes(`${domain.domain}-${app.name}`) && (
-                          <div className="px-3 pb-3 space-y-2">
-                            {app.systems.map((system, systemIndex) => (
-                              <div key={systemIndex} className="ml-6 border rounded bg-gray-50">
-                                <div className="p-3">
-                                  <div className="flex items-center space-x-3 mb-3">
-                                    <Database className="h-4 w-4 text-purple-600" />
-                                    <span className="font-medium text-black">{system.name}</span>
-                                    <Badge variant="outline" className="bg-purple-50 text-purple-700">
-                                      {system.apis.length} APIs
-                                    </Badge>
-                                  </div>
-                                  
-                                  <div className="ml-6 space-y-2">
-                                    {system.apis.map((api, apiIndex) => (
-                                      <div key={apiIndex} className="flex items-center justify-between p-2 bg-white rounded border">
-                                        <div className="flex items-center space-x-3">
-                                          <Badge className={getMethodColor(api.method)} variant="outline">
-                                            {api.method}
-                                          </Badge>
-                                          <span className="font-medium text-sm text-black">{api.name}</span>
-                                          <code className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-700">
-                                            {api.endpoint}
-                                          </code>
-                                        </div>
-                                        <Badge className={getStatusColor(api.status)} variant="outline">
-                                          {api.status}
-                                        </Badge>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+          {/* API Table */}
+          <div className="border rounded-lg bg-gray-900 text-white">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-gray-700 hover:bg-gray-800">
+                  <TableHead className="text-gray-300 font-medium">Name</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Description</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Domain</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Type</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Method</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Endpoint</TableHead>
+                  <TableHead className="text-gray-300 font-medium">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredData.map((api, index) => (
+                  <TableRow key={index} className="border-gray-700 hover:bg-gray-800">
+                    <TableCell className="font-medium text-white">{api.name}</TableCell>
+                    <TableCell className="text-gray-300 max-w-xs truncate">{api.description}</TableCell>
+                    <TableCell className="text-gray-300">{api.domain}</TableCell>
+                    <TableCell className="text-gray-300">{api.type}</TableCell>
+                    <TableCell>
+                      <Badge className={`${getMethodColor(api.method)} border-0 text-xs`}>
+                        {api.method}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-gray-300 font-mono text-xs">{api.endpoint}</TableCell>
+                    <TableCell>
+                      <Badge className={`${getStatusColor(api.status)} border-0 text-xs capitalize`}>
+                        {api.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {filteredData.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              No APIs found matching your criteria.
+            </div>
+          )}
+
+          <div className="mt-4 text-sm text-gray-600">
+            Showing {filteredData.length} of {apiData.length} APIs
           </div>
         </CardContent>
       </Card>
