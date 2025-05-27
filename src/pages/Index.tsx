@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,13 +8,11 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbS
 import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code, Menu, Database, Home } from "lucide-react";
 import { StatusOverview } from "@/components/StatusOverview";
 import { EventsSection } from "@/components/EventsSection";
-import { IncidentTracking } from "@/components/IncidentTracking";
 import { ConfigPanel } from "@/components/ConfigPanel";
 import { ManualEventCreationModal } from "@/components/ManualEventCreationModal";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { StatusDashboard } from "@/components/StatusDashboard";
 import { TimelineHistory } from "@/components/TimelineHistory";
-import { ReleaseEvents } from "@/components/ReleaseEvents";
 import { ApiListing } from "@/components/ApiListing";
 import { Alerts } from "@/components/Alerts";
 import { AzureAppInsightHealth } from "@/components/AzureAppInsightHealth";
@@ -32,7 +29,8 @@ const Index = () => {
     domain?: string;
   }>({});
   const [apiListingFilter, setApiListingFilter] = useState<string>("");
-  const [incidentFilter, setIncidentFilter] = useState<{
+  const [eventsFilter, setEventsFilter] = useState<{
+    type?: string;
     domain?: string;
     tenancy?: string;
   }>({});
@@ -40,7 +38,7 @@ const Index = () => {
   const clearAllFilters = () => {
     setTimelineFilter({});
     setApiListingFilter("");
-    setIncidentFilter({});
+    setEventsFilter({});
     setActiveTab("status-dashboard");
   };
 
@@ -48,8 +46,8 @@ const Index = () => {
     setTimelineFilter({});
   };
 
-  const clearIncidentFilter = () => {
-    setIncidentFilter({});
+  const clearEventsFilter = () => {
+    setEventsFilter({});
   };
 
   const clearApiListingFilter = () => {
@@ -63,10 +61,11 @@ const Index = () => {
     } else if (statusType === 'healthchecks') {
       setActiveTab("azure-health");
     } else if (statusType === 'incidents') {
-      setIncidentFilter({ domain, tenancy });
-      setActiveTab("incidents");
+      setEventsFilter({ type: 'incident', domain, tenancy });
+      setActiveTab("events");
     } else if (statusType === 'releases') {
-      setActiveTab("release-events");
+      setEventsFilter({ type: 'release', domain, tenancy });
+      setActiveTab("events");
     } else {
       setTimelineFilter({ statusType, tenancy, domain });
       setActiveTab("timeline-history");
@@ -89,8 +88,8 @@ const Index = () => {
     setActiveTab(value);
     
     // Clear filters when navigating directly to tabs (not through status dashboard)
-    if (value === "incidents") {
-      setIncidentFilter({});
+    if (value === "events") {
+      setEventsFilter({});
     } else if (value === "api-listing") {
       setApiListingFilter("");
     } else if (value === "timeline-history") {
@@ -100,11 +99,11 @@ const Index = () => {
 
   const renderBreadcrumbs = () => {
     const hasTimelineFilter = timelineFilter.statusType || timelineFilter.tenancy || timelineFilter.domain;
-    const hasIncidentFilter = incidentFilter.domain || incidentFilter.tenancy;
+    const hasEventsFilter = eventsFilter.type || eventsFilter.domain || eventsFilter.tenancy;
     const hasApiFilter = apiListingFilter;
 
     // Always show breadcrumbs for all tabs except status-dashboard
-    if (activeTab === "status-dashboard" && !hasTimelineFilter && !hasIncidentFilter && !hasApiFilter) {
+    if (activeTab === "status-dashboard" && !hasTimelineFilter && !hasEventsFilter && !hasApiFilter) {
       return null;
     }
 
@@ -114,10 +113,8 @@ const Index = () => {
         case "timeline-history": return "Timeline History";
         case "alerts": return "Alerts";
         case "azure-health": return "Azure AppInsight Health";
-        case "release-events": return "Release Events";
         case "api-listing": return "API Listing";
         case "events": return "Events";
-        case "incidents": return "Incidents";
         case "monitoring": return "Monitoring";
         default: return "Unknown";
       }
@@ -142,11 +139,11 @@ const Index = () => {
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    {hasTimelineFilter || hasIncidentFilter || hasApiFilter ? (
+                    {hasTimelineFilter || hasEventsFilter || hasApiFilter ? (
                       <BreadcrumbLink 
                         onClick={() => {
                           if (activeTab === "timeline-history") clearTimelineFilter();
-                          if (activeTab === "incidents") clearIncidentFilter();
+                          if (activeTab === "events") clearEventsFilter();
                           if (activeTab === "api-listing") clearApiListingFilter();
                         }}
                         className="cursor-pointer hover:text-blue-600"
@@ -175,13 +172,14 @@ const Index = () => {
                 </>
               )}
 
-              {hasIncidentFilter && activeTab === "incidents" && (
+              {hasEventsFilter && activeTab === "events" && (
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
                     <BreadcrumbPage>
-                      {incidentFilter.domain && `${incidentFilter.domain}`}
-                      {incidentFilter.tenancy && ` - ${incidentFilter.tenancy}`}
+                      {eventsFilter.type && `${eventsFilter.type.charAt(0).toUpperCase() + eventsFilter.type.slice(1)}s`}
+                      {eventsFilter.domain && ` - ${eventsFilter.domain}`}
+                      {eventsFilter.tenancy && ` - ${eventsFilter.tenancy}`}
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </>
@@ -209,10 +207,8 @@ const Index = () => {
     { value: "timeline-history", label: "Timeline History", icon: Clock },
     { value: "alerts", label: "Alerts", icon: AlertTriangle },
     { value: "azure-health", label: "Azure AppInsight Health", icon: Database },
-    { value: "release-events", label: "Release Events", icon: Package },
     { value: "api-listing", label: "API Listing", icon: Code },
     { value: "events", label: "Events", icon: Calendar },
-    { value: "incidents", label: "Incidents", icon: AlertTriangle },
     { value: "monitoring", label: "Monitoring", icon: BarChart3 },
   ];
 
@@ -331,21 +327,13 @@ const Index = () => {
                 <AzureAppInsightHealth />
               </TabsContent>
 
-              <TabsContent value="release-events" className="space-y-6">
-                <ReleaseEvents />
-              </TabsContent>
-
               <TabsContent value="api-listing" className="space-y-6">
                 <ApiListing initialDomainFilter={apiListingFilter} />
               </TabsContent>
 
               <TabsContent value="events" className="space-y-6">
                 <StatusOverview />
-                <EventsSection />
-              </TabsContent>
-
-              <TabsContent value="incidents" className="space-y-6">
-                <IncidentTracking filter={incidentFilter} />
+                <EventsSection filter={eventsFilter} />
               </TabsContent>
 
               <TabsContent value="monitoring" className="space-y-6">
