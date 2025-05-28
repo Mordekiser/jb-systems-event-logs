@@ -6,14 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Mail, RefreshCw, Send, Eye } from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
-import { EmailTemplateIncident } from "@/components/EmailTemplateIncident";
-import { EmailTemplateDeployment } from "@/components/EmailTemplateDeployment";
+import { ThemedEmailHTML } from "@/components/ThemedEmailHTML";
 import { useToast } from "@/hooks/use-toast";
 
 export const EmailDemo = () => {
   const { events, updateEvent } = useEvents();
   const { toast } = useToast();
   const [selectedEventId, setSelectedEventId] = useState<string>("");
+  const [showPreview, setShowPreview] = useState<boolean>(false);
 
   // Filter events that have email notifications enabled
   const eventsWithEmail = events.filter(event => event.emailNotificationEnabled);
@@ -46,6 +46,11 @@ export const EmailDemo = () => {
       title: newEmailEnabled ? "Email notification enabled" : "Email notification disabled",
       description: `Email notifications have been ${newEmailEnabled ? "enabled" : "disabled"} for ${selectedEvent.title}`,
     });
+  };
+
+  const handlePreviewEmail = () => {
+    if (!selectedEvent) return;
+    setShowPreview(!showPreview);
   };
 
   return (
@@ -114,9 +119,13 @@ export const EmailDemo = () => {
                   {selectedEvent.emailNotificationEnabled ? "Disable" : "Enable"} Email Notification
                 </span>
               </Button>
-              <Button variant="secondary" className="flex items-center space-x-2">
+              <Button 
+                variant="secondary" 
+                onClick={handlePreviewEmail}
+                className="flex items-center space-x-2"
+              >
                 <Eye className="h-4 w-4" />
-                <span>Preview Email</span>
+                <span>{showPreview ? "Hide Preview" : "Preview Email"}</span>
               </Button>
             </div>
           )}
@@ -132,13 +141,13 @@ export const EmailDemo = () => {
       </Card>
 
       {/* Email Template Display */}
-      {selectedEvent && (
+      {selectedEvent && showPreview && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Mail className="h-5 w-5" />
-                <span>Email Template Preview - {selectedEvent.eventType}</span>
+                <span>Themed Email Template Preview - {selectedEvent.eventType}</span>
                 <Badge className={
                   selectedEvent.eventType === "Incident" ? "bg-red-100 text-red-800" : "bg-purple-100 text-purple-800"
                 }>
@@ -154,11 +163,7 @@ export const EmailDemo = () => {
           </CardHeader>
           <CardContent className="p-0">
             <div className="border rounded-lg overflow-hidden bg-gray-50">
-              {selectedEvent.eventType === "Incident" ? (
-                <EmailTemplateIncident event={selectedEvent} />
-              ) : (
-                <EmailTemplateDeployment event={selectedEvent} />
-              )}
+              <ThemedEmailHTML event={selectedEvent} />
             </div>
           </CardContent>
         </Card>
