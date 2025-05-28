@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Mail, RefreshCw, Send, Eye } from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
-import { ThemedEmailTemplate } from "@/components/ThemedEmailTemplate";
+import { EmailTemplateIncident } from "@/components/EmailTemplateIncident";
+import { EmailTemplateDeployment } from "@/components/EmailTemplateDeployment";
 import { useToast } from "@/hooks/use-toast";
 
 export const EmailDemo = () => {
@@ -137,7 +138,7 @@ export const EmailDemo = () => {
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Mail className="h-5 w-5" />
-                <span>Themed Email Template Preview - {selectedEvent.eventType}</span>
+                <span>Email Template Preview - {selectedEvent.eventType}</span>
                 <Badge className={
                   selectedEvent.eventType === "Incident" ? "bg-red-100 text-red-800" : "bg-purple-100 text-purple-800"
                 }>
@@ -153,7 +154,11 @@ export const EmailDemo = () => {
           </CardHeader>
           <CardContent className="p-0">
             <div className="border rounded-lg overflow-hidden bg-gray-50">
-              <ThemedEmailTemplate event={selectedEvent} />
+              {selectedEvent.eventType === "Incident" ? (
+                <EmailTemplateIncident event={selectedEvent} />
+              ) : (
+                <EmailTemplateDeployment event={selectedEvent} />
+              )}
             </div>
           </CardContent>
         </Card>

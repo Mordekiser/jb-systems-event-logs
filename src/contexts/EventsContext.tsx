@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface Location {
@@ -163,87 +162,6 @@ const generateDemoEvents = (): SystemEvent[] => {
     }
   };
 
-  const generateStatusHistory = (eventType: "Incident" | "Deployment", application: string, createdDate: Date, finalStatus: string) => {
-    const history: StatusHistoryEntry[] = [];
-    const creators = ["Admin User", "John Smith", "Sarah Johnson", "Mike Wilson", "Emma Davis", "Support Team", "DevOps Team"];
-    
-    // Initial entry
-    const initialCreator = creators[Math.floor(Math.random() * creators.length)];
-    history.push({
-      createdBySource: Math.random() > 0.5 ? "Manual" : "Azure Alert",
-      createdTimestamp: createdDate.toISOString(),
-      createdBy: initialCreator,
-      updatedTimestamp: null,
-      updatedBy: null,
-      status: eventType === "Incident" ? "Under Investigation" : "Scheduled",
-      historyType: "Initial",
-      description: eventType === "Incident" 
-        ? `Incident detected in ${application} system. Initial investigation shows potential ${Math.random() > 0.5 ? 'database connectivity' : 'service performance'} issues. Monitoring systems triggered automatic alerts and escalation procedures have been initiated.`
-        : `Deployment scheduled for ${application} system. Pre-deployment checks completed successfully. All dependencies verified and rollback procedures confirmed. Stakeholder notifications sent to affected teams.`
-    });
-
-    // Add 3-7 additional history entries
-    const numEntries = Math.floor(Math.random() * 5) + 3;
-    for (let i = 1; i < numEntries; i++) {
-      const entryDate = new Date(createdDate.getTime() + (i * Math.random() * 2 * 60 * 60 * 1000));
-      const creator = creators[Math.floor(Math.random() * creators.length)];
-      
-      let status: "Under Investigation" | "Scheduled" | "In Progress" | "Complete";
-      let historyType: "Initial" | "Update" | "Complete";
-      let description: string;
-
-      if (i === numEntries - 1 && finalStatus === "Complete") {
-        status = "Complete";
-        historyType = "Complete";
-        description = eventType === "Incident"
-          ? `Incident resolved successfully. Root cause identified as ${Math.random() > 0.5 ? 'network timeout configuration' : 'memory leak in cache service'}. Permanent fix deployed and monitoring confirms system stability. Post-incident review scheduled for next week.`
-          : `Deployment completed successfully. All services are running optimally with improved performance metrics. Post-deployment validation completed with zero critical issues. User acceptance testing passed with positive feedback from stakeholders.`;
-      } else if (i === numEntries - 1 && finalStatus === "In Progress") {
-        status = "In Progress";
-        historyType = "Update";
-        description = eventType === "Incident"
-          ? `Active remediation in progress. Engineering team has identified the root cause and is implementing a hotfix. Estimated resolution time is 2-3 hours. Temporary workaround deployed to minimize customer impact.`
-          : `Deployment is currently in progress. Phase 1 completed successfully with 60% of target systems updated. No critical issues detected so far. Phase 2 deployment will commence in the next 30 minutes.`;
-      } else {
-        status = Math.random() > 0.3 ? "In Progress" : (eventType === "Incident" ? "Under Investigation" : "Scheduled");
-        historyType = "Update";
-        
-        if (eventType === "Incident") {
-          const updateMessages = [
-            `Investigation team has isolated the issue to the ${Math.random() > 0.5 ? 'authentication service' : 'payment processing module'}. Database logs show ${Math.random() > 0.5 ? 'connection pool exhaustion' : 'query timeout errors'}. Working on immediate mitigation strategies.`,
-            `Customer impact assessment completed. Approximately ${Math.floor(Math.random() * 500) + 100} users affected. Temporary workaround implemented to restore 80% of functionality. Full resolution work continues.`,
-            `System monitoring indicates ${Math.random() > 0.5 ? 'memory usage spike' : 'CPU utilization anomaly'} in the affected services. Infrastructure team scaling resources and applying performance optimizations. Expected improvement within 1 hour.`,
-            `Emergency patch deployed to production environment. Initial testing shows ${Math.floor(Math.random() * 30) + 70}% improvement in response times. Continuing to monitor system behavior and user feedback.`,
-            `Root cause analysis in progress. Preliminary findings suggest ${Math.random() > 0.5 ? 'configuration drift' : 'dependency version conflict'}. Development team preparing comprehensive fix while maintaining system stability.`
-          ];
-          description = updateMessages[Math.floor(Math.random() * updateMessages.length)];
-        } else {
-          const deploymentUpdates = [
-            `Pre-deployment validation completed successfully. All automated tests passed with 100% success rate. Security scans show no vulnerabilities. Proceeding with planned deployment schedule.`,
-            `Deployment Phase ${i} initiated. Backend services updated successfully with zero downtime. Database migrations completed. Frontend deployment scheduled for next phase.`,
-            `Quality assurance team completed smoke testing on updated components. Performance benchmarks show ${Math.floor(Math.random() * 20) + 15}% improvement in response times. User acceptance criteria met.`,
-            `Rollout proceeding as planned across ${Math.floor(Math.random() * 50) + 20} server instances. Health checks passing consistently. No critical alerts or performance degradation detected.`,
-            `Feature flags enabled for gradual rollout to ${Math.floor(Math.random() * 30) + 10}% of user base. Initial metrics look positive with improved engagement rates. Monitoring user feedback closely.`
-          ];
-          description = deploymentUpdates[Math.floor(Math.random() * deploymentUpdates.length)];
-        }
-      }
-
-      history.push({
-        createdBySource: "Manual",
-        createdTimestamp: entryDate.toISOString(),
-        createdBy: creator,
-        updatedTimestamp: entryDate.toISOString(),
-        updatedBy: creator,
-        status,
-        historyType,
-        description
-      });
-    }
-
-    return history;
-  };
-
   const events: SystemEvent[] = [];
 
   for (let i = 1; i <= 100; i++) {
@@ -302,8 +220,6 @@ const generateDemoEvents = (): SystemEvent[] => {
     const emailNotificationEnabled = Math.random() > 0.3;
     const emailSent = emailNotificationEnabled && Math.random() > 0.4; // 60% of enabled notifications are sent
 
-    const statusHistory = generateStatusHistory(eventType, application, createdDate, status);
-
     const event: SystemEvent = {
       id: `evt_${String(i).padStart(3, '0')}`,
       title,
@@ -326,7 +242,16 @@ const generateDemoEvents = (): SystemEvent[] => {
       application,
       emailNotificationEnabled,
       emailSent,
-      statusHistory
+      statusHistory: [{
+        createdBySource,
+        createdTimestamp: createdDate.toISOString(),
+        createdBy: creator,
+        updatedTimestamp: updatedDate.toISOString(),
+        updatedBy: creator,
+        status,
+        historyType: "Initial",
+        description: `${eventType} created for ${application}: ${description}`
+      }]
     };
 
     events.push(event);
