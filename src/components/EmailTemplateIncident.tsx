@@ -54,6 +54,16 @@ export const EmailTemplateIncident = ({ event }: EmailTemplateIncidentProps) => 
     }
   };
 
+  const handleViewDetails = () => {
+    window.open(`${window.location.origin}/?incident=${event.id}`, '_blank');
+  };
+
+  const handleContactSupport = () => {
+    const subject = encodeURIComponent(`Incident: ${event.title}`);
+    const body = encodeURIComponent(`Regarding incident ${event.id}: ${event.title}\n\nDescription: ${event.description}\n\nStatus: ${event.status}`);
+    window.open(`mailto:support@jbhifi.com.au?subject=${subject}&body=${body}`);
+  };
+
   const emailHtml = `
 <!DOCTYPE html>
 <html lang="en">
@@ -253,6 +263,18 @@ export const EmailTemplateIncident = ({ event }: EmailTemplateIncidentProps) => 
             text-decoration: none;
             display: inline-block;
             font-size: 14px;
+            margin: 0 8px 8px 0;
+            cursor: pointer;
+            border: none;
+        }
+        .action-button:hover {
+            background-color: #1d4ed8;
+        }
+        .action-button.secondary {
+            background-color: #64748b;
+        }
+        .action-button.secondary:hover {
+            background-color: #475569;
         }
         .history-section {
             background-color: #ffffff;
@@ -343,6 +365,7 @@ export const EmailTemplateIncident = ({ event }: EmailTemplateIncidentProps) => 
             .contact-source { margin-top: 8px; }
             .priority-header { flex-direction: column; align-items: flex-start; }
             .status-badge { margin-top: 8px; }
+            .action-button { display: block; margin: 8px 0; }
         }
     </style>
     <script>
@@ -353,6 +376,16 @@ export const EmailTemplateIncident = ({ event }: EmailTemplateIncidentProps) => 
             
             content.style.display = isHidden ? 'block' : 'none';
             icon.textContent = isHidden ? '−' : '+';
+        }
+
+        function viewIncidentDetails() {
+            window.open('${window.location.origin}/?incident=${event.id}', '_blank');
+        }
+
+        function contactSupport() {
+            const subject = encodeURIComponent('Incident: ${event.title}');
+            const body = encodeURIComponent('Regarding incident ${event.id}: ${event.title}\\n\\nDescription: ${event.description}\\n\\nStatus: ${event.status}');
+            window.open('mailto:support@jbhifi.com.au?subject=' + subject + '&body=' + body);
         }
     </script>
 </head>
@@ -370,37 +403,59 @@ export const EmailTemplateIncident = ({ event }: EmailTemplateIncidentProps) => 
             <!-- Priority Card -->
             <div class="priority-card">
                 <div class="priority-header">
-                    <h3 class="priority-title">${event.impact} Impact Incident</h3>
-                    <div class="status-badge">${event.status}</div>
+                    <h3 class="priority-title">${event.impact || 'Unknown'} Impact Incident</h3>
+                    <div class="status-badge">${event.status || 'Unknown'}</div>
                 </div>
-                <p class="incident-title">${event.title}</p>
+                <p class="incident-title">${event.title || 'Incident Details'}</p>
             </div>
 
             <!-- Details Grid -->
             <div class="details-grid">
                 <div class="detail-row">
-                    <div class="detail-label">Incident Type</div>
-                    <div class="detail-value">System Incident</div>
+                    <div class="detail-label">Incident ID</div>
+                    <div class="detail-value">${event.id || 'N/A'}</div>
                 </div>
+                <div class="detail-row">
+                    <div class="detail-label">Event Type</div>
+                    <div class="detail-value">${event.eventType || 'Incident'}</div>
+                </div>
+                ${event.application ? `
                 <div class="detail-row">
                     <div class="detail-label">Application</div>
-                    <div class="detail-value">${event.application || event.systemsAffected?.[0] || "Multiple Systems"}</div>
+                    <div class="detail-value">${event.application}</div>
                 </div>
+                ` : ''}
+                ${event.domain ? `
+                <div class="detail-row">
+                    <div class="detail-label">Domain</div>
+                    <div class="detail-value">${event.domain}</div>
+                </div>
+                ` : ''}
+                ${event.tenancy ? `
+                <div class="detail-row">
+                    <div class="detail-label">Environment</div>
+                    <div class="detail-value">${event.tenancy}</div>
+                </div>
+                ` : ''}
                 <div class="detail-row">
                     <div class="detail-label">Started</div>
-                    <div class="detail-value">${formatDate(event.fromTimestamp)}</div>
+                    <div class="detail-value">${event.fromTimestamp ? formatDate(event.fromTimestamp) : 'Unknown'}</div>
                 </div>
+                ${event.toTimestamp ? `
                 <div class="detail-row">
                     <div class="detail-label">Expected Resolution</div>
                     <div class="detail-value">${formatDate(event.toTimestamp)}</div>
                 </div>
+                ` : ''}
             </div>
 
             <!-- Description -->
+            ${event.description ? `
             <div class="description-card">
-                <h3 class="description-title">What's Happening?</h3>
+                <h3 class="description-title">Incident Details</h3>
                 <p class="description-text">${event.description}</p>
             </div>
+            ` : ''}
 
             <!-- Systems Affected -->
             ${event.systemsAffected?.length > 0 ? `
@@ -414,45 +469,48 @@ export const EmailTemplateIncident = ({ event }: EmailTemplateIncidentProps) => 
 
             <!-- Contact Information -->
             <div class="contact-card">
-                <h3 class="contact-title">Primary Contact</h3>
+                <h3 class="contact-title">Incident Reporter</h3>
                 <div class="contact-info">
-                    <span class="contact-name">${event.createdBy}</span>
-                    <span class="contact-source">${event.createdBySource === "Manual" ? "IT Support Team" : "Automated Alert"}</span>
+                    <span class="contact-name">${event.createdBy || 'System'}</span>
+                    <span class="contact-source">${event.createdBySource === "Manual" ? "Manually Reported" : "Auto-Detected"}</span>
                 </div>
             </div>
 
-            <!-- Action Button -->
+            <!-- Action Buttons -->
             <div class="action-section">
-                <a href="#" class="action-button">View Full Details</a>
+                <button onclick="viewIncidentDetails()" class="action-button">View Full Details</button>
+                <button onclick="contactSupport()" class="action-button secondary">Contact Support</button>
             </div>
 
             <!-- Incident Timeline -->
+            ${event.statusHistory?.length > 0 ? `
             <div class="history-section">
                 <div class="history-header" onclick="toggleHistory()">
-                    <h3 class="history-title">Incident Timeline (${event.statusHistory?.length || 0} updates)</h3>
+                    <h3 class="history-title">Incident Timeline (${event.statusHistory.length} updates)</h3>
                     <span class="toggle-icon" id="toggleIcon">+</span>
                 </div>
                 <div id="historyContent" class="history-content" style="display: none;">
-                    ${event.statusHistory?.slice().reverse().map((history: any) => `
+                    ${event.statusHistory.slice().reverse().map((history: any) => `
                     <div class="history-item">
                         <div class="history-meta">
                             <div class="history-badges">
                                 <span class="history-badge" style="background-color: ${getStatusColor(history.status)}; color: white;">${history.status}</span>
-                                <span class="history-badge" style="background-color: #e2e8f0; color: #64748b;">${history.historyType}</span>
+                                ${history.historyType ? `<span class="history-badge" style="background-color: #e2e8f0; color: #64748b;">${history.historyType}</span>` : ''}
                             </div>
-                            <div class="history-date">${formatDate(history.createdTimestamp)}</div>
+                            <div class="history-date">${history.createdTimestamp ? formatDate(history.createdTimestamp) : 'Unknown time'}</div>
                         </div>
-                        <p class="history-description">${history.description}</p>
-                        <div class="history-author">${history.createdBy} • ${history.createdBySource}</div>
+                        <p class="history-description">${history.description || 'No description available'}</p>
+                        <div class="history-author">${history.createdBy || 'Unknown'} • ${history.createdBySource || 'Unknown source'}</div>
                     </div>
                     `).join('')}
                 </div>
             </div>
+            ` : ''}
 
             <!-- Footer -->
             <div class="footer">
                 <div class="footer-title">JB HI-FI System Dashboard</div>
-                <p>Real-time updates • Dashboard • Events Calendar</p>
+                <p>For system status updates visit the dashboard or contact IT support</p>
             </div>
         </div>
     </div>
