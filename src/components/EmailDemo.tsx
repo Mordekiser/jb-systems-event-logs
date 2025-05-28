@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,7 +10,9 @@ import { useEvents } from "@/contexts/EventsContext";
 import { EmailTemplateSimple } from "@/components/EmailTemplateSimple";
 import { EmailTemplateIncidentModern } from "@/components/EmailTemplateIncidentModern";
 import { EmailTemplateReleaseModern } from "@/components/EmailTemplateReleaseModern";
+import { EmailTemplateVariants } from "@/components/EmailTemplateVariants";
 import { BrowserExtensionDemo } from "@/components/BrowserExtensionDemo";
+import { BrowserExtensionVariants } from "@/components/BrowserExtensionVariants";
 import { useToast } from "@/hooks/use-toast";
 
 export const EmailDemo = () => {
@@ -17,10 +20,58 @@ export const EmailDemo = () => {
   const { toast } = useToast();
   const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("simple");
+  const [selectedEmailVariant, setSelectedEmailVariant] = useState<string>("ocean");
+  const [selectedExtensionVariant, setSelectedExtensionVariant] = useState<string>("ocean");
 
   // Filter events that have email notifications enabled
   const eventsWithEmail = events.filter(event => event.emailNotificationEnabled);
   const selectedEvent = eventsWithEmail.find(event => event.id === selectedEventId);
+
+  const emailVariants = [
+    { value: "ocean", label: "Ocean Blue", description: "Professional blue theme" },
+    { value: "sunset", label: "Sunset Orange", description: "Warm orange gradient" },
+    { value: "forest", label: "Forest Green", description: "Natural green theme" },
+    { value: "galaxy", label: "Purple Galaxy", description: "Cosmic purple design" },
+    { value: "crimson", label: "Crimson Red", description: "Bold red styling" },
+    { value: "midnight", label: "Midnight Dark", description: "Dark theme variant" },
+    { value: "honey", label: "Golden Honey", description: "Warm golden tones" },
+    { value: "teal", label: "Teal Wave", description: "Fresh teal colors" },
+    { value: "rose", label: "Rose Pink", description: "Elegant pink theme" },
+    { value: "steel", label: "Steel Gray", description: "Modern gray design" },
+    { value: "lime", label: "Lime Fresh", description: "Vibrant lime green" },
+    { value: "coral", label: "Coral Reef", description: "Tropical coral theme" },
+    { value: "electric", label: "Electric Blue", description: "Bright electric blue" },
+    { value: "lavender", label: "Lavender Dreams", description: "Soft lavender theme" },
+    { value: "emerald", label: "Emerald Shine", description: "Rich emerald green" },
+    { value: "amber", label: "Amber Glow", description: "Warm amber colors" },
+    { value: "indigo", label: "Indigo Night", description: "Deep indigo theme" },
+    { value: "cyan", label: "Cyan Fresh", description: "Cool cyan design" },
+    { value: "warm", label: "Warm Sunset", description: "Warm gradient theme" },
+    { value: "mint", label: "Cool Mint", description: "Refreshing mint green" }
+  ];
+
+  const extensionVariants = [
+    { value: "ocean", label: "Ocean Blue", description: "Professional blue theme" },
+    { value: "sunset", label: "Sunset Orange", description: "Warm orange theme" },
+    { value: "forest", label: "Forest Green", description: "Natural green design" },
+    { value: "galaxy", label: "Purple Galaxy", description: "Cosmic purple theme" },
+    { value: "crimson", label: "Crimson Red", description: "Bold red styling" },
+    { value: "midnight", label: "Midnight Dark", description: "Dark mode theme" },
+    { value: "golden", label: "Golden Theme", description: "Luxurious gold colors" },
+    { value: "teal", label: "Teal Wave", description: "Fresh teal design" },
+    { value: "rose", label: "Rose Pink", description: "Elegant pink theme" },
+    { value: "steel", label: "Steel Gray", description: "Modern steel design" },
+    { value: "lime", label: "Lime Fresh", description: "Vibrant lime theme" },
+    { value: "coral", label: "Coral Theme", description: "Tropical coral design" },
+    { value: "electric", label: "Electric Blue", description: "Bright electric theme" },
+    { value: "lavender", label: "Lavender Theme", description: "Soft lavender design" },
+    { value: "emerald", label: "Emerald Theme", description: "Rich emerald styling" },
+    { value: "amber", label: "Amber Theme", description: "Warm amber design" },
+    { value: "indigo", label: "Indigo Theme", description: "Deep indigo styling" },
+    { value: "cyan", label: "Cyan Theme", description: "Cool cyan design" },
+    { value: "warm", label: "Warm Theme", description: "Warm gradient styling" },
+    { value: "mint", label: "Mint Theme", description: "Fresh mint design" }
+  ];
 
   const handleSendEmail = () => {
     if (!selectedEvent) return;
@@ -61,6 +112,8 @@ export const EmailDemo = () => {
         return <EmailTemplateIncidentModern event={selectedEvent} />;
       case "release":
         return <EmailTemplateReleaseModern event={selectedEvent} />;
+      case "variants":
+        return <EmailTemplateVariants event={selectedEvent} variant={selectedEmailVariant} />;
       default:
         return <EmailTemplateSimple event={selectedEvent} />;
     }
@@ -74,6 +127,8 @@ export const EmailDemo = () => {
         return "Critical incident template with emergency styling and red theme";
       case "release":
         return "Celebration release template with purple theme and feature highlights";
+      case "variants":
+        return "20 unique design variants with different color schemes and layouts";
       default:
         return "";
     }
@@ -105,7 +160,7 @@ export const EmailDemo = () => {
                   Email Templates Demo
                 </span>
                 <div className="flex space-x-2 mt-1">
-                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">Event View Design</Badge>
+                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">20+ Design Variants</Badge>
                   <Badge variant="outline" className="border-purple-300 text-purple-700">Live Preview</Badge>
                 </div>
               </div>
@@ -113,7 +168,7 @@ export const EmailDemo = () => {
           </CardHeader>
           <CardContent>
             {/* Template Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
                   <Palette className="h-4 w-4" />
@@ -151,10 +206,43 @@ export const EmailDemo = () => {
                         </div>
                       </div>
                     </SelectItem>
+                    <SelectItem value="variants">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                        <div>
+                          <div className="font-medium">Design Variants</div>
+                          <div className="text-xs text-gray-500">20 unique styles</div>
+                        </div>
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-600">{getTemplateDescription(selectedTemplate)}</p>
               </div>
+
+              {selectedTemplate === "variants" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+                    <Sparkles className="h-4 w-4" />
+                    <span>Design Variant</span>
+                  </label>
+                  <Select value={selectedEmailVariant} onValueChange={setSelectedEmailVariant}>
+                    <SelectTrigger className="bg-white">
+                      <SelectValue placeholder="Choose design variant" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64">
+                      {emailVariants.map((variant) => (
+                        <SelectItem key={variant.value} value={variant.value}>
+                          <div>
+                            <div className="font-medium">{variant.label}</div>
+                            <div className="text-xs text-gray-500">{variant.description}</div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
@@ -249,7 +337,9 @@ export const EmailDemo = () => {
                         {selectedEvent.eventType}
                       </Badge>
                       <Badge variant="outline" className="border-blue-300 text-blue-700">
-                        {selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)} Template
+                        {selectedTemplate === "variants" 
+                          ? `${selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)} - ${selectedEmailVariant.charAt(0).toUpperCase() + selectedEmailVariant.slice(1)}` 
+                          : selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)} Template
                       </Badge>
                     </div>
                   </div>
@@ -270,8 +360,60 @@ export const EmailDemo = () => {
         )}
       </TabsContent>
 
-      <TabsContent value="extension">
-        <BrowserExtensionDemo />
+      <TabsContent value="extension" className="space-y-6">
+        {/* Extension Header */}
+        <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-blue-500 flex items-center justify-center">
+                <Globe className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                  Browser Extension Variants
+                </span>
+                <div className="flex space-x-2 mt-1">
+                  <Badge className="bg-gradient-to-r from-green-500 to-blue-500 text-white">20+ Theme Variants</Badge>
+                  <Badge variant="outline" className="border-blue-300 text-blue-700">Quick Status</Badge>
+                </div>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+                  <Palette className="h-4 w-4" />
+                  <span>Extension Theme</span>
+                </label>
+                <Select value={selectedExtensionVariant} onValueChange={setSelectedExtensionVariant}>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="Choose extension theme" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-64">
+                    {extensionVariants.map((variant) => (
+                      <SelectItem key={variant.value} value={variant.value}>
+                        <div>
+                          <div className="font-medium">{variant.label}</div>
+                          <div className="text-xs text-gray-500">{variant.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-end">
+                <div className="text-sm text-gray-600 flex items-center space-x-2 bg-white p-3 rounded-lg border border-gray-200">
+                  <RefreshCw className="h-4 w-4 text-green-500" />
+                  <span>Theme changes apply instantly</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <BrowserExtensionVariants variant={selectedExtensionVariant} />
       </TabsContent>
     </Tabs>
   );
