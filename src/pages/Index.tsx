@@ -19,6 +19,9 @@ import { EmailDemo } from "@/components/EmailDemo";
 import { IncidentProvider } from "@/contexts/IncidentContext";
 import { EventsProvider } from "@/contexts/EventsContext";
 import { ConfigProvider } from "@/contexts/ConfigContext";
+import { EventViewVariants } from "@/components/EventViewVariants";
+import { AzureAlertVariants } from "@/components/AzureAlertVariants";
+import { ApiListingVariants } from "@/components/ApiListingVariants";
 
 const Index = () => {
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -32,6 +35,79 @@ const Index = () => {
     domain?: string;
     tenancy?: string;
   }>({});
+
+  // Design variant states
+  const [eventViewVariant, setEventViewVariant] = useState<string>("minimal");
+  const [azureAlertVariant, setAzureAlertVariant] = useState<string>("dashboard");
+  const [apiListingVariant, setApiListingVariant] = useState<string>("modern");
+
+  // Design variant options
+  const eventViewVariants = [
+    { value: "minimal", label: "Minimalist Cards" },
+    { value: "timeline", label: "Timeline Style" },
+    { value: "glass", label: "Glassmorphism" },
+    { value: "neon", label: "Neon Dark" },
+    { value: "newspaper", label: "Newspaper Style" },
+    { value: "material", label: "Material Design" },
+    { value: "retro", label: "Retro Gaming" },
+    { value: "corporate", label: "Corporate Professional" },
+    { value: "pastel", label: "Pastel Soft" },
+    { value: "industrial", label: "Industrial" },
+    { value: "artdeco", label: "Art Deco" },
+    { value: "cyberpunk", label: "Cyberpunk" },
+    { value: "watercolor", label: "Watercolor" },
+    { value: "terminal", label: "Terminal" },
+    { value: "vintage", label: "Vintage Paper" },
+    { value: "geometric", label: "Geometric Modern" },
+    { value: "glassdark", label: "Dark Glass" },
+    { value: "rainbow", label: "Rainbow Gradient" },
+    { value: "brutalist", label: "Brutalist" },
+    { value: "mesh", label: "Gradient Mesh" }
+  ];
+
+  const azureAlertVariants = [
+    { value: "metro", label: "Metro Style" },
+    { value: "dashboard", label: "Alert Dashboard" },
+    { value: "cards", label: "Card Grid" },
+    { value: "timeline", label: "Timeline" },
+    { value: "kanban", label: "Kanban Style" },
+    { value: "statusboard", label: "Status Board" },
+    { value: "terminal", label: "Terminal Style" },
+    { value: "minimal", label: "Minimal Clean" },
+    { value: "neon", label: "Neon Glow" },
+    { value: "glass", label: "Glass Morphism" },
+    { value: "vintage", label: "Vintage" },
+    { value: "corporate", label: "Corporate" },
+    { value: "retro", label: "Retro" },
+    { value: "brutalist", label: "Brutalist" },
+    { value: "cyberpunk", label: "Cyberpunk" },
+    { value: "watercolor", label: "Watercolor" },
+    { value: "industrial", label: "Industrial" },
+    { value: "geometric", label: "Geometric" },
+    { value: "rainbow", label: "Rainbow" }
+  ];
+
+  const apiListingVariants = [
+    { value: "console", label: "Developer Console" },
+    { value: "modern", label: "Modern Cards" },
+    { value: "docs", label: "Documentation Style" },
+    { value: "postman", label: "Postman Style" },
+    { value: "swagger", label: "Swagger Style" },
+    { value: "graphql", label: "GraphQL Style" },
+    { value: "rest", label: "REST API Style" },
+    { value: "microservices", label: "Microservices" },
+    { value: "enterprise", label: "Enterprise" },
+    { value: "minimal", label: "Minimal List" },
+    { value: "terminal", label: "Terminal" },
+    { value: "neon", label: "Neon" },
+    { value: "retro", label: "Retro" },
+    { value: "glass", label: "Glass" },
+    { value: "brutalist", label: "Brutalist" },
+    { value: "vintage", label: "Vintage" },
+    { value: "cyberpunk", label: "Cyberpunk" },
+    { value: "watercolor", label: "Watercolor" },
+    { value: "geometric", label: "Geometric" }
+  ];
 
   const clearAllFilters = () => {
     setApiListingFilter("");
@@ -302,17 +378,89 @@ const Index = () => {
                   </TabsContent>
 
                   <TabsContent value="azure-alerts" className="space-y-6">
-                    <AzureAlerts />
+                    <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-red-200">
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+                            Azure Alerts - Design Variants
+                          </span>
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2">
+                              <label className="text-sm font-medium text-gray-700">Design:</label>
+                              <select 
+                                value={azureAlertVariant} 
+                                onChange={(e) => setAzureAlertVariant(e.target.value)}
+                                className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white"
+                              >
+                                {azureAlertVariants.map((variant) => (
+                                  <option key={variant.value} value={variant.value}>
+                                    {variant.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </CardTitle>
+                      </CardHeader>
+                    </Card>
+                    <AzureAlertVariants alerts={[]} variant={azureAlertVariant} />
                   </TabsContent>
 
                   <TabsContent value="api-listing" className="space-y-6">
-                    <ApiListing 
-                      initialDomainFilter={apiListingFilter}
-                      initialApplicationFilter={apiApplicationFilter}
-                    />
+                    <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                            API Listing - Design Variants
+                          </span>
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2">
+                              <label className="text-sm font-medium text-gray-700">Design:</label>
+                              <select 
+                                value={apiListingVariant} 
+                                onChange={(e) => setApiListingVariant(e.target.value)}
+                                className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white"
+                              >
+                                {apiListingVariants.map((variant) => (
+                                  <option key={variant.value} value={variant.value}>
+                                    {variant.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </CardTitle>
+                      </CardHeader>
+                    </Card>
+                    <ApiListingVariants apis={[]} variant={apiListingVariant} />
                   </TabsContent>
 
                   <TabsContent value="events" className="space-y-6">
+                    <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                          <span className="bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                            Events - Design Variants
+                          </span>
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2">
+                              <label className="text-sm font-medium text-gray-700">Design:</label>
+                              <select 
+                                value={eventViewVariant} 
+                                onChange={(e) => setEventViewVariant(e.target.value)}
+                                className="px-3 py-1 border border-gray-300 rounded-md text-sm bg-white"
+                              >
+                                {eventViewVariants.map((variant) => (
+                                  <option key={variant.value} value={variant.value}>
+                                    {variant.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </CardTitle>
+                      </CardHeader>
+                    </Card>
                     <EventMetrics />
                     <EventsSection filter={eventsFilter} />
                   </TabsContent>
