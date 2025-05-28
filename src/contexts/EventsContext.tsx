@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface Location {
@@ -38,6 +37,8 @@ interface SystemEvent {
   domainsAffected: string[];
   application?: string;
   statusHistory: StatusHistoryEntry[];
+  emailNotificationEnabled?: boolean;
+  emailSent?: boolean;
 }
 
 interface EventsContextType {
@@ -215,6 +216,10 @@ const generateDemoEvents = (): SystemEvent[] => {
 
     const description = descriptions[Math.floor(Math.random() * descriptions.length)];
 
+    // Add email notification settings - 70% chance of having email enabled
+    const emailNotificationEnabled = Math.random() > 0.3;
+    const emailSent = emailNotificationEnabled && Math.random() > 0.4; // 60% of enabled notifications are sent
+
     const event: SystemEvent = {
       id: `evt_${String(i).padStart(3, '0')}`,
       title,
@@ -235,6 +240,8 @@ const generateDemoEvents = (): SystemEvent[] => {
       systemsAffected: affectedSystems,
       domainsAffected: affectedDomains,
       application,
+      emailNotificationEnabled,
+      emailSent,
       statusHistory: [{
         createdBySource,
         createdTimestamp: createdDate.toISOString(),

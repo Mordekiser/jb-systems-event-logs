@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { Mail } from "lucide-react";
 
 interface AddEventModalProps {
   open: boolean;
@@ -22,7 +24,8 @@ export const AddEventModal = ({ open, onOpenChange }: AddEventModalProps) => {
     scheduledTime: "",
     duration: "",
     impact: "",
-    affectedServices: ""
+    affectedServices: "",
+    emailNotificationEnabled: false
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -33,7 +36,7 @@ export const AddEventModal = ({ open, onOpenChange }: AddEventModalProps) => {
     
     toast({
       title: "Event created successfully",
-      description: `${formData.title} has been added to the schedule.`,
+      description: `${formData.title} has been added to the schedule${formData.emailNotificationEnabled ? " with email notifications enabled" : ""}.`,
     });
     
     onOpenChange(false);
@@ -44,7 +47,8 @@ export const AddEventModal = ({ open, onOpenChange }: AddEventModalProps) => {
       scheduledTime: "",
       duration: "",
       impact: "",
-      affectedServices: ""
+      affectedServices: "",
+      emailNotificationEnabled: false
     });
   };
 
@@ -139,6 +143,28 @@ export const AddEventModal = ({ open, onOpenChange }: AddEventModalProps) => {
               value={formData.affectedServices}
               onChange={(e) => setFormData({...formData, affectedServices: e.target.value})}
             />
+          </div>
+
+          {/* Email Notification Toggle */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <Mail className="h-4 w-4 text-gray-500" />
+                <div>
+                  <Label htmlFor="emailNotification" className="text-sm font-medium">
+                    Email Notification
+                  </Label>
+                  <p className="text-xs text-gray-500">
+                    Send email notifications for this event
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="emailNotification"
+                checked={formData.emailNotificationEnabled}
+                onCheckedChange={(checked) => setFormData({...formData, emailNotificationEnabled: checked})}
+              />
+            </div>
           </div>
 
           <DialogFooter>

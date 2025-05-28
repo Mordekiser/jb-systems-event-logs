@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Calendar, Package, GitBranch, Trash2, Filter, X, Eye, Edit, Mail } from "lucide-react";
 import { useEvents } from "@/contexts/EventsContext";
 import { EventDeleteConfirmDialog } from "@/components/EventDeleteConfirmDialog";
@@ -34,7 +35,7 @@ interface EventsSectionProps {
 }
 
 export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
-  const { events } = useEvents();
+  const { events, updateEvent } = useEvents();
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     eventId: string;
@@ -128,6 +129,14 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
 
   const handleEmailSent = (eventId: string) => {
     setEmailSentEvents(prev => new Set([...prev, eventId]));
+    updateEvent(eventId, { emailSent: true });
+  };
+
+  const handleEmailToggle = (eventId: string, enabled: boolean) => {
+    updateEvent(eventId, { 
+      emailNotificationEnabled: enabled,
+      emailSent: enabled ? false : undefined 
+    });
   };
 
   const handleFilterChange = (key: keyof EventFilters, value: string | undefined) => {
@@ -413,15 +422,15 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
                   <Badge className={getStatusColor(event.status)}>
                     {event.status}
                   </Badge>
-                  {/* Email Status Badge for Deployments */}
-                  {event.eventType === "Deployment" && (
+                  {/* Email Status Badge */}
+                  {event.emailNotificationEnabled && (
                     <Badge 
-                      className={emailSentEvents.has(event.id) 
+                      className={event.emailSent || emailSentEvents.has(event.id)
                         ? "bg-green-100 text-green-800" 
                         : "bg-orange-100 text-orange-800"
                       }
                     >
-                      {emailSentEvents.has(event.id) ? "Email sent" : "Email pending"}
+                      {event.emailSent || emailSentEvents.has(event.id) ? "Email sent" : "Email pending"}
                     </Badge>
                   )}
                   <Button
@@ -441,7 +450,7 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
                     <Edit className="h-4 w-4" />
                   </Button>
                   {/* Automate Email Button for Deployments */}
-                  {event.eventType === "Deployment" && !emailSentEvents.has(event.id) && (
+                  {event.eventType === "Deployment" && event.emailNotificationEnabled && !event.emailSent && !emailSentEvents.has(event.id) && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -459,6 +468,25 @@ export const EventsSection = ({ filter = {} }: EventsSectionProps) => {
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
+                </div>
+              </div>
+
+              {/* Email Notification Toggle */}
+              <div className="mb-4 bg-gray-50 p-3 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Mail className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm font-medium">Email Notification</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={event.emailNotificationEnabled || false}
+                      onCheckedChange={(checked) => handleEmailToggle(event.id, checked)}
+                    />
+                    <span className="text-sm text-gray-600">
+                      {event.emailNotificationEnabled ? "Enabled" : "Disabled"}
+                    </span>
+                  </div>
                 </div>
               </div>
 

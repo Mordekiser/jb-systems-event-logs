@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code, Menu, Database, Home } from "lucide-react";
+import { Bell, Plus, Settings, AlertTriangle, CheckCircle, Clock, Activity, BarChart3, Package, Calendar, Zap, Code, Menu, Database, Home, Mail } from "lucide-react";
 import { EventsSection } from "@/components/EventsSection";
 import { ConfigPanel } from "@/components/ConfigPanel";
 import { ManualEventCreationModal } from "@/components/ManualEventCreationModal";
@@ -16,6 +15,7 @@ import { ApplicationStatusDashboard } from "@/components/ApplicationStatusDashbo
 import { ApiListing } from "@/components/ApiListing";
 import { AzureAlerts } from "@/components/AzureAlerts";
 import { EventMetrics } from "@/components/EventMetrics";
+import { EmailDemo } from "@/components/EmailDemo";
 import { IncidentProvider } from "@/contexts/IncidentContext";
 import { EventsProvider } from "@/contexts/EventsContext";
 import { ConfigProvider } from "@/contexts/ConfigContext";
@@ -112,6 +112,7 @@ const Index = () => {
         case "azure-alerts": return "Azure Alerts";
         case "api-listing": return "API Listing";
         case "events": return "Events";
+        case "email": return "Email";
         case "monitoring": return "System Monitoring";
         default: return "Unknown";
       }
@@ -191,6 +192,7 @@ const Index = () => {
     { value: "azure-alerts", label: "Azure Alerts", icon: AlertTriangle },
     { value: "api-listing", label: "API Listing", icon: Code },
     { value: "events", label: "Events", icon: Calendar },
+    { value: "email", label: "Email", icon: Mail },
     { value: "monitoring", label: "System Monitoring", icon: BarChart3 },
   ];
 
@@ -313,6 +315,10 @@ const Index = () => {
                   <TabsContent value="events" className="space-y-6">
                     <EventMetrics />
                     <EventsSection filter={eventsFilter} />
+                  </TabsContent>
+
+                  <TabsContent value="email" className="space-y-6">
+                    <EmailDemo />
                   </TabsContent>
 
                   <TabsContent value="monitoring" className="space-y-6">
