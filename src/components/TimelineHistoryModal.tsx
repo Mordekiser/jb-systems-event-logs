@@ -2,7 +2,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, AlertTriangle, Clock, User, Calendar, FileText, Server, Building, Layers } from "lucide-react";
+import { CheckCircle, AlertTriangle, Clock, User, Calendar, FileText, Server, Building, Layers, ArrowRight } from "lucide-react";
 
 interface TimelineHistoryModalProps {
   open: boolean;
@@ -130,13 +130,13 @@ export const TimelineHistoryModal = ({
   const getEventTypeColor = (type: string) => {
     switch (type) {
       case "detection":
-        return "bg-red-100 text-red-800";
+        return "bg-orange-100 text-orange-800 border-orange-200";
       case "update":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 border-blue-200";
       case "resolution":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 border-green-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -166,123 +166,149 @@ export const TimelineHistoryModal = ({
     }
   };
 
+  const formatDateTime = (date: string, time: string) => {
+    const dateObj = new Date(`${date} ${time}`);
+    return {
+      weekday: dateObj.toLocaleDateString('en-US', { weekday: 'long' }),
+      date: dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      time: dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' })
+    };
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[85vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader className="border-b pb-4">
           <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle className="text-2xl font-bold flex items-center space-x-2">
-                <FileText className="h-6 w-6 text-blue-600" />
-                <span>Timeline History</span>
-              </DialogTitle>
-              <div className="text-sm text-gray-600 mt-1">
-                {getTypeLabel(entityType)} • {entityTitle} • ID: {entityId}
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <Clock className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold text-gray-900">
+                  {getTypeLabel(entityType)} Timeline (Latest First)
+                </DialogTitle>
+                <div className="text-sm text-gray-500 mt-1">
+                  {entityTitle} • ID: {entityId}
+                </div>
               </div>
             </div>
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="secondary" className="text-xs font-medium">
               {timelineEvents.length} Events
             </Badge>
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-1">
-          <div className="relative">
-            {/* Timeline Line */}
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 via-gray-200 to-gray-100"></div>
-            
-            <div className="space-y-8 relative">
-              {timelineEvents.map((event, index) => {
-                const IconComponent = event.icon;
-                return (
-                  <div key={event.id} className="relative">
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-6">
+            {timelineEvents.map((event, index) => {
+              const IconComponent = event.icon;
+              const dateTime = formatDateTime(event.date, event.time);
+              
+              return (
+                <div key={event.id} className="relative group">
+                  {/* Timeline Line */}
+                  {index < timelineEvents.length - 1 && (
+                    <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-gray-200 group-hover:bg-gray-300 transition-colors"></div>
+                  )}
+                  
+                  {/* Event Card */}
+                  <div className="flex items-start space-x-4">
                     {/* Timeline Node */}
-                    <div className="absolute left-6 z-10">
-                      <div className={`w-4 h-4 rounded-full border-2 ${event.borderColor} ${event.bgColor} flex items-center justify-center`}>
-                        <div className={`w-2 h-2 rounded-full ${event.iconColor.replace('text-', 'bg-')}`}></div>
-                      </div>
+                    <div className={`relative z-10 w-12 h-12 rounded-full border-2 ${event.borderColor} ${event.bgColor} flex items-center justify-center shadow-sm`}>
+                      <IconComponent className={`h-5 w-5 ${event.iconColor}`} />
                     </div>
                     
-                    {/* Event Card */}
-                    <div className="ml-16">
-                      <div className={`rounded-lg border ${event.borderColor} ${event.bgColor} p-6 shadow-sm hover:shadow-md transition-shadow`}>
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                        {/* Header */}
                         <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center space-x-3">
-                            <div className={`p-2 rounded-lg ${event.bgColor} border ${event.borderColor}`}>
-                              <IconComponent className={`h-5 w-5 ${event.iconColor}`} />
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <Badge className={`${getEventTypeColor(event.type)} font-medium text-xs`}>
+                                {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
+                              </Badge>
+                              <Badge className={`${getSeverityColor(event.severity)} font-medium text-xs`}>
+                                {getSeverityLabel(event.severity)}
+                              </Badge>
                             </div>
-                            <div>
-                              <h3 className="font-semibold text-lg text-gray-900">{event.title}</h3>
-                              <p className="text-sm text-gray-600">{event.description}</p>
-                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">{event.title}</h3>
+                            <p className="text-sm text-gray-600">{event.description}</p>
                           </div>
-                          <div className="flex space-x-2">
-                            <Badge className={getEventTypeColor(event.type)}>
-                              {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
-                            </Badge>
-                            <Badge className={getSeverityColor(event.severity)}>
-                              Severity {event.severity} - {getSeverityLabel(event.severity)}
-                            </Badge>
+                          
+                          {/* Date/Time */}
+                          <div className="text-right ml-4 flex-shrink-0">
+                            <div className="flex items-center space-x-1 text-xs text-gray-500 mb-1">
+                              <Calendar className="h-3 w-3" />
+                              <span>{dateTime.weekday}</span>
+                            </div>
+                            <div className="text-sm font-medium text-gray-900">{dateTime.date}</div>
+                            <div className="text-xs text-gray-500">{dateTime.time}</div>
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                          <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <User className="h-4 w-4" />
+                        {/* Details */}
+                        <div className="bg-gray-50 rounded-md p-4 mb-4">
+                          <p className="text-sm text-gray-700 leading-relaxed">{event.details}</p>
+                        </div>
+                        
+                        {/* Metadata Grid */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                          <div className="flex items-center space-x-2">
+                            <User className="h-4 w-4 text-gray-400" />
                             <div>
-                              <span className="font-medium">{event.author}</span>
-                              <div className="text-xs text-gray-500">{event.authorRole}</div>
+                              <div className="text-xs text-gray-500">Reporter</div>
+                              <div className="text-sm font-medium text-gray-900">{event.author}</div>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <Calendar className="h-4 w-4" />
+                          <div className="flex items-center space-x-2">
+                            <Building className="h-4 w-4 text-gray-400" />
                             <div>
-                              <span className="font-medium">{event.date}</span>
-                              <div className="text-xs text-gray-500">{event.time}</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <Building className="h-4 w-4" />
-                            <div>
-                              <span className="font-medium">{event.domain}</span>
                               <div className="text-xs text-gray-500">Domain</div>
+                              <div className="text-sm font-medium text-gray-900">{event.domain}</div>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <Layers className="h-4 w-4" />
+                          <div className="flex items-center space-x-2">
+                            <Layers className="h-4 w-4 text-gray-400" />
                             <div>
-                              <span className="font-medium">{event.tenancy}</span>
-                              <div className="text-xs text-gray-500">Tenancy</div>
+                              <div className="text-xs text-gray-500">Environment</div>
+                              <div className="text-sm font-medium text-gray-900">{event.tenancy}</div>
                             </div>
                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <Server className="h-4 w-4" />
+                          <div className="flex items-center space-x-2">
+                            <Server className="h-4 w-4 text-gray-400" />
                             <div>
-                              <span className="font-medium">{event.system}</span>
-                              <div className="text-xs text-gray-500">{event.systemType}</div>
+                              <div className="text-xs text-gray-500">System</div>
+                              <div className="text-sm font-medium text-gray-900">{event.system}</div>
                             </div>
                           </div>
                         </div>
                         
-                        <div className="space-y-3">
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-1">Details</h4>
-                            <p className="text-sm text-gray-600 leading-relaxed">{event.details}</p>
+                        {/* Impact */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                          <div className="flex items-center space-x-2">
+                            <ArrowRight className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-900">Impact:</span>
+                            <span className="text-sm text-blue-800">{event.impact}</span>
                           </div>
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-1">Impact</h4>
-                            <p className="text-sm text-gray-600">{event.impact}</p>
+                        </div>
+                        
+                        {/* Footer */}
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                          <div className="text-xs text-gray-500">
+                            <span className="font-medium">{event.authorRole}</span>
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            {event.systemType}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
