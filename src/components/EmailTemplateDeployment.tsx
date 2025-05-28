@@ -75,34 +75,62 @@ export const EmailTemplateDeployment = ({ event }: EmailTemplateDeploymentProps)
             background-color: #ffffff;
         }
         .header {
-            background: linear-gradient(to right, #fbbf24, #f59e0b, #d97706);
-            padding: 32px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
+            padding: 24px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+        @keyframes slide {
+            0% { transform: translateX(-100px) translateY(-100px); }
+            100% { transform: translateX(100px) translateY(100px); }
         }
         .header h1 {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: bold;
             color: #000000;
-            margin: 0 0 12px 0;
+            margin: 0 0 8px 0;
+            position: relative;
+            z-index: 1;
         }
         .header-card {
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: rgba(255, 255, 255, 0.98);
             border-radius: 16px;
-            padding: 24px;
+            padding: 20px;
             display: inline-block;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
         }
         .update-icon {
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(to right, #faf5ff, #eff6ff);
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             border-radius: 50%;
             display: inline-block;
-            margin-right: 12px;
+            margin-right: 8px;
             vertical-align: middle;
+            box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3);
         }
         .header-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #111827;
             margin: 0;
@@ -110,179 +138,165 @@ export const EmailTemplateDeployment = ({ event }: EmailTemplateDeploymentProps)
             vertical-align: middle;
         }
         .header-subtitle {
-            font-size: 14px;
+            font-size: 12px;
             color: #6b7280;
-            margin: 4px 0 16px 0;
-        }
-        .header-buttons {
-            margin-top: 16px;
-        }
-        .header-button {
-            background-color: #dbeafe;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin: 0 8px;
-            text-decoration: none;
-            color: #1e40af;
-            display: inline-block;
+            margin: 4px 0 12px 0;
         }
         .content {
-            padding: 32px;
+            padding: 20px;
         }
         .release-banner {
             border: 2px solid;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 16px;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
             display: table;
             width: 100%;
             box-sizing: border-box;
+            background: linear-gradient(135deg, ${getImpactColor(event.impact)}, rgba(255,255,255,0.8));
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         .release-content {
             display: table-cell;
             vertical-align: middle;
         }
         .release-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             margin: 0 0 4px 0;
         }
         .release-desc {
             font-size: 14px;
             margin: 0;
-            opacity: 0.8;
+            opacity: 0.9;
         }
         .badge {
-            background-color: #8b5cf6;
+            background: linear-gradient(135deg, ${getStatusColor(event.status)}, rgba(0,0,0,0.1));
             color: white;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
             font-weight: 600;
             float: right;
-            margin-top: 8px;
+            margin-top: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .details-grid {
-            display: table;
-            width: 100%;
-            margin-bottom: 32px;
+        .compact-details {
+            background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
         }
-        .details-row {
-            display: table-row;
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
         }
-        .details-cell {
-            display: table-cell;
-            width: 50%;
-            vertical-align: top;
-            padding: 0 8px 16px 0;
+        .detail-row:last-child {
+            border-bottom: none;
         }
-        .detail-box {
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        .detail-box-purple {
-            background: linear-gradient(to right, #faf5ff, #eff6ff);
-            border: 1px solid #e9d5ff;
-        }
-        .detail-box-gray {
-            background-color: #f9fafb;
-        }
-        .detail-header {
+        .detail-label {
             font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-            font-size: 14px;
+            color: #581c87;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
         }
         .detail-value {
             color: #111827;
             font-weight: 500;
-            margin: 0;
+            font-size: 13px;
+            text-align: right;
+            max-width: 60%;
         }
-        .whats-new-box {
-            background: linear-gradient(to right, #f0fdf4, #eff6ff);
-            border: 1px solid #10b981;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 32px;
+        .whats-new-card {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid #22c55e;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .whats-new-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
         }
         .whats-new-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
             color: #047857;
-            margin: 0 0 16px 0;
+            margin: 0 0 8px 0;
         }
         .whats-new-desc {
             color: #047857;
-            margin: 0 0 16px 0;
-            line-height: 1.7;
-        }
-        .features-grid {
-            display: table;
-            width: 100%;
-        }
-        .features-row {
-            display: table-row;
-        }
-        .features-cell {
-            display: table-cell;
-            width: 50%;
-            vertical-align: top;
-            padding: 0 8px 16px 0;
-        }
-        .feature-box {
-            background-color: white;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        .feature-header {
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
+            margin: 0 0 12px 0;
+            line-height: 1.6;
             font-size: 14px;
         }
-        .feature-desc {
-            font-size: 12px;
-            color: #6b7280;
-            margin: 0;
+        .features-compact {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
         }
-        .systems-box {
-            background-color: #eff6ff;
-            border: 1px solid #bfdbfe;
+        .feature-tag {
+            background: linear-gradient(135deg, #ffffff, #f0fdf4);
+            border: 1px solid #bbf7d0;
             border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 32px;
+            padding: 8px 12px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #047857;
+        }
+        .systems-card {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #60a5fa;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
         .systems-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #1e3a8a;
             margin: 0 0 12px 0;
         }
         .system-badge {
-            background-color: white;
+            background: linear-gradient(135deg, #ffffff, #dbeafe);
             border: 1px solid #93c5fd;
             color: #1e40af;
             padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            margin: 4px 8px 4px 0;
+            border-radius: 20px;
+            font-size: 11px;
+            margin: 4px 6px 4px 0;
             display: inline-block;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .contact-box {
-            background-color: #f9fafb;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 32px;
+        .contact-card {
+            background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
         .contact-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: #111827;
-            margin: 0 0 12px 0;
+            margin: 0 0 8px 0;
+        }
+        .contact-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .contact-name {
             font-weight: 500;
@@ -290,123 +304,150 @@ export const EmailTemplateDeployment = ({ event }: EmailTemplateDeploymentProps)
         }
         .contact-source {
             color: #6b7280;
-            margin-left: 8px;
+            font-size: 12px;
+            background-color: #e5e7eb;
+            padding: 2px 8px;
+            border-radius: 12px;
         }
-        .action-button {
+        .action-section {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
         }
         .action-link {
-            background: linear-gradient(to right, #8b5cf6, #3b82f6);
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             color: white;
-            padding: 12px 32px;
-            border-radius: 12px;
+            padding: 12px 24px;
+            border-radius: 25px;
             font-weight: 600;
             text-decoration: none;
             display: inline-block;
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.4);
+            transition: all 0.3s ease;
+        }
+        .history-toggle {
+            background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            overflow: hidden;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .history-box {
-            background-color: #f9fafb;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 32px;
+        .history-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #7c3aed, #581c87);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .history-title {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
-            color: #111827;
-            margin: 0 0 24px 0;
+            margin: 0;
+        }
+        .toggle-icon {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        .history-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0;
         }
         .history-item {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #ffffff, #f9fafb);
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 20px;
         }
-        .history-header {
-            display: table;
-            width: 100%;
-            margin-bottom: 12px;
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
         .history-badges {
-            display: table-cell;
-            vertical-align: middle;
-        }
-        .history-date {
-            display: table-cell;
-            text-align: right;
-            vertical-align: middle;
-            font-size: 12px;
-            color: #6b7280;
+            display: flex;
+            gap: 6px;
         }
         .history-badge {
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
             font-weight: 600;
-            margin-right: 8px;
-            display: inline-block;
+        }
+        .history-date {
+            font-size: 11px;
+            color: #6b7280;
         }
         .history-desc {
             color: #374151;
-            margin: 0 0 12px 0;
-            line-height: 1.7;
+            margin: 0 0 8px 0;
+            line-height: 1.5;
+            font-size: 13px;
         }
-        .history-meta {
-            font-size: 12px;
+        .history-author {
+            font-size: 11px;
             color: #6b7280;
         }
         .footer {
             text-align: center;
             color: #6b7280;
-            font-size: 14px;
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            margin-top: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+            border-radius: 16px;
         }
-        .footer-status {
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
             margin-bottom: 8px;
         }
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background-color: #10b981;
             border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
+            margin-right: 6px;
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+        .view-more {
+            text-align: center;
+            padding: 12px;
+            background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+            color: #7c3aed;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            border-top: 1px solid #e9d5ff;
         }
         @media only screen and (max-width: 600px) {
-            .details-grid, .details-row, .details-cell {
-                display: block;
-                width: 100%;
-            }
-            .details-cell {
-                padding: 0 0 16px 0;
-            }
-            .features-grid, .features-row, .features-cell {
-                display: block;
-                width: 100%;
-            }
-            .features-cell {
-                padding: 0 0 16px 0;
-            }
-            .history-header, .history-badges, .history-date {
-                display: block;
-                text-align: left;
-            }
-            .history-date {
-                margin-top: 8px;
-            }
+            .container { margin: 0 10px; }
+            .content { padding: 16px; }
+            .detail-row { flex-direction: column; align-items: flex-start; }
+            .detail-value { max-width: 100%; text-align: left; margin-top: 4px; }
+            .contact-info { flex-direction: column; align-items: flex-start; }
+            .contact-source { margin-left: 0; margin-top: 4px; }
+            .features-compact { grid-template-columns: 1fr; }
         }
     </style>
+    <script>
+        function toggleHistory() {
+            const content = document.getElementById('historyContent');
+            const icon = document.getElementById('toggleIcon');
+            const isHidden = content.style.display === 'none';
+            
+            content.style.display = isHidden ? 'block' : 'none';
+            icon.textContent = isHidden ? '▼' : '▶';
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -418,85 +459,57 @@ export const EmailTemplateDeployment = ({ event }: EmailTemplateDeploymentProps)
                     <span class="update-icon">✨</span>
                     <h2 class="header-title">SOFTWARE UPDATE</h2>
                 </div>
-                <p class="header-subtitle">Enhancement Notification</p>
-                <div class="header-buttons">
-                    <a href="#" class="header-button">📊 Dashboard</a>
-                    <a href="#" class="header-button">📅 Events Calendar</a>
-                </div>
+                <p class="header-subtitle">Enhancement Deployment</p>
             </div>
         </div>
 
         <!-- Content -->
         <div class="content">
             <!-- Release Banner -->
-            <div class="release-banner" style="background-color: ${getImpactColor(event.impact)}; border-color: ${getImpactBorderColor(event.impact)}; color: ${getImpactTextColor(event.impact)};">
+            <div class="release-banner" style="background: linear-gradient(135deg, ${getImpactColor(event.impact)}, rgba(255,255,255,0.8)); border-color: ${getImpactBorderColor(event.impact)}; color: ${getImpactTextColor(event.impact)};">
                 <div class="release-content">
                     <h3 class="release-title">${event.impact} Release Update</h3>
                     <p class="release-desc">${event.title}</p>
                 </div>
-                <div class="badge" style="background-color: ${getStatusColor(event.status)};">${event.status}</div>
+                <div class="badge" style="background: linear-gradient(135deg, ${getStatusColor(event.status)}, rgba(0,0,0,0.1));">${event.status}</div>
             </div>
 
-            <!-- Deployment Details Grid -->
-            <div class="details-grid">
-                <div class="details-row">
-                    <div class="details-cell">
-                        <div class="detail-box detail-box-purple">
-                            <div class="detail-header">🔀 Release Type</div>
-                            <p class="detail-value">Software Deployment</p>
-                        </div>
-                        <div class="detail-box detail-box-gray">
-                            <div class="detail-header">📦 Application</div>
-                            <p class="detail-value">${event.application || event.systemsAffected?.[0] || "Multiple Systems"}</p>
-                        </div>
-                    </div>
-                    <div class="details-cell">
-                        <div class="detail-box detail-box-gray">
-                            <div class="detail-header">📅 Deployment Start</div>
-                            <p class="detail-value">${formatDate(event.fromTimestamp)}</p>
-                        </div>
-                        <div class="detail-box detail-box-gray">
-                            <div class="detail-header">⏰ Expected Completion</div>
-                            <p class="detail-value">${formatDate(event.toTimestamp)}</p>
-                        </div>
-                    </div>
+            <!-- Compact Details -->
+            <div class="compact-details">
+                <div class="detail-row">
+                    <div class="detail-label">🚀 Release Type</div>
+                    <div class="detail-value">Software Deployment</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">📦 Application</div>
+                    <div class="detail-value">${event.application || event.systemsAffected?.[0] || "Multiple Systems"}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">📅 Deployment Start</div>
+                    <div class="detail-value">${formatDate(event.fromTimestamp)}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">⏰ Expected Completion</div>
+                    <div class="detail-value">${formatDate(event.toTimestamp)}</div>
                 </div>
             </div>
 
             <!-- What's New -->
-            <div class="whats-new-box">
+            <div class="whats-new-card">
                 <h3 class="whats-new-title">✨ What's New & Improved?</h3>
                 <p class="whats-new-desc">${event.description}</p>
-                <div class="features-grid">
-                    <div class="features-row">
-                        <div class="features-cell">
-                            <div class="feature-box">
-                                <div class="feature-header">✅ Performance</div>
-                                <p class="feature-desc">Enhanced speed and optimization</p>
-                            </div>
-                            <div class="feature-box">
-                                <div class="feature-header">✅ Features</div>
-                                <p class="feature-desc">New user experience improvements</p>
-                            </div>
-                        </div>
-                        <div class="features-cell">
-                            <div class="feature-box">
-                                <div class="feature-header">✅ Security</div>
-                                <p class="feature-desc">Latest security measures implemented</p>
-                            </div>
-                            <div class="feature-box">
-                                <div class="feature-header">✅ Stability</div>
-                                <p class="feature-desc">Bug fixes and reliability updates</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="features-compact">
+                    <div class="feature-tag">⚡ Performance</div>
+                    <div class="feature-tag">🔒 Security</div>
+                    <div class="feature-tag">🎨 Features</div>
+                    <div class="feature-tag">🛠️ Stability</div>
                 </div>
             </div>
 
             <!-- Systems Affected -->
             ${event.systemsAffected?.length > 0 ? `
-            <div class="systems-box">
-                <h3 class="systems-title">Systems Being Updated</h3>
+            <div class="systems-card">
+                <h3 class="systems-title">🖥️ Systems Being Updated</h3>
                 <div>
                     ${event.systemsAffected.map((system: string) => `<span class="system-badge">🔧 ${system}</span>`).join('')}
                 </div>
@@ -504,46 +517,54 @@ export const EmailTemplateDeployment = ({ event }: EmailTemplateDeploymentProps)
             ` : ''}
 
             <!-- Contact Information -->
-            <div class="contact-box">
+            <div class="contact-card">
                 <h3 class="contact-title">👤 Deployment Lead</h3>
-                <p>
+                <div class="contact-info">
                     <span class="contact-name">${event.createdBy}</span>
-                    <span class="contact-source">(${event.createdBySource === "Manual" ? "DevOps Team" : "Automated Deployment"})</span>
-                </p>
+                    <span class="contact-source">${event.createdBySource === "Manual" ? "DevOps Team" : "Auto Deploy"}</span>
+                </div>
             </div>
 
             <!-- Action Button -->
-            <div class="action-button">
+            <div class="action-section">
                 <a href="#" class="action-link">🚀 View Deployment Details</a>
             </div>
 
-            <!-- Deployment History -->
-            <div class="history-box">
-                <h3 class="history-title">🔀 Deployment Timeline (Latest First)</h3>
-                ${event.statusHistory?.slice().reverse().map((history: any) => `
-                <div class="history-item">
-                    <div class="history-header">
-                        <div class="history-badges">
-                            <span class="history-badge" style="background-color: ${getStatusColor(history.status)}; color: white;">${history.status}</span>
-                            <span class="history-badge" style="background-color: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff;">${history.historyType}</span>
-                        </div>
-                        <div class="history-date">📅 ${formatDate(history.createdTimestamp)}</div>
-                    </div>
-                    <p class="history-desc">${history.description}</p>
-                    <div class="history-meta">
-                        👤 <strong>${history.createdBy}</strong> • ${history.createdBySource}
-                    </div>
+            <!-- Collapsible Deployment History -->
+            <div class="history-toggle">
+                <div class="history-header" onclick="toggleHistory()">
+                    <h3 class="history-title">🔄 Deployment Timeline (${event.statusHistory?.length || 0} updates)</h3>
+                    <span class="toggle-icon" id="toggleIcon">▶</span>
                 </div>
-                `).join('')}
+                <div id="historyContent" class="history-content" style="display: none;">
+                    ${event.statusHistory?.slice().reverse().slice(0, 3).map((history: any) => `
+                    <div class="history-item">
+                        <div class="history-meta">
+                            <div class="history-badges">
+                                <span class="history-badge" style="background-color: ${getStatusColor(history.status)}; color: white;">${history.status}</span>
+                                <span class="history-badge" style="background-color: #faf5ff; color: #7c3aed;">${history.historyType}</span>
+                            </div>
+                            <div class="history-date">${formatDate(history.createdTimestamp)}</div>
+                        </div>
+                        <p class="history-desc">${history.description}</p>
+                        <div class="history-author">👤 ${history.createdBy} • ${history.createdBySource}</div>
+                    </div>
+                    `).join('')}
+                    ${event.statusHistory?.length > 3 ? `
+                    <div class="view-more">
+                        📋 View ${event.statusHistory.length - 3} more updates in dashboard
+                    </div>
+                    ` : ''}
+                </div>
             </div>
 
             <!-- Footer -->
             <div class="footer">
-                <div class="footer-status">
+                <div class="status-indicator">
                     <span class="status-dot"></span>
-                    <strong>Automated notification from JB HI-FI System Status Dashboard</strong>
+                    <strong>Live from JB HI-FI System Dashboard</strong>
                 </div>
-                <p>For real-time updates and detailed release notes, visit our dashboard</p>
+                <p>🔄 Real-time updates • 📊 Dashboard • 📅 Events Calendar</p>
             </div>
         </div>
     </div>
